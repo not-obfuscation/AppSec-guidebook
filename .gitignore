@@ -1,0 +1,19 @@
+# Окружения и загружаемые бинарники: восстанавливаются `tools/setup.sh`,
+# в истории им не место.
+.venv-tools/
+.venv-site/
+pilot/.venv/
+tools/bin/
+tools/node/node_modules/
+tools/node/pnpm-lock.yaml
+
+# Артефакты сборки сайта.
+site/
+build/
+.cache/
+
+# Состояние супервизора: журнал миссий, а не содержимое проекта.
+.smgr/
+
+__pycache__/
+*.pyc
