@@ -263,12 +263,22 @@ def material_end(doc) -> int:
 
 
 def first_hits(pages, regexes, field="prose", material_only=False):
-    """id темы → id термина → смещение первого вхождения."""
+    """id темы → id термина → смещение первого вхождения.
+
+    При `material_only` берётся материал страницы своими словами: блоки 0–12 без
+    цитат и заглавий в «ёлочках». Причина та же, что у `canon_scope`, и записана
+    у `QUOTED_RE`: в чужих словах своего написания нет и править их нельзя. Тема
+    `app-architecture` ссылается на MDN «CORS errors» и приводит текст ошибки
+    браузера «Multiple CORS header … not allowed», а сама аббревиатуру `CORS`
+    нигде не употребляет — раскрывать в заглавии источника нечего, и до этой
+    оговорки правило требовало невозможного (находка Ф-33, 2026-08-23).
+    """
     hits = {}
     for path, doc, front in pages:
         text = getattr(doc, field)
         if material_only:
-            text = text[:material_end(doc)]
+            text = QUOTED_RE.sub(lambda m: blank(m.group(0)),
+                                 text[:material_end(doc)])
         page = {}
         for tid, rx in regexes.items():
             m = rx.search(text)

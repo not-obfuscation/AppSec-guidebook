@@ -357,6 +357,54 @@ sources:
       это перечень точек входа в машиночитаемом виде. URL `latest`
       преднамеренно нефиксированный — версию сверять при использовании.
 
+  - id: openapi-311
+    url: https://spec.openapis.org/oas/v3.1.1.html
+    title: OpenAPI Specification v3.1.1
+    type: spec
+    level: 1
+    publisher: OpenAPI Initiative (Linux Foundation)
+    version_or_date: v3.1.1, 24 октября 2024
+    volatility: stable
+    license: Apache License 2.0
+    checked: 2026-08-23
+    status: ok
+    notes: >
+      Вторая сторона сравнения версий в теме 0.11: 3.1.1 говорит «There are
+      four possible parameter locations specified by the in field» и
+      перечисляет path, query, header, cookie — слово querystring в тексте
+      издания не встречается ни разу (проверено grep по снятой разметке,
+      2026-08-23). Нужна именно эта запись, а не `openapi-spec`: та ведёт на
+      `latest.html` и показывает уже 3.2.0, где мест пять. Адрес с номером
+      версии фиксированный и от выпуска новых версий не меняется.
+
+  - id: graphql-spec
+    url: https://spec.graphql.org/September2025/
+    title: GraphQL — September 2025 Edition
+    type: spec
+    level: 1
+    publisher: GraphQL Specification Project (Joint Development Foundation),
+      GraphQL Foundation
+    version_or_date: September 2025 Edition (выпуск от 3 сентября 2025)
+    volatility: medium
+    license: Open Web Foundation Agreement 1.0 (Patent and Copyright Grants);
+      исходный код — MIT, наборы данных — CC0 1.0
+    checked: 2026-08-23
+    status: ok
+    notes: >
+      Нормативный документ GraphQL: то, чего у темы 0.11 не было, когда она
+      писала «спецификация обязывает». Что берём: § 4.1 — интроспекция имени
+      типа доступна в любом наборе выборки, с единственным исключением выборок
+      в корне операции подписки, через мета-поле `__typename: String!` на
+      любом объектном, интерфейсном или объединяющем типе; § 4.2 — мета-поля
+      `__schema` и `__type` доступны от типа корня операции чтения; врезка
+      Reserved Names в разделе 4 — имена в системе типов не начинаются с двух
+      подчёркиваний, они зарезервированы за интроспекцией (нумерованного
+      подраздела у этой врезки нет, потому и названа врезкой). Издание сентября 2025 — текущее по
+      списку на spec.graphql.org (проверено 2026-08-23); формулировки § 4.1 и
+      § 4.2 дословно совпадают с изданием October 2021, на которое ссылались
+      раньше. Канонический адрес отдаёт штатному фетчеру 403, открывается
+      curl'ом с браузерным User-Agent.
+
   - id: graphql-learn
     url: https://graphql.org/learn/
     title: Learn GraphQL
@@ -447,7 +495,7 @@ sources:
     version_or_date: WSTG v4.2; даты обновления страницы нет
     volatility: stable
     license: CC BY-SA 4.0
-    checked: 2026-08-20
+    checked: 2026-08-23
     status: ok
     notes: >
       Перечисление поддерживаемых методов через OPTIONS и nmap http-methods,
@@ -455,7 +503,12 @@ sources:
       X-HTTP-Method-Override, X-HTTP-Method и X-Method-Override. Есть раздел
       Remediation. Добавлен аудитом к теме 0.01: RFC 9110 даёт семантику
       методов, но не даёт ни «как выглядит», ни «как чинится», ни «как
-      проверить».
+      проверить». Открыта заново 2026-08-23 (код 200, 21 760 байт) ради ссылки
+      из темы cookies: раздел «Testing for Cross-Site Tracing Potential» ставит
+      условие дословно — «This attack can be pulled in recent browsers only if
+      the application integrates with technologies similar to Flash». Заголовок
+      раздела пишется через дефис («Cross-Site»), в отличие от фразы «cross-site
+      tracing (XST)» в тексте страницы.
 
   - id: unicode-uts39-security-mechanisms
     url: https://www.unicode.org/reports/tr39/

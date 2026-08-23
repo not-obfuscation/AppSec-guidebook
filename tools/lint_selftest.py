@@ -26,6 +26,7 @@
 
 import argparse
 import copy
+import re
 import shutil
 import sys
 import tempfile
@@ -381,6 +382,14 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
     """(имя, правило, режим, найденное) — контентная модель на мутациях темы."""
     ctx = vc.Ctx()
     base = BASE_PAGE.read_text(encoding="utf-8")
+    # Дата ревизии берётся из самой темы, а не пишется здесь числом: тему
+    # перечитывают, дата съезжает, и пять мутаций про `reviewed` перестают
+    # применяться молча — самопроверка при этом печатает не «правило сломано», а
+    # «МУТАЦИЯ-НЕ-ПРИМЕНИЛАСЬ» (замер 2026-08-23: ровно так и вышло после
+    # правки шапки темы).
+    seen = re.search(r"(?m)^reviewed: (\d{4}-\d\d-\d\d)$", base)
+    assert seen, f"{BASE_PAGE}: нет поля reviewed — мутации не построить"
+    REV = seen.group(1)
     # Каталог этапа сохраняется: иначе C-FM-STAGE-DIR сработает на каждой
     # фикстуре и утонет в выводе всё остальное.
     home = tmp / "model" / ctx.stages["web-vulns"]["dir"]
@@ -402,6 +411,19 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
     def sub(old_text: str, new_text: str, count: int = -1) -> list:
         return one(base.replace(old_text, new_text)
                    if count < 0 else base.replace(old_text, new_text, count))
+
+    def sub_re(pattern: str, repl: str) -> list:
+        """Мутация по выражению — там, где в тексте темы стоит невидимый знак.
+
+        Между числом и единицей в шапке живёт неразрывный пробел (6.4, правило
+        `L-NBSP`), и написанный здесь литерал «время 90 мин» с обычным пробелом
+        перестаёт применяться молча: самопроверка печатает не «правило
+        сломано», а «МУТАЦИЯ-НЕ-ПРИМЕНИЛАСЬ» (замер 2026-08-23: ровно так и
+        вышло после механического прохода по неразрывным пробелам). Тот же
+        приём, что с датой ревизии в `REV`: признак берётся из темы, а не
+        переписывается здесь руками.
+        """
+        return one(re.sub(pattern, repl, base))
 
     def cut(start: str, stop: str) -> list:
         """Убрать кусок текста от одного маркера до другого."""
@@ -466,9 +488,9 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         ("поля не в порядке схемы", "C-FM-SEQ", CATCH,
          sub("status: draft\ndepth: L1", "depth: L1\nstatus: draft")),
         ("условные поля на своём месте", "C-FM-SEQ", SILENT,
-         sub("reviewed: 2026-08-22\nreview_interval",
-             "derived_from: [python-hashlib]\nupdated: 2026-08-22\n"
-             "reviewed: 2026-08-22\nreview_interval", 1),
+         sub(f"reviewed: {REV}\nreview_interval",
+             f"derived_from: [python-hashlib]\nupdated: {REV}\n"
+             f"reviewed: {REV}\nreview_interval", 1),
          "`derived_from` и `updated` — условные поля 9.3 и 9.6 п. 19"),
         ("не тот тип значения", "C-FM-TYPE", CATCH,
          sub("time_min: 90", "time_min: девяносто")),
@@ -491,15 +513,15 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         ("источник не в реестре", "C-REF-SOURCE", CATCH,
          sub("sources: [owasp-cs-password-storage", "sources: [нет-такого")),
         ("derived_from вне реестра", "C-REF-SOURCE", CATCH,
-         sub("reviewed: 2026-08-22\nreview_interval",
-             "derived_from: [нет-такого]\nreviewed: 2026-08-22\nreview_interval", 1)),
+         sub(f"reviewed: {REV}\nreview_interval",
+             f"derived_from: [нет-такого]\nreviewed: {REV}\nreview_interval", 1)),
         ("лаба не в реестре", "C-REF-LAB", CATCH,
          sub("labs: [lab-password-storage]", "labs: [lab-нет-такой]")),
         ("reviewed в будущем", "C-FM-DATE", CATCH,
-         sub("reviewed: 2026-08-22\nreview_interval",
+         sub(f"reviewed: {REV}\nreview_interval",
              "reviewed: 2027-01-01\nreview_interval", 1)),
         ("reviewed в будущем", "C-FM-DATE", CATCH,
-         sub("reviewed: 2026-08-22\nreview_interval",
+         sub(f"reviewed: {REV}\nreview_interval",
              "reviewed: 2027-01-01\nreview_interval", 1)),
         ("title длиннее 60 символов", "C-FM-TITLE-LEN", CATCH,
          sub("title: 'Хранение паролей: bcrypt, argon2, почему не SHA'\n"
@@ -519,7 +541,7 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
              "wstg-v42-cryp-04-weak-encryption, rfc9106-argon2, python-hashlib, "
              "node-crypto]", "sources: [python-hashlib]")),
         ("ревизия просрочена", "C-FM-REVIEW", CATCH,
-         sub("reviewed: 2026-08-22\nreview_interval: 24",
+         sub(f"reviewed: {REV}\nreview_interval: 24",
              "reviewed: 2020-01-01\nreview_interval: 24", 1)),
 
         # --- шапка -----------------------------------------------------------
@@ -530,13 +552,15 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         ("уровень в шапке другой", "C-HEAD-DEPTH", CATCH,
          sub("уровень **L1**", "уровень **L2**")),
         ("время в шапке другое", "C-HEAD-TIME", CATCH,
-         sub("время 90 мин", "время 95 мин")),
+         sub_re(r"время 90(\s)мин", r"время 95\1мин")),
         ("слагаемые времени не дают суммы", "C-HEAD-TIME", CATCH,
          sub("(теория 40 / лаба 35", "(теория 40 / лаба 30")),
         ("reviewed в шапке другой", "C-HEAD-REVIEWED", CATCH,
-         sub("· reviewed: 2026-08-22 ·", "· reviewed: 2026-01-01 ·")),
+         sub(f"· reviewed: {REV} ·", "· reviewed: 2026-01-01 ·")),
         ("нет «проверено на:»", "C-HEAD-VERSIONS", CATCH,
          sub("· проверено на:", "· стек:")),
+        ("нет версии каталога CWE", "C-HEAD-VERSIONS", CATCH,
+         sub(", CWE 4.20\n", "\n", 1)),
         ("пререквизиты в шапке другие", "C-HEAD-PREREQ", CATCH,
          sub("пререквизиты: `app-architecture`, `sessions-vs-tokens`",
              "пререквизиты: `app-architecture`")),
@@ -564,6 +588,8 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
          sub("**Зачем это в работе AppSec-инженера.**", "**Зачем.**", 1)),
         ("нет маркеров уверенности", "C-BODY-TRUST", CATCH,
          sub("**Маркеры уверенности.**", "**Маркеры.**", 1)),
+        ("нет «откуда это взялось»", "C-BODY-ORIGIN", CATCH,
+         sub("**Откуда это взялось.**", "**Как до этого дошли.**", 1)),
         ("цель не про то же", "C-BODY-GOALS", CATCH,
          sub("  - Назвать, что даёт соль и чего она не даёт\n",
              "  - Совершенно посторонняя формулировка ни о чём\n")),
@@ -581,6 +607,11 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
          sub("`python-hashlib`", "`mdn-csp`")),
         ("каркас этапа не в sources", "C-BODY-SOURCES", SILENT, clean,
          "источники этапа названы прозой после сносок и в `sources` не дублируются"),
+        ("идентификатор в тексте не объявлен", "C-BODY-IDENT", CATCH,
+         sub("cwe: [CWE-916", "cwe: [CWE-917", 1)),
+        ("идентификатор объявлен и не напечатан", "C-BODY-IDENT", CATCH,
+         sub("wstg: ['WSTG-v42-CRYP-04']", "wstg: ['WSTG-v42-CRYP-04', "
+             "'WSTG-v42-CRYP-01']", 1)),
 
         # --- фикстуры особой формы -------------------------------------------
         # Каталог этапа проверяется положением файла, а не текстом: тема

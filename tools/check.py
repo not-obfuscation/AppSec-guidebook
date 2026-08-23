@@ -350,6 +350,25 @@ REPORTS = [
     ("stoplist", ["tools/stoplist.py"]),
 ]
 LINTERS = ["vale", "markdownlint", "glossary", "style", "model", "links", "volume"]
+# Кто чьи правила печатает. Нужно ровно для одного: не объявлять исключение
+# мёртвым, когда его линтер в этом прогоне не запускался. Префикса тут не
+# хватает: `S-` делят между собой `lint_style.py` и `linkcheck.py`, поэтому
+# правила ссылок перечислены поимённо, а остальное разбирается по началу имени.
+LINK_RULES = {"S-EXT-IN-BODY", "S-LINK-BARE", "S-LINK-TOPIC", "S-LINK-MD",
+              "S-LINK-SOURCE-URL", "S-LINK-EXT"}
+RULE_PREFIX = [("C-VOL-", "volume"), ("C-", "model"), ("G-", "glossary"),
+               ("L-", "vale"), ("AppSec.", "vale"), ("MD", "markdownlint"),
+               ("S-", "style")]
+
+
+def owner(rule: str) -> str | None:
+    """Линтер, печатающий это правило, или None, если правило незнакомое."""
+    if rule in LINK_RULES:
+        return "links"
+    for prefix, name in RULE_PREFIX:
+        if rule.startswith(prefix):
+            return name
+    return None
 ALL = [n for n, _ in REGISTRY] + LINTERS + [n for n, _ in REPORTS]
 
 
@@ -499,8 +518,22 @@ def main() -> int:
             print("\n".join(wrap(reason, 72, "      ")))
         print()
     # Когда линтер не отработал, про его исключения ничего не известно:
-    # молчание правила и отсутствие правила снаружи выглядят одинаково.
-    stale = [] if broken else [e for e in excs if not e["hits"]]
+    # молчание правила и отсутствие правила снаружи выглядят одинаково. То же
+    # с линтером, который не запускали: `make links` ничего не знает про
+    # исключения Vale, а `make check` — про `S-LINK-EXT`, потому что внешние
+    # адреса проверяются только с `--external`. Молча пропустить такую запись
+    # правильнее, чем звать её мёртвой: обвинение на пустом месте учит автора
+    # не верить выводу.
+    ran = {r.name for r in results if r.kind == "lint" and r.ok}
+    def alive_here(e: dict) -> bool:
+        who = owner(e["rule"])
+        if who is None:                 # незнакомое правило — сказать всё равно
+            return True
+        if who not in ran:
+            return False
+        return args.external if e["rule"] == "S-LINK-EXT" else True
+    stale = [] if broken else [e for e in excs
+                               if not e["hits"] and alive_here(e)]
     if stale:
         print(f"исключения без срабатываний ({len(stale)}) — правило или текст изменились")
         for e in stale:

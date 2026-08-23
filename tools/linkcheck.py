@@ -13,7 +13,9 @@
 * `S-LINK-SOURCE-URL`(warning) адрес в сноске расходится с `url` реестровой
                                записи, названной в той же сноске;
 * `S-LINK-EXT`       (warning) внешний адрес не открывается — 9.4 относит битую
-                               внешнюю ссылку к предупреждениям.
+                               внешнюю ссылку к предупреждениям. Отказ вида 403,
+                               429 или 503 перепроверяется `curl`: за ним обычно
+                               стоит антибот-щит, а не битая ссылка.
 
 Проверка адресов ходит в сеть и потому включается флагом `--external`. Причина
 не в скорости: красный вердикт `make check` должен означать «текст сломан», а не
@@ -34,6 +36,8 @@ import argparse
 import concurrent.futures as cf
 import json
 import re
+import shutil
+import subprocess
 import sys
 import unicodedata
 import urllib.error
@@ -77,8 +81,13 @@ ID_SHAPE_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
 # Нумерованная сноска блока 14 начинается с «N. » в начале строки.
 FOOTNOTE_RE = re.compile(r"^(\d+)\.[ \t]", re.M)
 
+# Версия в строке — не украшение: антибот-щиты отбивают устаревшие браузеры.
+# Замер 2026-08-23: `https://www.w3.org/TR/CSP3/` отвечает 403 на `Chrome/126.0`
+# и 200 на `Chrome/152.0.0.0` — тем же запросом, с той же машины, в ту же минуту.
+# Отсюда правило: подновлять версию, когда проверка начнёт получать 403 от
+# хостов, открывающихся в браузере.
 UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-      "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
+      "(KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36")
 
 
 class Finding:
@@ -377,13 +386,51 @@ def probe(url: str, timeout: float, tries: int = 2) -> str:
     return last
 
 
+def probe_curl(url: str, timeout: float) -> str:
+    """То же, но чужими руками: пустая строка — открылся, иначе описание отказа.
+
+    Нужно из-за хостов за антибот-щитом. `www.w3.org` отдаёт `urllib` код 403 и
+    страницу «Just a moment…», а `curl` с тем же `User-Agent` — 200: различает
+    их не адрес и не заголовок, а отпечаток клиента, то есть набор шифров TLS и
+    порядок полей HTTP/2. Читатель ходит браузером, чей отпечаток похож на
+    curl'овский, поэтому ссылка живая, и объявлять её битой — врать про текст.
+    """
+    curl = shutil.which("curl")
+    if not curl:
+        return "curl не найден"
+    try:
+        done = subprocess.run(
+            [curl, "-sS", "-L", "--compressed", "-A", UA,
+             "--max-time", str(int(timeout)), "-o", "/dev/null",
+             "-w", "%{http_code}", url],
+            capture_output=True, text=True, timeout=timeout + 5)
+    except subprocess.TimeoutExpired:
+        return "curl: таймаут"
+    code = (done.stdout or "").strip()
+    if code.isdigit() and 200 <= int(code) < 400:
+        return ""
+    return f"curl: код {code}" if code.isdigit() else "curl: нет ответа"
+
+
 def check_external(occurrences, timeout: float, workers: int) -> list[Finding]:
-    """Один запрос на адрес, сколько бы тем на него ни ссылалось."""
+    """Один запрос на адрес, сколько бы тем на него ни ссылалось.
+
+    Отказ, похожий на работу антибот-щита (403, 429, 503), перепроверяется
+    `curl`: см. `probe_curl`. Второй запрос уходит только на такие адреса, и
+    их единицы, так что прогон от этого не удлиняется.
+    """
+    SHIELD = ("код 403", "код 429", "код 503")
     urls = sorted({url for _p, _l, _c, url in occurrences})
     verdicts: dict[str, str] = {}
     with cf.ThreadPoolExecutor(max_workers=workers) as pool:
         for url, why in zip(urls, pool.map(lambda u: probe(u, timeout), urls)):
             verdicts[url] = why
+    shielded = sorted(u for u, why in verdicts.items() if why in SHIELD)
+    if shielded:
+        with cf.ThreadPoolExecutor(max_workers=workers) as pool:
+            for url, why in zip(shielded,
+                                pool.map(lambda u: probe_curl(u, timeout), shielded)):
+                verdicts[url] = why if why else ""
     out = []
     for path, line, col, url in occurrences:
         why = verdicts.get(url, "")

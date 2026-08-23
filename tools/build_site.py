@@ -26,8 +26,9 @@
     и «предложить правку» для него значит «открыть файл».
 
 Что сборщик генерирует сам: страницу входа, карту тем со схемой предпосылок,
-глоссарий (из того же `glossary.yaml`, что и `GLOSSARY.md`), индекс тегов и
-страницу обслуживания со сроками ревизии.
+маппинг-индекс внешних каталогов (9.6 п. 24), глоссарий (из того же
+`glossary.yaml`, что и `GLOSSARY.md`), индекс тегов и страницу обслуживания
+со сроками ревизии.
 
 Навигация выводится из `stage` и `order` (9.1 п. 7) и дописывается в
 `build/mkdocs.yml`, который наследует корневой `mkdocs.yml` механизмом `INHERIT`.
@@ -289,6 +290,8 @@ description: Учебник по прикладной безопасности �
 
 - [Карта тем]({link_to('index.md', 'map.md')}) — все темы с уровнем, временем и
   схемой предпосылок; там же видно, каких тем ещё нет.
+- [Маппинг-индекс]({link_to('index.md', 'mapping.md')}) — обратный ход: номер
+  CWE, ASVS, WSTG или Top 10 — темы, которые его разбирают.
 - [Глоссарий]({link_to('index.md', 'glossary.md')}) — термины и одно написание
   на весь сайт.
 - [Теги]({link_to('index.md', 'tags.md')}) — фасеты: тема попадает в несколько.
@@ -417,6 +420,92 @@ description: Фасеты каталога: тема попадает в нес�
 """
 
 
+def natural_key(text: str) -> list:
+    """Ключ сортировки, в котором `CWE-90` идёт перед `CWE-1004`.
+
+    Идентификаторы каталогов — смесь букв и чисел (`CWE-1004`, `v5.0-3.3.1`,
+    `A04:2025`), и по строке они сортируются не так, как их читают: `1004`
+    оказывается раньше `295`. Числовые куски сравниваются числами.
+    """
+    return [int(part) if part.isdigit() else part
+            for part in re.split(r"(\d+)", text)]
+
+
+def page_mapping(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str]) -> str:
+    """Соответствие внешним каталогам — отдельной страницей, а не рубрикой.
+
+    Свод 9.6 п. 24 запрещает строить оглавление по номерам OWASP Top 10: за год
+    номер переезжает, а тема — нет, и рубрикатор пришлось бы перекладывать
+    вслед за чужой нумерацией. Соответствие держится здесь, и держится машинно:
+    страница собрана из полей `cwe`, `asvs`, `wstg` и `owasp` во frontmatter,
+    поэтому разойтись с темами не может. До этой страницы требование висело
+    неисполненным (`WRITE-REVIEW-2.md` § 8 п. 12, находка Ф-32).
+    """
+    order = {p.id: (str(p.front.get("stage")), int(p.front.get("order") or 0))
+             for p in pages}
+
+    def section(field: str, title: str, label, empty: str) -> list[str]:
+        groups: dict[str, list[vc.Page]] = {}
+        for p in pages:
+            for value in (p.front.get(field) or []):
+                groups.setdefault(str(value), []).append(p)
+        out = [f"## {title}\n"]
+        if not groups:
+            return out + [empty, ""]
+        out += ["| Идентификатор | Темы |", "|---|---|"]
+        for ident in sorted(groups, key=natural_key):
+            links = ", ".join(
+                f"[{short_title(q.front.get('title'))}]"
+                f"({link_to('mapping.md', index[q.id])})"
+                for q in sorted(groups[ident], key=lambda q: order[q.id]))
+            out.append(f"| {label(ident)} | {links} |")
+        return out + [""]
+
+    versions = sorted({m.group(1) for p in pages
+                       for m in [vc.CWE_VERSION_RE.search(p.head)] if m},
+                      key=natural_key)
+    cwe_note = (f"Номера сверены по выпуску каталога **CWE {versions[0]}**."
+                if len(versions) == 1 else
+                "Выпуск каталога назван в шапке каждой темы («проверено на:»).")
+
+    out = [f"""---
+title: Маппинг-индекс
+description: Номер внешнего каталога — темы, которые его разбирают.
+---
+
+{GENERATED}
+
+# Маппинг-индекс
+
+Оглавление гайдбука построено по этапам, а не по номерам внешних каталогов:
+номер переезжает между выпусками, а тема остаётся на месте (свод 9.6 п. 24).
+Обратный ход — от номера к теме — держит эта страница. Она собрана из полей
+`cwe`, `asvs`, `wstg` и `owasp` во frontmatter тем, поэтому расходиться с
+темами ей нечем.
+
+Номер в таблице означает, что тема разбирает названную им слабость или
+требование, а не что тема исчерпывает его целиком.
+"""]
+    out += section("cwe", "CWE", lambda v: f"`{v}`",
+                   f"Ни одна тема не называет номера CWE. {cwe_note}")
+    out.append(f"{cwe_note}\n")
+    out += section("asvs", "ASVS", lambda v: f"`ASVS {v}`",
+                   "Ни одна тема не называет требований ASVS.")
+    out += section("wstg", "WSTG", lambda v: f"`{v}`",
+                   "Ни одна тема не называет разделов WSTG.")
+    out += section("owasp", "OWASP Top 10", lambda v: f"`{v}`",
+                   "Ни одна тема не отнесена к категории Top 10: категория "
+                   "проставляется там, где разбор ведётся от неё.")
+
+    silent = [p for p in sorted(pages, key=lambda q: order[q.id])
+              if not any(p.front.get(f) for f in ("cwe", "asvs", "wstg", "owasp"))]
+    if silent:
+        names = ", ".join(f"[{short_title(p.front.get('title'))}]"
+                          f"({link_to('mapping.md', index[p.id])})" for p in silent)
+        out += ["## Темы без внешних идентификаторов\n", names, ""]
+    return "\n".join(out)
+
+
 def page_maintenance(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
                      today: date) -> str:
     rows, overdue = [], 0
@@ -542,7 +631,7 @@ def nav_for(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str]) -> list:
             continue
         nav.append({f"Этап {stage['num']}. {stage['title']}":
                     [index[p.id] for p in group]})
-    nav.append({"Справочное": ["map.md", "tags.md", "glossary.md",
+    nav.append({"Справочное": ["map.md", "mapping.md", "tags.md", "glossary.md",
                                "maintenance.md"]})
     return nav
 
@@ -587,6 +676,7 @@ def stage_tree(today: date) -> dict:
         "map.md": page_map(ctx, pages, index, report),
         "glossary.md": page_glossary(glossary, index),
         "tags.md": page_tags(ctx),
+        "mapping.md": page_mapping(ctx, pages, index),
         "maintenance.md": page_maintenance(ctx, pages, index, today),
     }
     for name, text in generated.items():

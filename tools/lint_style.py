@@ -281,7 +281,12 @@ def check_prose(path, doc) -> list[Finding]:
     end = material(doc)
     skip = skipped_lines(doc)
 
-    for a, b in mdtext.sentences(doc.prose[:end]):
+    # Границы предложений ищутся по `prose_spans`, где инлайновый код виден: в
+    # `prose` он заглушён пробелами, и предложение, начатое идентификатором
+    # («`upgrade-insecure-requests` поднимает адреса…»), сливалось с предыдущим —
+    # правило мерило сумму двух. Длина считается по тому же тексту, где
+    # моноширинный фрагмент — слово, так что источник у разреза и у счёта один.
+    for a, b in mdtext.sentences(doc.prose_spans[:end]):
         if doc.pos(a)[0] in skip:
             continue
         n = words(doc, a, b)
