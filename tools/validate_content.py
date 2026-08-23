@@ -6,7 +6,6 @@
 * `C-FM-*`    frontmatter: набор полей, типы, словари, форматы идентификаторов;
 * `C-REF-*`   ссылки между записями: темы, источники, лабы, план, циклы, сироты;
 * `C-BLOCK-*` канонический скелет части 4: форма, порядок, состав по уровню;
-* `C-DECL-*`  декларация состава блоков в теме против фактического состава;
 * `C-HEAD-*`  шапка темы против frontmatter;
 * `C-BODY-*`  служебный аппарат и наполнение блоков 1, 10, 12, 13, 14.
 
@@ -130,9 +129,6 @@ PRINTED = {
     "wstg": re.compile(r"\bWSTG-v\d+-[A-Z]+-\d+"),
     "owasp": re.compile(r"\bA\d{2}:\d{4}"),
 }
-# Версия каталога CWE в «проверено на:»: у номера CWE версии внутри нет, и
-# печатается она отдельно один раз на тему (9.6 п. 25).
-CWE_VERSION_RE = re.compile(r"\bCWE (\d+\.\d+)\b")
 INTERVALS = {6, 12, 24}          # 9.6 п. 20
 MAX_PREREQ = 4                   # 9.4
 MAX_RELATED = 5                  # 9.5 п. 8
@@ -146,21 +142,30 @@ ORDER_STEP = 10                  # 9.1 п. 6
 PLAN_TOPIC_RE = re.compile(r"\bтем[аеуы]?\s+(\d+)\.(\d+)\.(\d+)", re.I)
 PLAN_SUB_RE = re.compile(r"\bподраздел[аеу]?\s+(\d+)\.(\d+)\b", re.I)
 
-HEAD_CODE_RE = re.compile(r"\*\*AG-([A-Z]+)-(\d+)\*\*")
-HEAD_DEPTH_RE = re.compile(r"уровень\s+\*\*(L[123])\*\*")
+# Шапка после чистки 2026-08-24: уровень и время, больше ничего. Код темы,
+# `reviewed:`, «проверено на:» и маппинг со страницы убраны решением оператора —
+# это данные о том, как тема писалась и проверялась, и живут они во frontmatter,
+# `topics.yaml` и `audit.yaml`. Правило `C-HEAD-CLEAN` следит, чтобы они не
+# вернулись на страницу.
+HEAD_DEPTH_RE = re.compile(r"[Уу]ровень\s+\*\*(L[123])\*\*")
 HEAD_TIME_RE = re.compile(r"время\s+(\d+)\s+мин")
 HEAD_PARTS_RE = re.compile(r"\((?:теория|чтение)\s+(\d+)\s*/\s*(?:лаба|задача)\s+(\d+)"
                            r"\s*/\s*самопроверка\s+(\d+)")
-HEAD_REVIEWED_RE = re.compile(r"reviewed:\s*(\d{4}-\d{2}-\d{2})")
-HEAD_PREREQ_RE = re.compile(r"пререквизиты:\s*(.+?)(?:\s+·|\Z)", re.S)
-HEAD_NONE_RE = re.compile(r"пререквизитов нет")
 TICK_RE = re.compile(r"`([^`]+)`")
 
-DECL_HEAD_RE = re.compile(r"\AСостав блоков\b")
-DECL_DEPTH_RE = re.compile(r"уровню\s+(L[123])")
-DECL_DELETED_RE = re.compile(r"[Бб]лок[иа]?\s+((?:\d+(?:\s*(?:,|и)\s*)?)+)\s*удал")
-DECL_NONE_RE = re.compile(r"удалений нет")
-DECL_NUM_RE = re.compile(r"\b(?:блок|блоки|блока|блоков)\s+((?:\d+(?:\s*(?:,|и)\s*)?)+)", re.I)
+# Предпосылки: человеческая фраза со ссылками на темы. Абзаца нет вовсе, когда
+# предпосылок нет, — строка «пререквизитов нет» была служебной отметкой.
+PREREQ_HEAD_RE = re.compile(r"\AЧто прочитать сначала:\s*(.+)\Z", re.S)
+
+# Следы процесса, которым на странице темы больше не место (`C-HEAD-CLEAN`).
+BANNED_HEAD = (
+    (re.compile(r"\*\*AG-[A-Z]+-\d+\*\*"), "код темы `**AG-…**`"),
+    (re.compile(r"reviewed:"), "дата ревизии `reviewed:`"),
+    (re.compile(r"проверено на:"), "список «проверено на:»"),
+    (re.compile(r"маппинг:"), "маппинг на CWE/ASVS/WSTG/Top 10"),
+    (re.compile(r"пререквизит"), "служебное слово «пререквизиты»"),
+    (re.compile(r"Состав блоков"), "декларация состава блоков"),
+)
 
 H2_RE = re.compile(r"\A##\s+(.+?)\s*\Z")
 H2_NUM_RE = re.compile(r"\A(\d+)\.\s+(.+)\Z")
@@ -200,8 +205,10 @@ class Page:
     h1_line: int = 0
     head: str = ""              # шапка: первый абзац после h1
     head_line: int = 0
-    decl: str = ""              # декларация состава блоков
-    decl_line: int = 0
+    prereq: str = ""            # абзац «Что прочитать сначала: …», если он есть
+    prereq_line: int = 0
+    intro: str = ""             # всё между h1 и первым `## `: там жили следы
+    intro_line: int = 0
     blocks: list[Block] = None
 
     @property
@@ -259,7 +266,7 @@ def load_pages() -> list[Page]:
 
 
 def parse_body(page: Page) -> None:
-    """Разбор тела: h1, шапка, декларация состава, блоки скелета.
+    """Разбор тела: h1, шапка, абзац предпосылок, блоки скелета.
 
     Структура ищется по `plines` — строкам с забитыми ограждёнными блоками.
     Иначе комментарий `# Псевдокод` внутри листинга сойдёт за заголовок.
@@ -270,7 +277,8 @@ def parse_body(page: Page) -> None:
             page.h1, page.h1_line = page.lines[i][2:].strip(), i + 1
             break
 
-    # Шапка и декларация — два первых абзаца между h1 и первым `## `.
+    # Шапка — первый абзац между h1 и первым `## `; следом может стоять абзац
+    # предпосылок, а за ним — необязательный абзац о границах темы.
     paras: list[tuple[int, list[str]]] = []
     cur: list[str] = []
     start = 0
@@ -290,10 +298,13 @@ def parse_body(page: Page) -> None:
     if paras:
         page.head_line = paras[0][0]
         page.head = "\n".join(page.lines[paras[0][0] - 1:paras[0][0] - 1 + len(paras[0][1])])
+        page.intro_line = paras[0][0]
+        page.intro = "\n".join(
+            page.lines[paras[0][0] - 1:paras[-1][0] - 1 + len(paras[-1][1])])
     for line_no, body in paras[1:]:
         text = "\n".join(page.lines[line_no - 1:line_no - 1 + len(body)])
-        if DECL_HEAD_RE.match(text):
-            page.decl_line, page.decl = line_no, text
+        if PREREQ_HEAD_RE.match(text):
+            page.prereq_line, page.prereq = line_no, text
             break
 
     blocks: list[Block] = []
@@ -696,40 +707,37 @@ def check_refs(pages: list[Page], ctx: Ctx) -> list[Finding]:
 
 # ── C-HEAD-*: шапка против frontmatter ────────────────────────────────────────
 #
-# Шапка темы — то же самое, что frontmatter, но напечатанное читателю. Два
-# источника истины про одну тему неизбежны: frontmatter читает сборка, шапку
-# читает человек. Проверка держит их согласованными, чтобы правка в одном месте
-# не оставляла второе врать.
+# Шапка темы — то немногое из frontmatter, что нужно читателю перед чтением:
+# уровень и время с разбивкой. Остальное — дата ревизии, версии документов, код
+# темы, маппинг на каталоги — данные о производстве темы; они остаются во
+# frontmatter, `topics.yaml` и `audit.yaml`, а на страницу не выносятся
+# (решение оператора 2026-08-24). Предпосылки печатаются отдельным абзацем
+# человеческой фразой и только тогда, когда они есть.
 
 
 def check_head(page: Page, ctx: Ctx) -> list[Finding]:
     out: list[Finding] = []
     head, line = page.head, page.head_line or 1
 
-    def add(rule, level, msg):
-        out.append(Finding(page.path, line, 1, rule, level, msg))
+    def add(rule, level, msg, at=None):
+        out.append(Finding(page.path, at or line, 1, rule, level, msg))
 
     if not head:
-        add("C-HEAD-CODE", ERROR, "нет шапки темы: часть 4 требует её до блока 0")
+        add("C-HEAD-DEPTH", ERROR, "нет шапки темы: часть 4 требует её до блока 0")
         return out
 
-    m = HEAD_CODE_RE.search(head)
-    if not m:
-        add("C-HEAD-CODE", ERROR, "в шапке нет кода темы вида `**AG-PROTO-06**`")
-    else:
-        cat, num = m.group(1), m.group(2)
-        if cat not in ctx.categories:
-            add("C-HEAD-CODE", ERROR,
-                f"категория `{cat}` вне словаря `code_categories` в `taxonomy.yaml`")
-        pid = page.front.get("plan_id")
-        if isinstance(pid, str) and (pm := PLAN_ID.match(pid)) and num != pm.group(3):
-            add("C-HEAD-CODE", ERROR,
-                f"номер в коде темы (`{num}`) не совпадает с номером темы в плане "
-                f"(`{pm.group(3)}` из `plan_id: {pid}`)")
+    # Ищется по всей вводной части — от h1 до первого `## `. Иначе след,
+    # вернувшийся не в первый абзац, а в соседний, правило не увидит.
+    for rx, what in BANNED_HEAD:
+        if rx.search(page.intro):
+            add("C-HEAD-CLEAN", ERROR,
+                f"во вводной части темы снова {what}: со страницы это убрано "
+                "решением оператора 2026-08-24, данные живут во frontmatter, "
+                "`topics.yaml` и `audit.yaml`", page.intro_line or line)
 
     m = HEAD_DEPTH_RE.search(head)
     if not m:
-        add("C-HEAD-DEPTH", ERROR, "в шапке нет уровня вида `уровень **L2**`")
+        add("C-HEAD-DEPTH", ERROR, "в шапке нет уровня вида `Уровень **L2**`")
     elif m.group(1) != page.depth:
         add("C-HEAD-DEPTH", ERROR,
             f"в шапке уровень {m.group(1)}, во frontmatter `depth: {page.depth}`")
@@ -753,68 +761,25 @@ def check_head(page: Page, ctx: Ctx) -> list[Finding]:
             add("C-HEAD-TIME", ERROR,
                 "нет разбивки времени вида `(теория 15 / задача 10 / самопроверка 5)`")
 
-    m = HEAD_REVIEWED_RE.search(head)
-    reviewed = page.front.get("reviewed")
-    if not m:
-        add("C-HEAD-REVIEWED", ERROR, "в шапке нет `reviewed: ГГГГ-ММ-ДД`")
-    elif isinstance(reviewed, dt.date) and m.group(1) != reviewed.isoformat():
-        add("C-HEAD-REVIEWED", ERROR,
-            f"в шапке reviewed: {m.group(1)}, во frontmatter {reviewed.isoformat()}")
-
-    if "проверено на:" not in head:
-        add("C-HEAD-VERSIONS", ERROR,
-            "в шапке нет «проверено на:» — версий стека, на которых тема "
-            "проверена (часть 4, DoD 13)")
-    elif PRINTED["cwe"].search(head) and not CWE_VERSION_RE.search(head):
-        # 9.6 п. 25 требует версию у каждого внешнего идентификатора, а в номер
-        # CWE версия не входит: `CWE-1004` называет одну и ту же слабость во
-        # всех выпусках каталога. Поэтому версия печатается один раз, в
-        # «проверено на:», рядом с остальными версиями стека — форма и причина
-        # решения в 9.6 п. 25 (оговорка 2026-08-23, находка Ф-32).
-        add("C-HEAD-VERSIONS", ERROR,
-            "в маппинге есть CWE, а в «проверено на:» нет версии каталога "
-            "(форма «CWE 4.20», 9.6 п. 25)")
-
     prereq = [str(x) for x in (page.front.get("prerequisites") or [])]
-    if HEAD_NONE_RE.search(head):
+    if not page.prereq:
         got = []
     else:
-        m = HEAD_PREREQ_RE.search(head)
+        m = PREREQ_HEAD_RE.match(page.prereq)
         got = TICK_RE.findall(m.group(1)) if m else None
     if got is None:
         add("C-HEAD-PREREQ", ERROR,
-            "в шапке нет ни «пререквизиты:», ни «пререквизитов нет»")
+            "абзац предпосылок не по форме «Что прочитать сначала: `id`, `id`.»",
+            page.prereq_line or line)
     elif got != prereq:
         add("C-HEAD-PREREQ", ERROR,
-            f"пререквизиты в шапке {got or '—'} не совпадают с frontmatter {prereq or '—'}")
-
-    tail = head.split("маппинг:", 1)
-    if len(tail) == 1:
-        add("C-HEAD-MAP", ERROR, "в шапке нет «маппинг:» со ссылками на CWE/ASVS/WSTG")
-    else:
-        mapping = tail[1]
-        found = {
-            "cwe": set(re.findall(r"\bCWE-\d+", mapping)),
-            "asvs": set(re.findall(r"\bASVS\s+(v\d+\.\d+-[\d.]+)", mapping)),
-            "wstg": set(re.findall(r"\bWSTG-v\d+-[A-Z]+-\d+", mapping)),
-            "owasp": set(re.findall(r"\bA\d{2}:\d{4}", mapping)),
-        }
-        for field, got_set in found.items():
-            declared = {str(x) for x in (page.front.get(field) or [])}
-            extra = got_set - declared
-            if extra:
-                add("C-HEAD-MAP", ERROR,
-                    f"в маппинге шапки есть {', '.join(sorted(extra))}, "
-                    f"а во frontmatter `{field}` их нет")
-        missing = {str(x) for x in (page.front.get("cwe") or [])} - found["cwe"]
-        if missing:
-            add("C-HEAD-MAP", ERROR,
-                f"во frontmatter `cwe` есть {', '.join(sorted(missing))}, "
-                "а в маппинге шапки их нет: список CWE печатается целиком")
+            f"предпосылки на странице {got or '—'} не совпадают с frontmatter "
+            f"{prereq or '—'}; при пустом списке абзаца быть не должно",
+            page.prereq_line or line)
     return out
 
 
-# ── C-BLOCK-*, C-DECL-*: скелет части 4 ───────────────────────────────────────
+# ── C-BLOCK-*: скелет части 4 ───────────────────────────────────────
 
 
 def check_blocks(page: Page, ctx: Ctx) -> list[Finding]:
@@ -866,41 +831,6 @@ def check_blocks(page: Page, ctx: Ctx) -> list[Finding]:
             f"блок {num} «{ctx.blocks[num]['title']}» на уровне {depth} не предусмотрен "
             f"(`SCHEMA.md` § 4)", page.block(num).line)
 
-    # декларация состава
-    if not page.decl:
-        add("C-DECL", ERROR,
-            "нет декларации состава блоков: абзац «Состав блоков — …» после шапки. "
-            "Без неё удаление блока не отличить от забытого блока")
-        return out
-    m = DECL_DEPTH_RE.search(page.decl)
-    if not m:
-        add("C-DECL", ERROR, "в декларации состава не назван уровень темы", page.decl_line)
-    elif m.group(1) != depth:
-        add("C-DECL", ERROR,
-            f"декларация ссылается на уровень {m.group(1)}, "
-            f"а во frontmatter `depth: {depth}`", page.decl_line)
-
-    full = set(ctx.blocks)
-    if DECL_NONE_RE.search(page.decl):
-        declared: set[int] | None = set()
-    elif (dm := DECL_DELETED_RE.search(page.decl)):
-        declared = {int(x) for x in re.findall(r"\d+", dm.group(1))}
-    else:
-        declared = None
-
-    if declared is not None:
-        if declared != full - have:
-            add("C-DECL-SET", ERROR,
-                f"декларация объявляет удалёнными {sorted(declared) or '—'}, "
-                f"а фактически нет блоков {sorted(full - have) or '—'}", page.decl_line)
-    else:
-        # Перечисляющая форма: декларация называет блоки, которые в теме есть.
-        listed = {int(x) for g in DECL_NUM_RE.findall(page.decl)
-                  for x in re.findall(r"\d+", g)}
-        if listed != have:
-            add("C-DECL-SET", ERROR,
-                f"декларация перечисляет блоки {sorted(listed) or '—'}, "
-                f"а в теме есть {sorted(have)}", page.decl_line)
     return out
 
 
@@ -1057,34 +987,27 @@ def check_body(page: Page, ctx: Ctx) -> list[Finding]:
                 f"в блоке 14 назван источник `{sid}`, которого нет во frontmatter",
                 src.line)
 
-    # Внешние идентификаторы: напечатанное и объявленное — одно множество.
+    # Внешние идентификаторы: напечатанное входит в объявленное.
     #
     # Frontmatter — указатель: по нему тему находят, спрашивая «где про 7.4.2».
-    # Отсюда обе стороны сверки. Требование, названное в тексте, но не
-    # объявленное, из указателя выпадает — ошибка. Объявленное, но нигде не
-    # напечатанное, — противоположный дефект: указатель обещает разбор, которого
-    # в теме нет, а маркеры уверенности при этом объявляют требование сверенным
-    # (находка Ф-31: так было в трёх темах из двенадцати). Это предупреждение, а
-    # не ошибка: связь темы с требованием бывает законно неявной, и решать это
-    # должен человек.
+    # Требование, названное в тексте, но не объявленное, из указателя выпадает —
+    # ошибка.
     #
-    # Считается вся страница после h1, вместе с шапкой и листингами: читателю
-    # видно и то и другое, а «напечатано» здесь значит именно «читатель это
-    # видит». Шапку отдельно сверяет C-HEAD-MAP — там правило другое (в шапке
-    # законно меньше, чем во frontmatter), и двойного замечания не выходит:
-    # C-HEAD-MAP ловит лишнее в шапке, это правило — лишнее и недостающее на
-    # странице целиком.
+    # Обратная сверка (объявлено, но нигде не напечатано) снята 2026-08-24
+    # вместе с маппингом: до чистки маппинг печатался в шапке, поэтому «не
+    # напечатан» значило «тема заявлена в указателе, а разбора нет». Теперь
+    # идентификаторы на странице стоят только там, где о них идёт речь, и
+    # ненапечатанный номер — норма, а не дефект. Указатель по-прежнему сверяется
+    # с каталогами: это делает `audit.yaml` и маппинг-индекс сборки.
+    #
+    # Считается вся страница после h1, вместе с листингами: читателю видно и то
+    # и другое, а «напечатано» здесь значит именно «читатель это видит».
     for field, pat in PRINTED.items():
-        shown = set(pat.findall(body))
         listed_ids = {str(x) for x in (page.front.get(field) or [])}
-        for ident in sorted(shown - listed_ids):
+        for ident in sorted(set(pat.findall(body)) - listed_ids):
             add("C-BODY-IDENT", ERROR,
                 f"в тексте напечатан {ident}, а во frontmatter `{field}` его нет: "
                 "по указателю тему не найти", page.at(field))
-        for ident in sorted(listed_ids - shown):
-            add("C-BODY-IDENT", WARNING,
-                f"во frontmatter `{field}` объявлен {ident}, но на странице он "
-                "нигде не напечатан", page.at(field))
     return out
 
 

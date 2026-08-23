@@ -449,8 +449,7 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
     def downgraded() -> list:
         """L1-тема, объявленная L2: блоки 2, 7 и 8 на L2 не предусмотрены."""
         return one(base.replace("depth: L1", "depth: L2")
-                       .replace("уровень **L1**", "уровень **L2**")
-                       .replace("полный по уровню L1", "полный по уровню L2"))
+                       .replace("Уровень **L1**", "Уровень **L2**"))
 
     def corpus_text(page_id: str, old_text: str, new_text: str) -> list:
         """Мутация прозы одной темы: ссылки на план живут в тексте, не в полях."""
@@ -545,27 +544,32 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
              "reviewed: 2020-01-01\nreview_interval: 24", 1)),
 
         # --- шапка -----------------------------------------------------------
-        ("категория кода вне словаря", "C-HEAD-CODE", CATCH,
-         sub("**AG-AUTH-07**", "**AG-XXX-07**")),
-        ("номер кода не из plan_id", "C-HEAD-CODE", CATCH,
-         sub("**AG-AUTH-07**", "**AG-AUTH-09**")),
+        # Шапка после чистки 2026-08-24 несёт уровень, время и — отдельным
+        # абзацем — предпосылки. Код темы, `reviewed:`, «проверено на:» и
+        # маппинг со страницы убраны; на их возвращение стоит `C-HEAD-CLEAN`.
         ("уровень в шапке другой", "C-HEAD-DEPTH", CATCH,
-         sub("уровень **L1**", "уровень **L2**")),
+         sub("Уровень **L1**", "Уровень **L2**")),
         ("время в шапке другое", "C-HEAD-TIME", CATCH,
          sub_re(r"время 90(\s)мин", r"время 95\1мин")),
         ("слагаемые времени не дают суммы", "C-HEAD-TIME", CATCH,
          sub("(теория 40 / лаба 35", "(теория 40 / лаба 30")),
-        ("reviewed в шапке другой", "C-HEAD-REVIEWED", CATCH,
-         sub(f"· reviewed: {REV} ·", "· reviewed: 2026-01-01 ·")),
-        ("нет «проверено на:»", "C-HEAD-VERSIONS", CATCH,
-         sub("· проверено на:", "· стек:")),
-        ("нет версии каталога CWE", "C-HEAD-VERSIONS", CATCH,
-         sub(", CWE 4.20\n", "\n", 1)),
-        ("пререквизиты в шапке другие", "C-HEAD-PREREQ", CATCH,
-         sub("пререквизиты: `app-architecture`, `sessions-vs-tokens`",
-             "пререквизиты: `app-architecture`")),
-        ("CWE потерян в маппинге", "C-HEAD-MAP", CATCH,
-         sub("маппинг: CWE-916 ·\nCWE-759 ·", "маппинг: CWE-916 ·")),
+        ("предпосылки на странице другие", "C-HEAD-PREREQ", CATCH,
+         sub("Что прочитать сначала: `app-architecture`, `sessions-vs-tokens`.",
+             "Что прочитать сначала: `app-architecture`.")),
+        ("предпосылок нет, а абзац есть", "C-HEAD-PREREQ", CATCH,
+         sub("prerequisites: [app-architecture, sessions-vs-tokens]",
+             "prerequisites: []", 1)),
+        ("код темы вернулся в шапку", "C-HEAD-CLEAN", CATCH,
+         sub("Уровень **L1**", "**AG-AUTH-07** · уровень **L1**")),
+        ("дата ревизии вернулась в шапку", "C-HEAD-CLEAN", CATCH,
+         sub_re(r"(время 90.мин)", r"\1 · reviewed: 2026-08-23")),
+        ("«проверено на» вернулось в шапку", "C-HEAD-CLEAN", CATCH,
+         sub_re(r"(время 90.мин)", r"\1 · проверено на: Python 3.14.7")),
+        ("маппинг вернулся в шапку", "C-HEAD-CLEAN", CATCH,
+         sub_re(r"(время 90.мин)", r"\1 · маппинг: CWE-916")),
+        ("декларация состава вернулась", "C-HEAD-CLEAN", CATCH,
+         sub("Что прочитать сначала:",
+             "Состав блоков — полный по уровню L1. Что прочитать сначала:")),
 
         # --- скелет ----------------------------------------------------------
         ("блок назван не по канону", "C-BLOCK-TITLE", CATCH,
@@ -574,14 +578,10 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
          swap_blocks("## 9. Ловушка", "## 10. Чеклист ревью")),
         ("нет обязательного блока", "C-BLOCK-REQ", CATCH,
          cut("## 7. Как проверить фикс", "## 8. Как ловится")),
-        ("декларация не про этот уровень", "C-DECL", CATCH,
-         sub("полный по уровню L1", "полный по уровню L2")),
         ("заголовок блока не нумерован", "C-BLOCK-SHAPE", CATCH,
          sub("## 9. Ловушка", "## Ловушка")),
         ("номер блока вне скелета", "C-BLOCK-NUM", CATCH,
          sub("## 9. Ловушка", "## 19. Ловушка")),
-        ("декларация врёт про удаления", "C-DECL-SET", CATCH,
-         sub("удалений нет", "блок 3 удалён")),
 
         # --- наполнение ------------------------------------------------------
         ("нет абзаца «зачем»", "C-BODY-WHY", CATCH,
@@ -608,10 +608,12 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         ("каркас этапа не в sources", "C-BODY-SOURCES", SILENT, clean,
          "источники этапа названы прозой после сносок и в `sources` не дублируются"),
         ("идентификатор в тексте не объявлен", "C-BODY-IDENT", CATCH,
-         sub("cwe: [CWE-916", "cwe: [CWE-917", 1)),
-        ("идентификатор объявлен и не напечатан", "C-BODY-IDENT", CATCH,
+         sub("cwe: [CWE-916, CWE-759, CWE-760, CWE-328]",
+             "cwe: [CWE-916, CWE-759, CWE-328]", 1)),
+        ("идентификатор объявлен и не напечатан", "C-BODY-IDENT", SILENT,
          sub("wstg: ['WSTG-v42-CRYP-04']", "wstg: ['WSTG-v42-CRYP-04', "
-             "'WSTG-v42-CRYP-01']", 1)),
+             "'WSTG-v42-CRYP-01']", 1),
+         "маппинг со страницы убран: ненапечатанный номер — норма, а не дефект"),
 
         # --- фикстуры особой формы -------------------------------------------
         # Каталог этапа проверяется положением файла, а не текстом: тема
@@ -639,7 +641,7 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         ("настоящий корпус: ссылки целы", "C-REF-TOPIC", SILENT, corpus(lambda d: None)),
         ("настоящий корпус: план сходится", "C-REF-PLAN", SILENT, corpus(lambda d: None)),
         ("ссылка на номер вне плана", "C-REF-PLAN", CATCH,
-         corpus_text("cookies", "в подразделе 1.5", "в подразделе 1.99")),
+         corpus_text("cookies", "в подразделе 1.4", "в подразделе 1.99")),
         ("тема без входящих ссылок", "C-REF-ORPHAN", CATCH,
          corpus(lambda d: [p.front.__setitem__(
              "prerequisites", [x for x in p.front.get("prerequisites") or []
@@ -769,7 +771,7 @@ def link_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         ("адрес в блоке 3", "S-EXT-IN-BODY", CATCH,
          after_head("Подробности — <https://example.org/spec>.")),
         ("адрес в шапке", "S-EXT-IN-BODY", CATCH,
-         sub("**AG-PROTO-03**", "<https://example.org/x> **AG-PROTO-03**", 1)),
+         sub("Уровень **L2**", "<https://example.org/x> Уровень **L2**", 1)),
         ("адрес в блоке 14", "S-EXT-IN-BODY", SILENT, one(base + "\n"),
          "автоссылки настоящей темы стоят там, где им можно"),
         ("адрес примером в коде", "S-EXT-IN-BODY", SILENT,
