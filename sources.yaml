@@ -874,6 +874,50 @@ sources:
 
   # 1.1 Broken Access Control
 
+  - id: owasp-top10-2025-a01
+    url: https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/
+    title: "A01:2025 Broken Access Control"
+    type: owasp
+    level: 2
+    publisher: OWASP Top 10 Team (OWASP Foundation)
+    version_or_date: издание 2025; даты релиза страница не указывает
+    volatility: medium
+    license: CC BY 3.0
+    checked: 2026-08-23
+    status: ok
+    notes: >
+      Разбор категории, а не титульный лист издания: восемь типовых форм
+      дефекта (нарушение наименьших привилегий, обход правки адреса,
+      ссылка на чужой объект, API без контроля на POST, PUT и DELETE,
+      повышение прав, манипуляция метаданными, мисконфигурация CORS,
+      подбор адресов), девять рекомендаций починки с условием «только в
+      доверенном серверном коде» и три сценария атаки. Сценарий 3 —
+      обход клиентского контроля одной командой curl. Заведён отдельной
+      записью миссией appsec-stage1-a01: адрес издания (owasp-top10-2025)
+      ведёт на оглавление, а темы подраздела 1.1 стоят на этой странице.
+
+  - id: spring-security-authorize-http-requests
+    url: https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html
+    title: Spring Security Reference — Authorize HttpServletRequests
+    type: official-docs
+    level: 1
+    publisher: Broadcom (Spring)
+    version_or_date: живая справочная документация, даты на странице нет
+    volatility: medium
+    license: не указана на странице; документация Spring под Apache License 2.0
+    checked: 2026-08-23
+    status: ok
+    notes: >
+      Страница про порядок правил авторизации, которой не давал корневой
+      адрес справочника: AuthorizationFilter разбирает пары «шаблон —
+      правило» в порядке объявления и применяет к запросу только первое
+      совпадение. Отсюда цена ошибки в порядке: широкое правило выше
+      узкого отменяет узкое. Замыкающее anyRequest().denyAll() названо
+      здоровой практикой безопасности прямым текстом — оно превращает
+      набор правил в список разрешённого. Есть сопоставление по методу
+      HTTP. Заведена миссией appsec-stage1-a01 под парный листинг темы
+      privilege-escalation-vertical.
+
   - id: ps-access-control
     url: https://portswigger.net/web-security/access-control
     title: Access control vulnerabilities and privilege escalation
@@ -2611,26 +2655,6 @@ sources:
       названа мерой защиты в глубину, а не заменой проверки; шифровать
       идентификаторы прямо не советуют. Добавлен миссией appsec-stage1-a01
       под тему 1.1.03: PortSwigger даёт разбор атаки, а канон починки — здесь.
-
-  - id: wstg-v42-busl-06-workflow-circumvention
-    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/10-Business_Logic_Testing/06-Testing_for_the_Circumvention_of_Work_Flows
-    title: WSTG-BUSL-06 — Testing for the Circumvention of Work Flows
-    type: owasp
-    level: 2
-    publisher: OWASP Foundation (Web Security Testing Guide v4.2)
-    version_or_date: WSTG v4.2; даты обновления страницы нет
-    volatility: stable
-    license: CC BY-SA 4.0
-    checked: 2026-08-23
-    status: ok
-    notes: >
-      Определение обхода рабочего процесса и требование к приложению: шаги
-      выполняются в заданном порядке, а незавершённый процесс откатывается
-      целиком вместе с побочными действиями. Два разобранных случая —
-      начисленные и не отменённые бонусы и правка публикации в обход проверки
-      при первом сохранении — и два метода проверки. Добавлен миссией
-      appsec-stage1-a01 под тему 1.1.08: подраздел давал только наследуемые
-      источники, а многошаговые процессы разобраны именно здесь.
 
   - id: ps-blind-ssrf
     url: https://portswigger.net/web-security/ssrf/blind

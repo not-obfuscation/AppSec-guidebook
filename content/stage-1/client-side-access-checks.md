@@ -17,14 +17,15 @@ teaches:
   - Показать обход клиентской проверки одним запросом без браузера
   - Составить требование к слою, в котором решение о доступе законно
 prerequisites: [access-control-models, app-architecture]
-related: [access-control-models, deny-by-default, privilege-escalation-vertical]
+related: [access-control-models, deny-by-default, privilege-escalation-vertical,
+  role-parameter-tampering]
 tags: [access-control, browser]
 cwe: [CWE-602, CWE-284]
 asvs: ['v5.0-8.3.1']
 wstg: []
 owasp: ['A01:2025']
 labs: []
-sources: [owasp-top10-2025, ps-access-control, owasp-asvs-5-document]
+sources: [owasp-top10-2025-a01, ps-access-control, owasp-asvs-5-document]
 reviewed: 2026-08-23
 review_interval: 24
 ---
@@ -233,7 +234,7 @@ def approve(order_id):
 ## 14. Источники
 
 1. OWASP Top 10:2025, «A01:2025 Broken Access Control»; реестр
-   `owasp-top10-2025`. Разделы: Description, How to prevent, Example attack
+   `owasp-top10-2025-a01`. Разделы: Description, How to prevent, Example attack
    scenarios (сценарий 3).
    <https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/>
 2. PortSwigger Web Security Academy, «Access control vulnerabilities and
@@ -245,10 +246,12 @@ def approve(order_id):
    Разделы: V8.3 Operation Level Authorization.
    <https://github.com/OWASP/ASVS/raw/v5.0.0/5.0/OWASP_Application_Security_Verification_Standard_5.0.0_en.pdf>
 
-Каркас этапа: `owasp-wstg-42`; якорь подраздела: `owasp-cs-authorization`.
-Наследуются всеми темами и отдельной строкой не повторяются. Три источника выше
-наследуются тоже, но здесь названы сносками: тема стоит целиком на них, и
-умолчать об этом значило бы оставить утверждения без адреса.
+Каркас этапа: `owasp-asvs-5-document` (ASVS v5.0.0), `owasp-wstg-42`,
+`owasp-top10-2025`; якорь подраздела: `owasp-cs-authorization`. Наследуются
+всеми темами и отдельной строкой не повторяются. Две сноски выше — из
+наследуемых: тема стоит целиком на них, и умолчать об этом значило бы оставить
+утверждения без адреса. Первая сноска — отдельная запись реестра на главу
+A01:2025, а не на оглавление издания.
 
 **Скоропортящийся слой.** Издание Top 10 датировано 2025 годом, номера
 категорий меняются от издания к изданию. Страница Web Security Academy — живая

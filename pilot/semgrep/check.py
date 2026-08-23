@@ -36,6 +36,13 @@ SUITES = {
         "fixed": "pilot/lab/privilege-escalation-vertical/solution.py",
         "note": "право объявлено у маршрута аргументом role=",
     },
+    "object-lookup": {
+        "rule": "pilot/semgrep/object-lookup-unscoped.yaml",
+        "cases": ["pilot/semgrep/object-lookup-unscoped.py"],
+        "vulnerable": "pilot/lab/idor/code.py",
+        "fixed": "pilot/lab/idor/solution.py",
+        "note": "выборка ограничена владельцем, получатель вызова — не таблица",
+    },
     "postmessage": {
         "rule": "pilot/semgrep/postmessage-no-origin-check.yaml",
         "cases": ["pilot/semgrep/postmessage-no-origin-check.js",

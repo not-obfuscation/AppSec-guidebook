@@ -24,7 +24,7 @@ asvs: ['v5.0-8.2.1', 'v5.0-8.2.2', 'v5.0-8.3.1']
 wstg: ['WSTG-v42-ATHZ-02']
 owasp: ['A01:2025']
 labs: []
-sources: [owasp-cs-authorization, wstg-v42-athz-02-bypassing-authz-schema, owasp-top10-2025]
+sources: [owasp-cs-authorization, wstg-v42-athz-02-bypassing-authz-schema, owasp-top10-2025-a01]
 reviewed: 2026-08-23
 review_interval: 24
 ---
@@ -262,13 +262,14 @@ def guard():
    Bypassing Authorization Schema.
    <https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/05-Authorization_Testing/02-Testing_for_Bypassing_Authorization_Schema>
 3. OWASP Top 10:2025, «A01:2025 Broken Access Control»; реестр
-   `owasp-top10-2025`. Разделы: Description, How to prevent.
+   `owasp-top10-2025-a01`. Разделы: Description, How to prevent.
    <https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/>
 
-Каркас этапа: `owasp-asvs-5-document` (ASVS v5.0.0), `owasp-wstg-42`; якорь
-подраздела: `ps-access-control`. Наследуются всеми темами и отдельной строкой не
-повторяются. Cheat Sheet и описание A01:2025 наследуются тоже и названы
-сносками: тема стоит на них целиком.
+Каркас этапа: `owasp-asvs-5-document` (ASVS v5.0.0), `owasp-wstg-42`,
+`owasp-top10-2025`; якорь подраздела: `ps-access-control`. Наследуются всеми
+темами и отдельной строкой не повторяются. Authorization Cheat Sheet
+наследуется тоже и назван сноской: тема стоит на нём целиком. Третья сноска —
+отдельная запись реестра на главу A01:2025, а не на оглавление издания.
 
 **Скоропортящийся слой.** Authorization Cheat Sheet — живой документ без даты
 публикации, формулировки в нём меняются без уведомления. Издание Top 10

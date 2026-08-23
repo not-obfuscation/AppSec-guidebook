@@ -25,7 +25,7 @@ asvs: ['v5.0-8.1.1', 'v5.0-8.2.1', 'v5.0-8.2.2', 'v5.0-8.3.1', 'v5.0-8.4.2']
 wstg: ['WSTG-v42-ATHZ-02', 'WSTG-v42-ATHZ-03']
 owasp: ['A01:2025']
 labs: [lab-privilege-escalation-vertical]
-sources: [ps-access-control, wstg-v42-athz-03-privilege-escalation, wstg-v42-athz-02-bypassing-authz-schema, owasp-top10-2025, spring-security-docs]
+sources: [ps-access-control, wstg-v42-athz-03-privilege-escalation, wstg-v42-athz-02-bypassing-authz-schema, owasp-top10-2025-a01, spring-security-authorize-http-requests]
 reviewed: 2026-08-23
 review_interval: 24
 ---
@@ -580,17 +580,19 @@ HTTP не поднимается: запрос — словарь, маршру�
    for Vertical Bypassing Authorization Schema.
    <https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/05-Authorization_Testing/02-Testing_for_Bypassing_Authorization_Schema>
 4. OWASP Top 10:2025, «A01:2025 Broken Access Control»; реестр
-   `owasp-top10-2025`. Разделы: Description, How to prevent, Example attack
+   `owasp-top10-2025-a01`. Разделы: Description, How to prevent, Example attack
    scenarios (сценарий 2).
    <https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/>
 5. Spring Security Reference, «Authorize HttpServletRequests»; реестр
-   `spring-security-docs`. Разделы: порядок правил и первое совпадение,
+   `spring-security-authorize-http-requests`. Разделы: порядок правил и первое совпадение,
    Matching by HTTP Method, замыкающее `denyAll`.
    <https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html>
 
-Каркас этапа: `owasp-asvs-5-document` (ASVS v5.0.0), `owasp-wstg-42`; якорь
-подраздела: `owasp-cs-authorization`. Наследуются всеми темами и отдельной
-строкой не повторяются.
+Каркас этапа: `owasp-asvs-5-document` (ASVS v5.0.0), `owasp-wstg-42`,
+`owasp-top10-2025`; якорь подраздела: `owasp-cs-authorization`. Наследуются
+всеми темами и отдельной строкой не повторяются. Первая сноска — якорь
+подраздела, четвёртая ведёт на отдельную запись реестра: главу A01:2025, а не
+на оглавление издания.
 
 **Скоропортящийся слой.** Документация Spring Security — живая, без даты
 публикации; форма `authorizeHttpRequests` заменила `authorizeRequests` и сама

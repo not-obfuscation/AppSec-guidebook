@@ -1,0 +1,34 @@
+rules:
+  - id: object-lookup-unscoped
+    languages: [python]
+    severity: WARNING
+    message: >-
+      Объект достаётся глобальной выборкой по идентификатору, который
+      пришёл параметром вместе с пользователем. Если права на объект не
+      проверяются отдельно, это IDOR: чужая запись достанется по чужому
+      идентификатору. Ищите объект в выборке владельца
+      (`Model.owned_by(user).get(id)`), а не по всей таблице.
+      Требование: ASVS v5.0-8.2.2.
+    metadata:
+      cwe:
+        - "CWE-639: Authorization Bypass Through User-Controlled Key"
+        - "CWE-284: Improper Access Control"
+      asvs: v5.0-8.2.2
+      references:
+        - https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html
+        - https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/
+      confidence: LOW
+    patterns:
+      - pattern-either:
+          - pattern: $MODEL.get($ID)
+          - pattern: $MODEL.find($ID)
+          - pattern: $MODEL.get_or_404($ID)
+      - metavariable-regex:
+          metavariable: $MODEL
+          regex: ^[A-Z][A-Za-z0-9_]*$
+      - metavariable-regex:
+          metavariable: $ID
+          regex: (?i)^[a-z_]*(id|key|uuid|token|number|ref)$
+      - pattern-inside: |
+          def $F(user, ...):
+              ...

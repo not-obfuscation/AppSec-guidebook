@@ -24,7 +24,7 @@ asvs: ['v5.0-8.3.1', 'v5.0-8.3.2', 'v5.0-9.1.1']
 wstg: ['WSTG-v42-ATHZ-03']
 owasp: ['A01:2025']
 labs: []
-sources: [wstg-v42-athz-03-privilege-escalation, ps-access-control, owasp-top10-2025]
+sources: [wstg-v42-athz-03-privilege-escalation, ps-access-control, owasp-top10-2025-a01]
 reviewed: 2026-08-23
 review_interval: 24
 ---
@@ -255,13 +255,14 @@ if authz.can(user, "admin_console"):  # права — вычислены на �
    access control methods.
    <https://portswigger.net/web-security/access-control>
 3. OWASP Top 10:2025, «A01:2025 Broken Access Control»; реестр
-   `owasp-top10-2025`. Раздел: Description (пункт про манипуляцию
+   `owasp-top10-2025-a01`. Раздел: Description (пункт про манипуляцию
    метаданными).
    <https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/>
 
-Каркас этапа: `owasp-asvs-5-document` (ASVS v5.0.0), `owasp-wstg-42`; якорь
-подраздела: `owasp-cs-authorization`. Наследуются всеми темами и отдельной
-строкой не повторяются.
+Каркас этапа: `owasp-asvs-5-document` (ASVS v5.0.0), `owasp-wstg-42`,
+`owasp-top10-2025`; якорь подраздела: `owasp-cs-authorization`. Наследуются
+всеми темами и отдельной строкой не повторяются: третья сноска ведёт на
+отдельную запись реестра — главу A01:2025, а не на оглавление издания.
 
 **Скоропортящийся слой.** Формулировка компенсирующих мер в v5.0-8.3.2
 привязана к редакции ASVS 5.0.0. Страница Web Security Academy — живая
