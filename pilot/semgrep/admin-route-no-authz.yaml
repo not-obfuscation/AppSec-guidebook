@@ -1,0 +1,43 @@
+rules:
+  - id: admin-route-no-authz
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Административный маршрут заведён без объявленного права. Ни
+      аргумента `role=` в декораторе, ни вызова `require_role` в теле:
+      доступ к функции решается где-то ещё, и функция, о которой охрана
+      не знает, остаётся открытой. Объявите право у маршрута и закройте
+      маршрут без объявления. Требования: ASVS v5.0-8.2.1,
+      ASVS v5.0-8.3.1.
+    metadata:
+      cwe:
+        - "CWE-862: Missing Authorization"
+        - "CWE-276: Incorrect Default Permissions"
+      asvs: v5.0-8.2.1
+      references:
+        - https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/
+        - https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html
+      confidence: MEDIUM
+    patterns:
+      - pattern: |
+          @$APP.route($PATH, ...)
+          def $F(...):
+              ...
+      - metavariable-regex:
+          metavariable: $PATH
+          regex: (?i)^["'].*/admin.*["']$
+      - pattern-not: |
+          @$APP.route(..., role=$R, ...)
+          def $F(...):
+              ...
+      - pattern-not: |
+          @$APP.route($PATH, ...)
+          def $F(...):
+              ...
+              require_role(...)
+              ...
+      - pattern-not: |
+          @$APP.route($PATH, ...)
+          @$DECO(...)
+          def $F(...):
+              ...

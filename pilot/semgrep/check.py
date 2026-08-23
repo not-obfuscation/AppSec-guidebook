@@ -29,6 +29,13 @@ SUITES = {
         "fixed": "pilot/lab/password-storage/solution.py",
         "note": "одно подавление # nosemgrep стоит на сверке старого формата",
     },
+    "admin-route": {
+        "rule": "pilot/semgrep/admin-route-no-authz.yaml",
+        "cases": ["pilot/semgrep/admin-route-no-authz.py"],
+        "vulnerable": "pilot/lab/privilege-escalation-vertical/code.py",
+        "fixed": "pilot/lab/privilege-escalation-vertical/solution.py",
+        "note": "право объявлено у маршрута аргументом role=",
+    },
     "postmessage": {
         "rule": "pilot/semgrep/postmessage-no-origin-check.yaml",
         "cases": ["pilot/semgrep/postmessage-no-origin-check.js",
