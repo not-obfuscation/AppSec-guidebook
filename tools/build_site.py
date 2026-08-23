@@ -184,6 +184,7 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
         edits.append((m.start(), m.end(),
                       f"![Схема (описание — в абзаце под ней)]({target}){{ .diagram }}"))
         report["diagrams"] += 1
+        report["diagram_files"].add(svg.name)
 
     for m in mdtext.CODE_SPAN_RE.finditer(page.doc.prose_spans):
         target_id = m.group(2).strip()
@@ -328,6 +329,7 @@ description: Все темы гайдбука с уровнем, времене�
 требует их все, а не любую из них.
 """)
             report["diagrams"] += 1
+            report["diagram_files"].add(svg.name)
         except render_diagrams.Unavailable as exc:
             report["diagrams_failed"].append(f"map: {exc}")
 
@@ -567,7 +569,7 @@ def stage_tree(today: date) -> dict:
              for p in pages}
     abbr = abbreviations(glossary)
     report = {"pages": 0, "links": 0, "abbr": 0, "diagrams": 0,
-              "diagrams_failed": [], "generated": 0}
+              "diagrams_failed": [], "generated": 0, "diagram_files": set()}
 
     if SRC.exists():
         shutil.rmtree(SRC)
@@ -593,8 +595,11 @@ def stage_tree(today: date) -> dict:
 
     assets = SRC / "assets"
     (assets / "diagrams").mkdir(parents=True, exist_ok=True)
-    for svg in sorted(render_diagrams.OUT.glob("*.svg")):
-        shutil.copy2(svg, assets / "diagrams" / svg.name)
+    # Кэш схем помнит и прежние версии рисунка: имя — хэш от исходника, и
+    # правка схемы оставляет старый файл лежать. В сайт идут только те схемы,
+    # что стоят на страницах этой сборки, иначе он тащит мёртвые картинки.
+    for name in sorted(report["diagram_files"]):
+        shutil.copy2(render_diagrams.OUT / name, assets / "diagrams" / name)
     (assets / "extra.css").write_text(EXTRA_CSS, encoding="utf-8")
     shutil.copy2(SHIM_SRC, assets / "iframe-worker-shim.js")
 

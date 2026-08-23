@@ -16,7 +16,8 @@ CHECK   := $(PY) tools/check.py
 
 .DEFAULT_GOAL := help
 .PHONY: help check check-lang check-md check-model check-glossary lint-selftest \
-        links site serve diagrams glossary topics report setup clean check-site
+        links site serve diagrams glossary topics report setup clean check-site \
+        phone check-phone
 
 help:                     ## показать этот список
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -53,6 +54,13 @@ site:                     ## собрать сайт в site/ и провери�
 check-site:               ## сайт из file:// в браузере: не ходит в сеть, поиск находит
 	@node tools/check_site.mjs
 
+phone:                    ## один файл этапа 0 для телефона в dist/ (после make site)
+	@$(PY) tools/build_phone.py
+	@node tools/check_phone.mjs || test $$? -eq 2
+
+check-phone:              ## файл для телефона: узкий экран, живые ссылки, схемы
+	@node tools/check_phone.mjs
+
 serve:                    ## собрать и открыть локальный сервер
 	@$(PY) tools/build_site.py --serve
 
@@ -68,6 +76,6 @@ topics:                   ## пересобрать topics.yaml из плана 
 setup:                    ## восстановить окружение: venv, Vale, пакеты node, браузер
 	@tools/setup.sh
 
-clean:                    ## снести производное: site/ и build/
-	@rm -rf site build
-	@echo "снесено: site/, build/ — схемы будут нарисованы заново"
+clean:                    ## снести производное: site/, build/, dist/
+	@rm -rf site build dist
+	@echo "снесено: site/, build/, dist/ — схемы будут нарисованы заново"

@@ -7,9 +7,10 @@ tools/bin/
 tools/node/node_modules/
 tools/node/pnpm-lock.yaml
 
-# Артефакты сборки сайта.
+# Артефакты сборки: сайт, кэш схем, файл для телефона.
 site/
 build/
+dist/
 .cache/
 
 # Состояние супервизора: журнал миссий, а не содержимое проекта.
