@@ -70,10 +70,10 @@ stages:
             sources: [nist-ir-7316, nist-sp-800-162-abac, wstg-v42-idnt-01-role-definitions]
           - id: t-1-1-02
             title: "Вертикальная эскалация привилегий"
-            sources: []
+            sources: [wstg-v42-athz-03-privilege-escalation]
           - id: t-1-1-03
             title: "Горизонтальная эскалация, IDOR (Insecure Direct Object Reference)"
-            sources: [ps-idor]
+            sources: [ps-idor, wstg-v42-athz-04-idor, owasp-cs-idor]
           - id: t-1-1-04
             title: "BOLA — ошибки авторизации на уровне объектов в API"
             sources: [owasp-api-top10-2023, owasp-api-top10-2023-a1-bola]
@@ -88,7 +88,7 @@ stages:
             sources: [mdn-proxy-tunneling, rfc7239-forwarded]
           - id: t-1-1-08
             title: "Многошаговые процессы с проверкой только на первом шаге"
-            sources: []
+            sources: [wstg-v42-busl-06-workflow-circumvention]
           - id: t-1-1-09
             title: "Мисконфигурации CORS как вектор доступа к данным"
             sources: [ps-cors, mdn-cors]

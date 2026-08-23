@@ -2551,6 +2551,87 @@ sources:
       сессии и сравнивать ответы — совпали, значит уязвимо. Есть вертикальный
       вариант и разбор обходов вида «прямой запрос к админской странице».
 
+  - id: wstg-v42-athz-03-privilege-escalation
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/05-Authorization_Testing/03-Testing_for_Privilege_Escalation
+    title: WSTG-ATHZ-03 — Testing for Privilege Escalation
+    type: owasp
+    level: 2
+    publisher: OWASP Foundation (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2; даты обновления страницы нет
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-23
+    status: ok
+    notes: >
+      Ретест вертикальной эскалации для темы 1.1.02, которого не давали ни
+      cheat sheet, ни PortSwigger: определение вертикальной и горизонтальной
+      эскалации через уровень привилегий учётной записи и три места, где
+      роль подменяется, — параметр группы в теле запроса (groupID, orderID),
+      скрытое поле профиля в ответе после входа (profile=SysAdmin) и значение
+      условия в ответе сервера, которому приложение доверяет. Добавлен
+      миссией appsec-stage1-a01: подраздел 1.1 в реестре опирался на
+      наследуемые источники, а страница ретеста существует и читается.
+
+  - id: wstg-v42-athz-04-idor
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References
+    title: WSTG-ATHZ-04 — Testing for Insecure Direct Object References
+    type: owasp
+    level: 2
+    publisher: OWASP Foundation (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2; даты обновления страницы нет
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-23
+    status: ok
+    notes: >
+      Четыре типовых места ссылки на объект и метод проверки каждого: запись
+      базы (invoice=12345), операция над учётной записью (changepassword?user=),
+      файл (showImage?img=), пункт меню как способ добраться до функции
+      (accessPage?menuitem=12). Прямо сказано, что ссылка бывает разнесена по
+      нескольким параметрам и что двух тестовых пользователей мало не бывает.
+      Добавлен миссией appsec-stage1-a01 под тему 1.1.03.
+
+  - id: owasp-cs-idor
+    url: https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html
+    title: Insecure Direct Object Reference Prevention Cheat Sheet
+    type: owasp
+    level: 2
+    publisher: OWASP Cheat Sheet Series Team
+    version_or_date: живой документ, даты публикации на странице нет
+    volatility: medium
+    license: CC BY-SA 4.0
+    checked: 2026-08-23
+    status: ok
+    notes: >
+      Три составляющих IDOR (объект, ссылка на него, отсутствующая проверка
+      прав на объект) и починка: искать объект не по всей таблице, а по
+      выборке текущего пользователя (парный листинг на Rails), не выносить
+      идентификатор в адрес и тело, а брать его из сессии, в многошаговых
+      процессах держать идентификатор в сессии. Сложность идентификатора
+      названа мерой защиты в глубину, а не заменой проверки; шифровать
+      идентификаторы прямо не советуют. Добавлен миссией appsec-stage1-a01
+      под тему 1.1.03: PortSwigger даёт разбор атаки, а канон починки — здесь.
+
+  - id: wstg-v42-busl-06-workflow-circumvention
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/10-Business_Logic_Testing/06-Testing_for_the_Circumvention_of_Work_Flows
+    title: WSTG-BUSL-06 — Testing for the Circumvention of Work Flows
+    type: owasp
+    level: 2
+    publisher: OWASP Foundation (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2; даты обновления страницы нет
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-23
+    status: ok
+    notes: >
+      Определение обхода рабочего процесса и требование к приложению: шаги
+      выполняются в заданном порядке, а незавершённый процесс откатывается
+      целиком вместе с побочными действиями. Два разобранных случая —
+      начисленные и не отменённые бонусы и правка публикации в обход проверки
+      при первом сохранении — и два метода проверки. Добавлен миссией
+      appsec-stage1-a01 под тему 1.1.08: подраздел давал только наследуемые
+      источники, а многошаговые процессы разобраны именно здесь.
+
   - id: ps-blind-ssrf
     url: https://portswigger.net/web-security/ssrf/blind
     title: Blind SSRF vulnerabilities
