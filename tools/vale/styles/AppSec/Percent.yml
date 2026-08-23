@@ -1,0 +1,7 @@
+extends: existence
+message: "6.4: перед знаком процента ставится пробел — «%s»"
+link: STYLE.md#L-PERCENT
+level: error
+nonword: true
+tokens:
+  - '\d%'

@@ -1,0 +1,663 @@
+#!/usr/bin/env python3
+"""Сборка сайта: темы и сгенерированные страницы → MkDocs Material.
+
+Одно правило держит всю сборку: `content/` только читается. Всё, что нужно
+дописать к теме — ссылки вместо идентификаторов, картинку вместо схемы,
+раскрытия аббревиатур, — дописывается в копии, в staging-дереве `build/site-src`.
+Исходник темы остаётся тем, что автор написал и что читают линтеры; сайт —
+производная, и его можно снести целиком в любой момент.
+
+Что сборщик делает с темой
+
+  * frontmatter из 24 полей сводится к четырём, которые понимает движок
+    (`title`, `description`, `status`, `tags`); остальные поля живут в шапке
+    темы, написанной для человека, и второй раз не печатаются;
+  * `` `topic-id` `` в обратных кавычках становится ссылкой на страницу темы.
+    В исходниках markdown-ссылок между темами нет и не будет: 9.1 п. 6 требует
+    ссылаться идентификатором, а не путём, чтобы переименование каталога не
+    ломало текст. Превращение делает сборка;
+  * ограждённый блок `mermaid` заменяется на нарисованный SVG
+    (`tools/render_diagrams.py`), потому что сайт открывается с диска и скрипт
+    из сети загрузить не может;
+  * в конец страницы вклеиваются определения аббревиатур из `glossary.yaml` —
+    те, что на странице действительно встретились. Читатель видит раскрытие по
+    наведению, а канон написания остаётся один (6.3);
+  * последней строкой ставится путь к исходнику: читатель этого сайта — автор,
+    и «предложить правку» для него значит «открыть файл».
+
+Что сборщик генерирует сам: страницу входа, карту тем со схемой предпосылок,
+глоссарий (из того же `glossary.yaml`, что и `GLOSSARY.md`), индекс тегов и
+страницу обслуживания со сроками ревизии.
+
+Навигация выводится из `stage` и `order` (9.1 п. 7) и дописывается в
+`build/mkdocs.yml`, который наследует корневой `mkdocs.yml` механизмом `INHERIT`.
+Руками правится только корневой конфиг.
+
+    make site           # собрать в `site/`
+    make serve          # собрать и открыть локальный сервер
+    .venv-tools/bin/python tools/build_site.py --no-build   # только дерево
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import re
+import shutil
+import subprocess
+import sys
+from datetime import date, timedelta
+from pathlib import Path
+
+import yaml
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import gen_glossary  # noqa: E402
+import mdtext  # noqa: E402
+import render_diagrams  # noqa: E402
+import validate_content as vc  # noqa: E402
+import wordcount  # noqa: E402
+
+ROOT = Path(__file__).resolve().parent.parent
+BUILD = ROOT / "build"
+SRC = BUILD / "site-src"
+CONFIG_IN = ROOT / "mkdocs.yml"
+CONFIG_OUT = BUILD / "mkdocs.yml"
+SITE = ROOT / "site"
+MKDOCS = ROOT / ".venv-site" / "bin" / "mkdocs"
+SHIM_SRC = ROOT / "tools" / "vendor" / "iframe-worker-shim.js"
+SHIM_REL = "assets/iframe-worker-shim.js"
+
+# Плагин `offline` вставляет в каждую страницу шим WebWorker с unpkg: браузер не
+# создаёт воркер из `file://`, а поиск Material живёт в воркере. Ссылка в сеть
+# делает «офлайновый» сайт неофлайновым — проверено chrome-headless-shell без
+# сети: поиск висит на «Инициализация поиска». Файл лежит в `tools/vendor/`,
+# ссылка после сборки переписывается на относительный путь.
+SHIM_URL = "https://unpkg.com/iframe-worker/shim"
+
+# Аббревиатура — прописная латиница; из глоссария берутся такие термины и поле
+# `abbr`, если оно заполнено. Аббревиатуры вклеиваются только те, что на
+# странице встретились в прозе: определение к неупомянутой аббревиатуре ничего
+# не значит.
+ABBR_SHAPE = re.compile(r"\A[A-Z][A-Za-z0-9./+-]{1,19}\Z")
+
+GENERATED = "<!-- Собрано `tools/build_site.py`. Правки — в исходники, не сюда. -->"
+
+
+# ── вспомогательное ──────────────────────────────────────────────────────────
+
+
+def one_line(text: str) -> str:
+    return " ".join(str(text or "").split())
+
+
+def link_to(page_rel: str, target_rel: str) -> str:
+    """Ссылка со страницы `page_rel` на `target_rel`, обе от корня дерева."""
+    return os.path.relpath(target_rel, os.path.dirname(page_rel)).replace("\\", "/")
+
+
+def apply_edits(raw: str, edits: list[tuple[int, int, str]]) -> str:
+    """Заменить участки текста по смещениям. Пересечений быть не должно."""
+    out, last = [], 0
+    for start, end, text in sorted(edits):
+        if start < last:
+            raise ValueError(f"пересекающиеся правки на смещении {start}")
+        out.append(raw[last:start])
+        out.append(text)
+        last = end
+    out.append(raw[last:])
+    return "".join(out)
+
+
+def short_title(title: str) -> str:
+    """Заголовок темы для схемы и таблицы: до двоеточия, не длиннее 42 знаков."""
+    head = one_line(title).split(":")[0].strip(" —")
+    return head if len(head) <= 42 else head[:41].rstrip() + "…"
+
+
+# ── аббревиатуры глоссария ───────────────────────────────────────────────────
+
+
+def abbreviations(glossary: dict) -> dict[str, str]:
+    """Аббревиатура → раскрытие. Раскрытие короткое: оригинал, если он есть,
+    иначе первое предложение определения."""
+    out: dict[str, str] = {}
+    for term in glossary["terms"]:
+        key = term.get("abbr") or (term["term"] if ABBR_SHAPE.match(term["term"])
+                                   and term["term"].upper() == term["term"] else None)
+        if not key:
+            continue
+        en = one_line(term.get("en") or "")
+        if en and en.lower() != key.lower():
+            text = en if key == term.get("abbr") else en
+        else:
+            text = one_line(term["definition"]).split(". ")[0].rstrip(".")
+            if len(text) > 120:
+                text = text[:119].rstrip() + "…"
+        if key == term.get("abbr"):
+            text = f"{term['term']} ({text})" if text else term["term"]
+        out[key] = text
+    return out
+
+
+def used_abbr(prose: str, table: dict[str, str]) -> dict[str, str]:
+    return {k: v for k, v in table.items()
+            if re.search(rf"(?<![A-Za-z0-9]){re.escape(k)}(?![A-Za-z0-9])", prose)}
+
+
+# ── тема → страница ──────────────────────────────────────────────────────────
+
+
+def front_block(page: vc.Page) -> str:
+    """Мета для движка: четыре поля вместо двадцати четырёх."""
+    meta = {
+        "title": one_line(page.front.get("title") or page.id),
+        "description": one_line(page.front.get("summary") or ""),
+        "status": str(page.front.get("status") or "stub"),
+    }
+    tags = page.front.get("tags") or []
+    if tags:
+        meta["tags"] = list(tags)
+    dumped = yaml.safe_dump(meta, allow_unicode=True, sort_keys=False,
+                            default_flow_style=False, width=10 ** 6)
+    return f"---\n{dumped}---\n"
+
+
+def transform(page: vc.Page, page_rel: str, index: dict[str, str],
+              abbr: dict[str, str], report: dict) -> str:
+    """Тема как страница сайта. Исходник не меняется — меняется копия."""
+    raw = page.doc.raw
+    edits: list[tuple[int, int, str]] = [(0, page.doc.front_end, front_block(page))]
+
+    for m in mdtext.FENCE_RE.finditer(raw):
+        if m.group("info").strip().lower() != "mermaid":
+            continue
+        try:
+            svg = render_diagrams.render(m.group("body"))
+        except render_diagrams.Unavailable as exc:
+            report["diagrams_failed"].append(f"{page.id}: {exc}")
+            continue
+        target = link_to(page_rel, f"assets/diagrams/{svg.name}")
+        # Текстовая замена схемы — абзац «Описание схемы» под ней, он предписан
+        # 7.2; в `alt` идёт короткая подпись, чтобы читалка не пересказывала
+        # картинку дважды.
+        edits.append((m.start(), m.end(),
+                      f"![Схема (описание — в абзаце под ней)]({target}){{ .diagram }}"))
+        report["diagrams"] += 1
+
+    for m in mdtext.CODE_SPAN_RE.finditer(page.doc.prose_spans):
+        target_id = m.group(2).strip()
+        if target_id == page.id or target_id not in index:
+            continue
+        edits.append((m.start(), m.end(),
+                      f"[{m.group(0)}]({link_to(page_rel, index[target_id])})"))
+        report["links"] += 1
+
+    body = apply_edits(raw, edits)
+
+    tail = [body.rstrip("\n"), ""]
+    here = used_abbr(page.doc.prose, abbr)
+    if here:
+        report["abbr"] += len(here)
+        tail.append("")
+        for key in sorted(here):
+            tail.append(f"*[{key}]: {here[key]}")
+    tail += ["", "---", "",
+             f"*Исходник темы: `{page.path}`. Сайт — производная: правка идёт в "
+             f"файл, затем `make site`.*", ""]
+    return "\n".join(tail)
+
+
+# ── сгенерированные страницы ─────────────────────────────────────────────────
+
+
+def page_index(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
+               today: date) -> str:
+    by_stage: dict[str, list[vc.Page]] = {}
+    for p in pages:
+        by_stage.setdefault(str(p.front.get("stage")), []).append(p)
+
+    written_by_stage_num: dict[int, int] = {}
+    for slug, group in by_stage.items():
+        written_by_stage_num[int(ctx.stages[slug]["num"])] = len(group)
+    planned: dict[int, int] = {}
+    for meta in ctx.plan.values():
+        if not meta["excluded"]:
+            planned[meta["stage"]] = planned.get(meta["stage"], 0) + 1
+
+    rows = []
+    for stage in ctx.tax["stages"]:
+        if stage.get("excluded"):
+            continue
+        num = int(stage["num"])
+        group = by_stage.get(stage["slug"], [])
+        first = f"[к темам]({link_to('index.md', index[group[0].id])})" if group else "—"
+        time = sum(int(p.front.get("time_min") or 0) for p in group)
+        rows.append(f"| {num} | {stage['title']} | {len(group)} из "
+                    f"{planned.get(num, 0)} | {time or '—'} | {first} |")
+
+    total_time = sum(int(p.front.get("time_min") or 0) for p in pages)
+    depths = {d: sum(1 for p in pages if p.depth == d) for d in sorted(ctx.depths)}
+    level_rows = [
+        f"| {d} | {ctx.tax['depths'][d]['meaning']} | "
+        f"{ctx.tax['depths'][d]['words'][0]}–{ctx.tax['depths'][d]['words'][1]} слов | "
+        f"{depths[d]} |"
+        for d in sorted(ctx.depths)
+    ]
+
+    return f"""---
+title: Начало
+description: Учебник по прикладной безопасности приложений — с чего начать чтение.
+---
+
+{GENERATED}
+
+# AppSec-гайдбук
+
+Учебник, который пишется, чтобы уметь: читать чужой код и видеть в нём дефект,
+объяснять механизм словами и проверять утверждения по первоисточнику. Каждая
+тема самодостаточна — механизм объяснён здесь, а не по ссылке на чужую статью;
+внешние адреса законны только в блоке «Источники».
+
+## Как читать
+
+Тема идёт по одному и тому же скелету: «Коротко» → механизм → код → как чинится
+→ как проверить → чеклист ревью → «Проверь себя» → «Дальше» → «Источники».
+Порядок блоков не меняется, отсутствующий блок объявлен в самой теме сразу после
+шапки. Читать сплошь не нужно: «Коротко» и «Чеклист ревью» работают отдельно.
+
+Уровень темы стоит в её шапке и говорит, до чего доводит чтение.
+
+| Уровень | Что даёт | Норма объёма | Написано |
+|---|---|---|---|
+{chr(10).join(level_rows)}
+
+Времени на прочтение и разбор — {total_time} мин на {len(pages)} тем; оценка
+стоит в шапке каждой темы и там же разложена на теорию, практику и самопроверку.
+
+## Этапы
+
+| № | Этап | Тем | Минут | |
+|---|---|---|---|---|
+{chr(10).join(rows)}
+
+Столбец «Тем» читается как «написано из запланированного»: план этапов лежит в
+`topics.yaml` и выведен из плана обучения, а не из того, что успело написаться.
+
+## Что где лежит
+
+- [Карта тем]({link_to('index.md', 'map.md')}) — все темы с уровнем, временем и
+  схемой предпосылок; там же видно, каких тем ещё нет.
+- [Глоссарий]({link_to('index.md', 'glossary.md')}) — термины и одно написание
+  на весь сайт.
+- [Теги]({link_to('index.md', 'tags.md')}) — фасеты: тема попадает в несколько.
+- [Обслуживание]({link_to('index.md', 'maintenance.md')}) — сроки ревизии и
+  состояние тем.
+
+Сайт собран {today.isoformat()} и открывается с диска: ни одна страница не ходит
+в сеть, поиск тоже работает офлайн.
+"""
+
+
+def page_map(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
+             report: dict) -> str:
+    out = [f"""---
+title: Карта тем
+description: Все темы гайдбука с уровнем, временем и связями предпосылок.
+---
+
+{GENERATED}
+
+# Карта тем
+
+Порядок внутри этапа — поле `order` темы, он же порядок оглавления. Уровень
+задаёт подробность, а не самодостаточность: на любом уровне механизм объяснён
+своими словами и со своим примером.
+"""]
+
+    graph = prereq_graph(pages)
+    if graph:
+        try:
+            svg = render_diagrams.render(graph)
+            out.append(f"""## Связи предпосылок
+
+![Схема (описание — в абзаце под ней)]({link_to('map.md', f'assets/diagrams/{svg.name}')}){{ .diagram }}
+
+**Описание схемы.** Стрелка ведёт от темы-предпосылки к теме, которая её
+требует. Тема без входящих стрелок читается с нуля; тема с несколькими входящими
+требует их все, а не любую из них.
+""")
+            report["diagrams"] += 1
+        except render_diagrams.Unavailable as exc:
+            report["diagrams_failed"].append(f"map: {exc}")
+
+    by_stage: dict[str, list[vc.Page]] = {}
+    for p in pages:
+        by_stage.setdefault(str(p.front.get("stage")), []).append(p)
+
+    for stage in ctx.tax["stages"]:
+        if stage.get("excluded"):
+            continue
+        group = by_stage.get(stage["slug"], [])
+        num = int(stage["num"])
+        pending = [(tid, meta) for tid, meta in sorted(ctx.plan.items())
+                   if meta["stage"] == num and not meta["excluded"]
+                   and tid not in {p.front.get("plan_id") for p in group}]
+        if not group and not pending:
+            continue
+        out.append(f"## Этап {num}. {stage['title']}\n")
+        if group:
+            out.append("| Тема | Уровень | Мин | Статус | Требует |")
+            out.append("|---|---|---|---|---|")
+            for p in group:
+                prereqs = ", ".join(
+                    f"[`{q}`]({link_to('map.md', index[q])})" if q in index else f"`{q}`"
+                    for q in (p.front.get("prerequisites") or [])) or "—"
+                out.append(
+                    f"| [{one_line(p.front.get('title'))}]"
+                    f"({link_to('map.md', index[p.id])}) "
+                    f"| {p.depth} | {p.front.get('time_min')} "
+                    f"| {p.front.get('status')} | {prereqs} |")
+            out.append("")
+        if pending:
+            out.append("Ещё не написаны:\n")
+            for tid, meta in pending:
+                out.append(f"- {tid} — {one_line(meta['title'])}")
+            out.append("")
+    return "\n".join(out)
+
+
+def prereq_graph(pages: list[vc.Page]) -> str:
+    """Схема предпосылок на языке mermaid. Рисуется тем же кодом, что схемы тем."""
+    known = {p.id for p in pages}
+    lines = ["flowchart LR"]
+    for p in pages:
+        lines.append(f'    {p.id.replace("-", "_")}["{short_title(p.front.get("title") or p.id)}"]')
+    edges = 0
+    for p in pages:
+        for q in (p.front.get("prerequisites") or []):
+            if q in known:
+                lines.append(f'    {q.replace("-", "_")} --> {p.id.replace("-", "_")}')
+                edges += 1
+    return "\n".join(lines) if edges else ""
+
+
+def page_glossary(glossary: dict, index: dict[str, str]) -> str:
+    """Тот же глоссарий, что `GLOSSARY.md`, только ссылки ведут на страницы."""
+    link = {tid: link_to("glossary.md", rel) for tid, rel in index.items()}
+    text = gen_glossary.render(glossary, link=link)
+    # У страницы своя мета: заголовок для оглавления и описание для поиска.
+    return ("---\ntitle: Глоссарий\ndescription: Термины гайдбука; "
+            "одно написание термина на весь сайт.\n---\n\n" + text)
+
+
+def page_tags(ctx: vc.Ctx) -> str:
+    rows = "\n\n".join(f"`{tag}`\n:   {meaning}"
+                       for tag, meaning in sorted(ctx.tax["tags"].items()))
+    return f"""---
+title: Теги
+description: Фасеты каталога: тема попадает в несколько тегов, этап у неё один.
+---
+
+{GENERATED}
+
+# Теги
+
+Тег — фасет, а не рубрика: этап у темы один и он же её дом в оглавлении, а тегов
+у темы несколько. Словарь тегов закрытый, он живёт в `taxonomy.yaml`; тег вне
+словаря роняет проверку.
+
+<!-- material/tags -->
+
+## Что значит каждый тег
+
+{rows}
+"""
+
+
+def page_maintenance(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
+                     today: date) -> str:
+    rows, overdue = [], 0
+    for p in sorted(pages, key=lambda q: str(q.front.get("reviewed") or "")):
+        reviewed = p.front.get("reviewed")
+        interval = int(p.front.get("review_interval") or 0)
+        if not reviewed or not interval:
+            continue
+        seen = reviewed if isinstance(reviewed, date) else date.fromisoformat(str(reviewed))
+        due = seen + timedelta(weeks=interval)
+        late = (today - due).days
+        state = f"просрочена на {late} дн." if late > 0 else f"через {-late} дн."
+        overdue += late > 0
+        rows.append(f"| [{one_line(p.front.get('title'))}]"
+                    f"({link_to('maintenance.md', index[p.id])}) "
+                    f"| {seen.isoformat()} | {interval} нед. | {due.isoformat()} "
+                    f"| {state} |")
+
+    status_rows = []
+    for status in ctx.tax["statuses"]:
+        group = [p for p in pages if p.front.get("status") == status]
+        names = ", ".join(f"[`{p.id}`]({link_to('maintenance.md', index[p.id])})"
+                          for p in group) or "—"
+        status_rows.append(f"| {status} | {len(group)} | {names} |")
+
+    volume_rows = []
+    for p in pages:
+        body, prose, core = wordcount.counts(p.doc.raw)
+        lo, hi = ctx.tax["depths"][p.depth]["words"]
+        mark = "в норме" if lo <= core <= hi else ("ниже нормы" if core < lo else "выше нормы")
+        volume_rows.append(f"| [`{p.id}`]({link_to('maintenance.md', index[p.id])}) "
+                           f"| {p.depth} | {core} | {lo}–{hi} | {mark} |")
+
+    return f"""---
+title: Обслуживание
+description: Сроки ревизии тем, статусы и объём против нормы уровня.
+---
+
+{GENERATED}
+
+# Обслуживание
+
+Страница отвечает на один вопрос: что в гайдбуке требует работы. Данные —
+frontmatter тем, ничего не введено руками. Сборка от {today.isoformat()}.
+
+## Сроки ревизии
+
+Срок считается от поля `reviewed` плюс `review_interval` недель. Просрочка — не
+ошибка сборки: она означает, что тему пора перечитать, а не что она сломана.
+Просрочено тем: {overdue} из {len(rows)}.
+
+| Тема | Проверена | Интервал | Следующая | Состояние |
+|---|---|---|---|---|
+{chr(10).join(rows)}
+
+## Статусы
+
+Заглушка (`stub`) публикуется с плашкой в оглавлении и не считается написанной
+темой. `draft` — тема написана, но не прошла приёмку по чеклисту части 13;
+`published` — прошла.
+
+| Статус | Тем | Какие |
+|---|---|---|
+{chr(10).join(status_rows)}
+
+## Объём против нормы уровня
+
+Считается «текст»: тело темы без листингов, ответов под раскрытием, блока
+«Источники» и служебного аппарата. Норма — из таблицы уровней 3.1. Метода
+подсчёта свод не задаёт, поэтому колонка справочная: она показывает перекос, а
+не выносит вердикт.
+
+| Тема | Уровень | Слов | Норма | |
+|---|---|---|---|---|
+{chr(10).join(volume_rows)}
+"""
+
+
+EXTRA_CSS = """/* Собрано `tools/build_site.py`; правки — в сборщик, не сюда. */
+
+/* Схемы нарисованы тёмным по белому: на тёмной теме сайта картинке нужен свой
+   фон, иначе текст схемы сливается с полем страницы. */
+.md-typeset img.diagram {
+  background: #fff;
+  padding: 0.7rem;
+  border-radius: 0.2rem;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.07);
+}
+
+/* Шапка темы — вторая копия frontmatter для человека. Она стоит сразу под
+   заголовком и не должна спорить с ним весом. */
+.md-typeset h1 + p {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--md-default-fg-color--light);
+}
+
+/* Путь к исходнику последней строкой: служебная строка, не часть текста. */
+.md-typeset hr + p em:only-child {
+  font-size: 0.75rem;
+  color: var(--md-default-fg-color--light);
+}
+
+/* Таблицы карты и обслуживания длинные: заголовок остаётся видимым. */
+.md-typeset table:not([class]) th {
+  position: sticky;
+  top: 0;
+}
+"""
+
+
+# ── сборка ───────────────────────────────────────────────────────────────────
+
+
+def nav_for(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str]) -> list:
+    by_stage: dict[str, list[vc.Page]] = {}
+    for p in pages:
+        by_stage.setdefault(str(p.front.get("stage")), []).append(p)
+    nav: list = [{"Начало": "index.md"}]
+    for stage in ctx.tax["stages"]:
+        group = by_stage.get(stage["slug"], [])
+        if not group:
+            continue
+        nav.append({f"Этап {stage['num']}. {stage['title']}":
+                    [index[p.id] for p in group]})
+    nav.append({"Справочное": ["map.md", "tags.md", "glossary.md",
+                               "maintenance.md"]})
+    return nav
+
+
+def write_config(nav: list) -> None:
+    body = yaml.safe_dump({"docs_dir": "site-src", "site_dir": "../site",
+                           "nav": nav},
+                          allow_unicode=True, sort_keys=False, width=10 ** 6)
+    CONFIG_OUT.write_text(
+        "# Собрано `tools/build_site.py`: навигация выведена из `stage` и `order`\n"
+        "# тем (9.1 п. 7). Правки вносятся в корневой `mkdocs.yml`, этот файл\n"
+        "# перезаписывается каждой сборкой.\n"
+        f"INHERIT: ../{CONFIG_IN.name}\n" + body, encoding="utf-8")
+
+
+def stage_tree(today: date) -> dict:
+    ctx = vc.Ctx()
+    pages = vc.load_pages()
+    if not pages:
+        raise SystemExit("в `content/` нет ни одной темы: собирать нечего")
+    glossary = yaml.safe_load((ROOT / "glossary.yaml").read_text(encoding="utf-8"))
+
+    index = {p.id: f"{ctx.stages[str(p.front.get('stage'))]['dir']}/{p.id}.md"
+             for p in pages}
+    abbr = abbreviations(glossary)
+    report = {"pages": 0, "links": 0, "abbr": 0, "diagrams": 0,
+              "diagrams_failed": [], "generated": 0}
+
+    if SRC.exists():
+        shutil.rmtree(SRC)
+    SRC.mkdir(parents=True)
+
+    for p in pages:
+        rel = index[p.id]
+        target = SRC / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(transform(p, rel, index, abbr, report), encoding="utf-8")
+        report["pages"] += 1
+
+    generated = {
+        "index.md": page_index(ctx, pages, index, today),
+        "map.md": page_map(ctx, pages, index, report),
+        "glossary.md": page_glossary(glossary, index),
+        "tags.md": page_tags(ctx),
+        "maintenance.md": page_maintenance(ctx, pages, index, today),
+    }
+    for name, text in generated.items():
+        (SRC / name).write_text(text.rstrip("\n") + "\n", encoding="utf-8")
+        report["generated"] += 1
+
+    assets = SRC / "assets"
+    (assets / "diagrams").mkdir(parents=True, exist_ok=True)
+    for svg in sorted(render_diagrams.OUT.glob("*.svg")):
+        shutil.copy2(svg, assets / "diagrams" / svg.name)
+    (assets / "extra.css").write_text(EXTRA_CSS, encoding="utf-8")
+    shutil.copy2(SHIM_SRC, assets / "iframe-worker-shim.js")
+
+    write_config(nav_for(ctx, pages, index))
+    return report
+
+
+def localize_shim() -> int:
+    """Переписать ссылку на unpkg в относительный путь к своей копии шима.
+
+    Плагин `offline` вставляет адрес жёстко и настройки для него не имеет,
+    поэтому правка идёт по готовому HTML. Считается число переписанных
+    страниц: ноль на непустом сайте означает, что плагин сменил разметку и
+    проверку офлайновости надо повторить руками.
+    """
+    changed = 0
+    for html in sorted(SITE.rglob("*.html")):
+        text = html.read_text(encoding="utf-8")
+        if SHIM_URL not in text:
+            continue
+        rel = os.path.relpath(SITE / SHIM_REL, html.parent).replace(os.sep, "/")
+        html.write_text(text.replace(SHIM_URL, rel), encoding="utf-8")
+        changed += 1
+    return changed
+
+
+def run_mkdocs(args: list[str]) -> int:
+    if not MKDOCS.exists():
+        print(f"нет {MKDOCS.relative_to(ROOT)}: `make setup`", file=sys.stderr)
+        return 1
+    return subprocess.call([str(MKDOCS), *args, "--config-file", str(CONFIG_OUT)],
+                           cwd=str(ROOT))
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--no-build", action="store_true",
+                    help="только staging-дерево, движок не звать")
+    ap.add_argument("--serve", action="store_true",
+                    help="собрать и открыть локальный сервер")
+    ap.add_argument("--addr", default="127.0.0.1:8000", help="адрес для --serve")
+    args = ap.parse_args()
+
+    report = stage_tree(date.today())
+    print(f"дерево: {report['pages']} тем, {report['generated']} страниц собрано, "
+          f"{report['links']} ссылок на темы, {report['abbr']} раскрытий "
+          f"аббревиатур, {report['diagrams']} схем", file=sys.stderr)
+    for line in report["diagrams_failed"]:
+        print(f"  схема не нарисована — {line}", file=sys.stderr)
+    print(f"конфиг: {CONFIG_OUT.relative_to(ROOT)} (наследует "
+          f"{CONFIG_IN.name})", file=sys.stderr)
+
+    if args.no_build:
+        return 0
+    if args.serve:
+        return run_mkdocs(["serve", "--dev-addr", args.addr])
+    code = run_mkdocs(["build", "--clean"])
+    if code == 0:
+        n = localize_shim()
+        print(f"шим поиска локализован на {n} страницах", file=sys.stderr)
+        print(f"сайт: {SITE.relative_to(ROOT)}/index.html", file=sys.stderr)
+    return code
+
+
+if __name__ == "__main__":
+    sys.exit(main())

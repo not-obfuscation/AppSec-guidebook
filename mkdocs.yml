@@ -1,0 +1,127 @@
+# Конфигурация сайта. Правится руками — это единственное место, где заданы тема,
+# расширения markdown и плагины.
+#
+# `nav`, `docs_dir` и `site_dir` здесь НЕ окончательные: сборщик
+# `tools/build_site.py` кладёт рядом со staging-деревом файл `build/mkdocs.yml`,
+# который наследует этот конфиг (`INHERIT`) и дописывает навигацию, выведенную из
+# `stage` и `order` тем. Причина такого разделения — 9.1 п. 7: оглавление
+# выводится из данных, а не пишется руками, но тема и расширения данными не
+# выводятся. Собирать надо всегда через `make site`; прямой вызов
+# `mkdocs build` без сборщика соберёт пустое дерево.
+#
+# Движок и почему он — в `INFRA.md`.
+
+site_name: AppSec-гайдбук
+site_description: >
+  Учебник по прикладной безопасности приложений: разбор механизмов до уровня,
+  на котором дефект видно в чужом коде.
+site_author: автор гайдбука
+copyright: >
+  Тексты — автора гайдбука. Цитаты из спецификаций и материалов OWASP — их
+  правообладателей, со ссылкой в блоке «Источники» каждой темы.
+
+# Переписывается сборщиком; здесь стоит, чтобы конфиг был валиден сам по себе.
+docs_dir: build/site-src
+site_dir: site
+
+# Адреса вида `stage-0/cookies.html`, а не `stage-0/cookies/`. Так сайт
+# открывается с диска, без сервера: `file:///…/site/index.html` работает, и
+# офлайн-поиск тоже. Плагин `offline` требует именно этого.
+use_directory_urls: false
+
+# Битая внутренняя ссылка или битый анкорь роняют сборку. Это второй рубеж после
+# `S-LINK-MD` и `S-LINK-TOPIC`: линтер проверяет исходники, сборка — то, что
+# получилось после превращения `id` в ссылки.
+strict: true
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: warn
+    unrecognized_links: warn
+
+theme:
+  name: material
+  language: ru
+  features:
+    # Этапы стоят в оглавлении разделами, а не раскрывающимися ветками: этапов
+    # девять, и прятать их друг от друга не за чем.
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+    # Листинги копируются кнопкой: примеры в темах предназначены для запуска.
+    - content.code.copy
+    - content.tooltips
+    - search.highlight
+    - search.suggest
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Тёмная тема
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Светлая тема
+  font: false          # системные шрифты: сайт не ходит в сеть за Google Fonts
+  icon:
+    logo: material/shield-search
+
+plugins:
+  # Поиск по русскому тексту: словарь lunr.ru лежит в самой теме, из сети
+  # ничего не загружается.
+  - search:
+      lang: [ru, en]
+      separator: '[\s​\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;'
+  # Теги — фасеты каталога (9.5 п. 9). Индекс собирается на странице `tags.md`.
+  - tags
+  # Собирает страницу под открытие с диска: инлайнит то, что иначе требует
+  # сервера, и включает поиск на `file://`.
+  - offline
+
+markdown_extensions:
+  # Аббревиатуры вклеиваются в каждую страницу сборщиком из `glossary.yaml`:
+  # раскрытие термина показывается по наведению, а канон написания остаётся
+  # единственным (6.3).
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      permalink_title: Ссылка на этот заголовок
+      # Тем же слагом считает анкоря `tools/linkcheck.py` (S-LINK-MD). Умолчание
+      # python-markdown выбрасывает всё вне ASCII, и от «## 3. Механика» остался
+      # бы анкорь «3».
+      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.snippets
+
+extra_css:
+  - assets/extra.css
+
+extra:
+  # Плашка статуса в оглавлении. Ключи — словарь `statuses` из `taxonomy.yaml`.
+  status:
+    stub: Заглушка, в работе
+    draft: Черновик, не прошёл приёмку
+    published: Прошёл приёмку
+  # Аналитики нет и не будет: сайт открывается с диска и никуда не стучится.
+  generator: false

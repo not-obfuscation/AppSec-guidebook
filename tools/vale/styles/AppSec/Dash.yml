@@ -1,0 +1,7 @@
+extends: existence
+message: "6.4: дефис вместо длинного тире в «%s»"
+link: STYLE.md#L-DASH
+level: error
+nonword: true
+tokens:
+  - '\s(-|--)\s'

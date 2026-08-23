@@ -1,0 +1,13 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Панель настроек</title>
+<p>Доверенный виджет с третьего origin.</p>
+<button id="apply">Тёмная тема</button>
+<script>
+  // Виджет вложен в страницу приложения и отправляет настройку наверх.
+  // Целевой origin указан явно: подстановка "*" отдала бы сообщение любому,
+  // кто встроит виджет (HTML Standard § 9.3.2.1).
+  document.getElementById('apply').addEventListener('click', () => {
+    parent.postMessage(JSON.stringify({ theme: 'тёмная' }), 'http://127.0.0.1:8081');
+  });
+</script>

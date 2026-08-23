@@ -1,0 +1,8 @@
+extends: existence
+message: "6.4: прямые кавычки в тексте — снаружи кода ставятся «ёлочки»"
+link: STYLE.md#L-QUOTES
+level: error
+nonword: true
+tokens:
+  - '"[^"]{1,80}"'
+  - "''[^']{1,80}''"

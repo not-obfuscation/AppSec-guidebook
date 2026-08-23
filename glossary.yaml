@@ -1,0 +1,1054 @@
+# Глоссарий гайдбука. Единственный источник истины по терминам.
+#
+# Правится руками, как и `sources.yaml`. Из него собирается `GLOSSARY.md`
+# (`tools/gen_glossary.py`) и из него же читают проверки семейства `G-*`
+# (`tools/glossary_lint.py`, правила описаны в `STYLE.md` § 5). Второго списка
+# правильных написаний в проекте нет: `MD044` выключен именно поэтому.
+#
+# Состав: только термины, которыми уже пользуются написанные темы. Термин,
+# заведённый впрок, немедленно даёт предупреждение `G-UNUSED` — это не помеха,
+# а напоминание, что глоссарий следует за текстом, а не наоборот.
+#
+# Поля записи
+#   id          — устойчивый ключ, kebab-case. Ссылки в `see_also` идут по нему
+#   term        — каноническое написание, ровно то, что стоит в прозе тем
+#   en          — оригинал, если термин переведён или имеет английский источник
+#   abbr        — аббревиатура, если она употребляется вместо полной формы
+#   aliases     — другие законные написания и синонимы; `G-SYNSET` следит,
+#                 чтобы два термина не претендовали на один синоним
+#   group       — раздел `GLOSSARY.md`, ключ из списка `groups` ниже
+#   definition  — одно-три предложения. Определение, а не пересказ темы
+#   defines     — темы, которые вводят термин своим содержанием. Для них
+#                 `G-FIRST` не требует раскрытия в скобках
+#   see_also    — `id` соседних терминов, с которыми этот путают или граничит
+#   source      — первоисточник определения, если оно взято из спецификации
+
+groups:
+  - id: protocol
+    title: Протокол и сообщения
+  - id: url
+    title: Адреса и кодирование
+  - id: origin
+    title: Источник и его политика
+  - id: state
+    title: Состояние — cookie, сессии, токены
+  - id: headers
+    title: Поля ответа и политики
+  - id: transport
+    title: Транспорт и посредники
+  - id: api
+    title: API — REST и GraphQL
+  - id: crypto
+    title: Хеши и хранение паролей
+  - id: craft
+    title: Ремесло ревью
+  - id: standards
+    title: Стандарты и каталоги
+
+terms:
+
+  # --- protocol -------------------------------------------------------------
+
+  - id: http
+    term: HTTP
+    en: Hypertext Transfer Protocol
+    group: protocol
+    definition: >
+      Протокол обмена сообщениями «запрос — ответ», не помнящий предыдущего
+      запроса. Из-за этого всякое состояние переносится самим сообщением, и
+      отсюда растут cookie, сессии и токены.
+    defines: [http-basics]
+    see_also: [start-line, header-field, session, token]
+    source: RFC 9110 (STD 97)
+
+  - id: start-line
+    term: start-line
+    group: protocol
+    definition: >
+      Первая строка сообщения. У запроса состоит из метода, цели запроса и
+      версии протокола, у ответа — из версии, кода состояния и поясняющей
+      фразы. Дальше в обоих сообщениях идут поля, пустая строка и тело, если
+      оно есть.
+    defines: [http-basics]
+    see_also: [http, method, header-field]
+    source: RFC 9110
+
+  - id: method
+    term: метод
+    en: method
+    group: protocol
+    definition: >
+      Токен в start-line, объявляющий цель запроса; первичный источник
+      семантики запроса. Регистрозависим, а стандартные методы записываются
+      заглавными.
+    defines: [http-basics]
+    see_also: [safe-method, start-line]
+    source: RFC 9110 § 9.1
+
+  - id: safe-method
+    term: безопасный метод
+    en: safe method
+    group: protocol
+    definition: >
+      Метод, о котором протокол утверждает, что он не меняет состояние на
+      сервере. Свойство описывает намерение, а не гарантию: приложение вольно
+      менять состояние по `GET`, и протокол этому не мешает.
+    defines: [http-basics]
+    see_also: [method, idempotency]
+    source: RFC 9110 § 9.2.1
+
+  - id: idempotency
+    term: идемпотентность
+    en: idempotency
+    group: protocol
+    definition: >
+      Свойство метода, при котором повторение одного и того же запроса даёт то
+      же состояние, что и однократное исполнение. Опора серверных защит: повтор
+      подделанного запроса не добавляет атакующему ничего нового.
+    defines: []
+    see_also: [safe-method, method]
+    source: RFC 9110 § 9.2.2
+
+  - id: header-field
+    term: поле заголовка
+    en: header field
+    group: protocol
+    definition: >
+      Пара «имя — значение» в сообщении. Имя регистронезависимо; исторические
+      реализации заменяют в имени дефис подчёркиванием, и на этом расхождении
+      строится часть атак на посредников.
+    defines: [http-basics]
+    see_also: [start-line, x-forwarded-for]
+    source: RFC 9110 § 17.10
+
+  - id: status-code
+    term: код ответа
+    en: status code
+    aliases: ['код состояния']
+    group: protocol
+    definition: >
+      Трёхзначное число в start-line ответа. Клиент обязан понимать класс кода
+      и обращаться с незнакомым кодом как с `x00` своего класса: `471`
+      обрабатывается как `400`.
+    defines: [http-basics]
+    see_also: [start-line]
+    source: RFC 9110 § 15
+
+  - id: trust-boundary
+    term: граница доверия
+    en: trust boundary
+    group: craft
+    definition: >
+      Линия, за которой данные перестают быть под контролем приложения.
+      Сообщение приходит из-за границы доверия целиком: атакующий выбирает
+      метод, цель запроса, каждое имя и значение поля, тело.
+    defines: [http-basics, password-storage]
+    see_also: [sink, threat-model]
+
+  - id: sink
+    term: sink
+    group: craft
+    definition: >
+      Место, где данные достигают действия с последствиями: запрос к базе,
+      вывод в разметку, строка в таблице учётных записей. Второй конец пары
+      «источник — sink», вокруг которой строится разбор дефекта.
+    defines: [password-storage]
+    see_also: [trust-boundary, threat-model]
+
+  - id: endpoint
+    term: эндпоинт
+    en: endpoint
+    group: api
+    definition: >
+      Адрес, по которому приложение принимает запрос. В REST это пара «метод и
+      путь», видимая в маршрутах и в описании OpenAPI; в GraphQL адрес один, а
+      точками входа служат поля схемы.
+    defines: [rest-and-graphql]
+    see_also: [rest, graphql, resolver, openapi]
+
+  - id: stand
+    term: стенд
+    group: craft
+    definition: >
+      Своё приложение, поднятое для опытов. Все задачи гайда ставятся на стенде
+      автора, а не на чужой системе: полезная работа с уязвимостью начинается
+      там, где на неё есть право.
+    defines: []
+    see_also: [threat-model]
+
+  # --- url ------------------------------------------------------------------
+
+  - id: url
+    term: URL
+    en: Uniform Resource Locator
+    group: url
+    definition: >
+      Адрес ресурса. Раскладывается на компоненты двумя способами: RFC 3986
+      описывает обобщённый синтаксис URI, URL Standard — структуру, которую
+      строит браузер. Часть расхождений между парсерами берётся отсюда.
+    defines: [url-and-encoding]
+    see_also: [uri, percent-encoding, normalization, origin]
+    source: RFC 3986 (STD 66), URL Standard
+
+  - id: uri
+    term: URI
+    en: Uniform Resource Identifier
+    group: url
+    definition: >
+      Идентификатор ресурса в терминах RFC 3986. Разложение на пять
+      компонентов — схема, authority, путь, запрос, фрагмент — принадлежит
+      этой спецификации.
+    defines: [url-and-encoding]
+    see_also: [url]
+    source: RFC 3986 § 3
+
+  - id: percent-encoding
+    term: процентное кодирование
+    en: percent-encoding
+    group: url
+    definition: >
+      Запись байта строкой из символа `%` и двух шестнадцатеричных
+      ASCII-цифр. Ключевое свойство — набор символов, которые надо кодировать,
+      зависит от компонента адреса, поэтому одно и то же значение в разных
+      компонентах кодируется по-разному.
+    defines: [url-and-encoding]
+    see_also: [url, normalization, double-encoding]
+    source: URL Standard § 1.3
+
+  - id: double-encoding
+    term: двойное кодирование
+    en: double encoding
+    group: url
+    definition: >
+      Процентное кодирование, применённое к уже закодированной строке:
+      `%252e` разворачивается в `%2e`, а тот — в точку. Опасно там, где
+      декодирование идёт больше одного раза, а проверка — один.
+    defines: [url-and-encoding]
+    see_also: [percent-encoding, normalization]
+
+  - id: normalization
+    term: нормализация
+    en: normalization
+    group: url
+    definition: >
+      Приведение значения к канонической форме перед сравнением. Порядок
+      обязателен: нормализация выполняется до проверки, и проверяется
+      нормализованное значение, иначе проверка смотрит на одну строку, а
+      система работает с другой.
+    defines: [url-and-encoding]
+    see_also: [percent-encoding, skeleton, double-encoding]
+
+  - id: skeleton
+    term: skeleton
+    group: url
+    definition: >
+      Механизм UTS #39 для сравнения строк, похожих на вид. Приводит строку к
+      NFD, удаляет символы со свойством `Default_Ignorable_Code_Point`,
+      заменяет каждый символ прототипом из таблицы confusables и снова
+      применяет NFD; две строки визуально похожи, если их skeleton совпадают.
+    defines: [url-and-encoding]
+    see_also: [confusables, normalization]
+    source: UTS #39 § 4
+
+  - id: confusables
+    term: confusables
+    group: url
+    definition: >
+      Таблица Unicode, сводящая символы, которые выглядят похоже: `1/l/I`,
+      `m/rn`, `0/O`, `а/a`. Отдельный класс — символы, невидимые вовсе, вроде
+      U+202A LEFT-TO-RIGHT EMBEDDING.
+    aliases: [омоглиф]
+    defines: [url-and-encoding]
+    see_also: [skeleton]
+    source: UTS #39
+
+  # --- origin ---------------------------------------------------------------
+
+  - id: origin
+    term: origin
+    aliases: [источник, происхождение]
+    group: origin
+    definition: >
+      Единица, между которой браузер проводит границу доверия: акторы с общим
+      origin считаются доверяющими друг другу и имеющими одинаковые
+      полномочия, акторы с разными origin — потенциально враждебными.
+      Спецификация различает два вида, opaque и tuple.
+    defines: [same-origin-policy]
+    see_also: [opaque-origin, tuple-origin, same-origin-policy, cors]
+    source: HTML Standard
+
+  - id: tuple-origin
+    term: tuple origin
+    group: origin
+    definition: >
+      Origin из четырёх полей: схема, хост, порт и домен, по умолчанию `null`.
+      Сравнение идёт по полям, а не по строке адреса.
+    defines: [same-origin-policy]
+    see_also: [origin, opaque-origin]
+    source: HTML Standard
+
+  - id: opaque-origin
+    term: opaque origin
+    group: origin
+    definition: >
+      Внутреннее значение без восстановимой записи, сериализуется строкой
+      `null`; единственная осмысленная операция над ним — сравнение на
+      равенство. Приходит от документа в песочнице `iframe` и от страницы со
+      схемой `data:`.
+    defines: [same-origin-policy]
+    see_also: [origin, tuple-origin, cors]
+    source: HTML Standard
+
+  - id: same-origin-policy
+    term: политика одного источника
+    en: same-origin policy
+    aliases: [SOP]
+    group: origin
+    definition: >
+      Правило браузера, по которому документ читает данные только своего
+      origin. Отправке запроса наружу политика не мешает и о правах
+      отправителя не говорит ничего: доверенный origin, на котором есть XSS,
+      шлёт сообщения от своего имени.
+    defines: [same-origin-policy]
+    see_also: [origin, cors, csrf-token, samesite]
+    source: HTML Standard
+
+  - id: cors
+    term: CORS
+    en: Cross-Origin Resource Sharing
+    group: origin
+    definition: >
+      Механизм, которым сервер разрешает браузеру отдать скрипту ответ,
+      полученный из другого origin. Разрешение выдаёт ответ сервера, а
+      исполняет его браузер: без разрешения запрос уходит, а ответ скрипту не
+      достаётся.
+    defines: [cors]
+    see_also: [preflight, same-origin-policy, origin, vary]
+    source: Fetch Standard
+
+  - id: preflight
+    term: предварительный запрос
+    en: preflight request
+    aliases: [preflight-запрос]
+    group: origin
+    definition: >
+      Запрос методом `OPTIONS`, которым браузер спрашивает разрешение до
+      отправки основного. Порождается не всяким кросс-доменным запросом:
+      разрешённые сочетания метода и полей его не требуют.
+    defines: [cors]
+    see_also: [cors, method, same-origin-policy]
+    source: Fetch Standard
+
+  - id: cross-origin
+    term: кросс-доменный
+    en: cross-origin
+    group: origin
+    definition: >
+      Признак запроса или ресурса, у которого origin не совпадает с origin
+      документа. Слово говорит о разнице origin, а не о разнице доменов
+      второго уровня: другой порт и другая схема тоже дают кросс-доменность.
+    defines: [cors, same-origin-policy]
+    see_also: [origin, same-origin-policy, cors]
+
+  # --- state ----------------------------------------------------------------
+
+  - id: cookie
+    term: cookie
+    group: state
+    definition: >
+      Пара «имя — значение», которую сервер устанавливает полем `Set-Cookie`, а
+      браузер возвращает в последующих запросах. Область действия cookie задаёт
+      своя модель, не совпадающая с origin: схема и порт в ней не участвуют.
+    defines: [cookies]
+    see_also: [set-cookie, cookie-prefix, samesite, httponly, secure-attribute, session]
+    source: draft-ietf-httpbis-rfc6265bis-22
+
+  - id: set-cookie
+    term: Set-Cookie
+    group: state
+    definition: >
+      Поле ответа, которым сервер устанавливает cookie вместе с атрибутами.
+      Обратно приходит только `имя=значение`: атрибуты браузер не возвращает, и
+      сервер не может убедиться, с какими атрибутами cookie была установлена.
+    defines: [cookies]
+    see_also: [cookie, cookie-prefix]
+    source: draft-ietf-httpbis-rfc6265bis-22
+
+  - id: cookie-prefix
+    term: префикс имени cookie
+    en: cookie prefix
+    aliases: ['префикс имени', '__Secure-', '__Host-']
+    group: state
+    definition: >
+      Требование к атрибутам, закодированное в самом имени: `__Secure-` и
+      `__Host-`. Придумано затем, чтобы сервер мог проверить набор атрибутов по
+      тому, что ему приходит, — по имени, единственному, что возвращает
+      браузер.
+    defines: [cookies]
+    see_also: [cookie, set-cookie, secure-attribute]
+    source: draft-ietf-httpbis-rfc6265bis-22
+
+  - id: secure-attribute
+    term: Secure
+    group: state
+    definition: >
+      Атрибут cookie, запрещающий отправлять её по незащищённому каналу.
+      Целостности не даёт: посредник в канале без TLS может cookie установить,
+      даже если прочитать её не может.
+    defines: [cookies]
+    see_also: [cookie, httponly, hsts]
+    source: draft-ietf-httpbis-rfc6265bis-22
+
+  - id: httponly
+    term: HttpOnly
+    group: state
+    definition: >
+      Атрибут cookie, закрывающий её от скриптов страницы. Кражу через XSS
+      снижает, но не исключает: остаются каналы, по которым значение уходит без
+      прямого чтения.
+    defines: [cookies]
+    see_also: [cookie, secure-attribute, same-origin-policy]
+    source: draft-ietf-httpbis-rfc6265bis-22
+
+  - id: samesite
+    term: SameSite
+    group: state
+    definition: >
+      Атрибут cookie, ограничивающий её отправку запросами того же сайта.
+      Серверных защит не отменяет: same-site-запросы исполняются в связке с XSS
+      или злоупотреблением редиректами.
+    defines: [cookies]
+    see_also: [cookie, csrf-token, same-origin-policy]
+    source: draft-ietf-httpbis-rfc6265bis-22
+
+  - id: session
+    term: сессия
+    en: session
+    group: state
+    definition: >
+      Состояние, связывающее последовательность запросов одного пользователя.
+      Смысл сессии лежит либо в хранилище сервера, либо в самом сообщении, и
+      это различие определяет всё остальное: отзыв, срок и то, что видно
+      атакующему.
+    defines: [sessions-vs-tokens]
+    see_also: [session-id, token, reference-token, self-contained-token, session-fixation]
+
+  - id: session-id
+    term: идентификатор сессии
+    en: session identifier
+    group: state
+    definition: >
+      Значение, по которому сервер находит запись сессии. Требования к нему
+      три: имя не раскрывает стек, значение имеет достаточную энтропию, и
+      приложение отвергает значение, которого само не выдавало.
+    defines: [sessions-vs-tokens]
+    see_also: [session, entropy, session-fixation, csprng]
+    source: OWASP Session Management Cheat Sheet
+
+  - id: session-fixation
+    term: session fixation
+    aliases: [фиксация сессии]
+    group: state
+    definition: >
+      Атака, в которой значение сессии задаёт атакующий, а жертва входит уже
+      под ним. Лечится сменой идентификатора при смене прав: старая запись
+      гасится, новая создаётся.
+    defines: []
+    see_also: [session-id, session]
+
+  - id: token
+    term: токен
+    en: token
+    group: state
+    definition: >
+      Значение, которым клиент предъявляет свою сессию. Различают ссылочный и
+      самодостаточный: первый несёт бессмысленный идентификатор, второй — сами
+      утверждения вместе с подписью.
+    defines: [sessions-vs-tokens]
+    see_also: [reference-token, self-contained-token, jwt, session]
+
+  - id: reference-token
+    term: ссылочный токен
+    en: reference token
+    group: state
+    definition: >
+      Токен, несущий бессмысленный идентификатор; кто вы, что вам можно и когда
+      сессия истекает — лежит в хранилище сервера. Гасится записью на бэкенде.
+    defines: [sessions-vs-tokens]
+    see_also: [token, self-contained-token, session-id]
+
+  - id: self-contained-token
+    term: самодостаточный токен
+    en: self-contained token
+    group: state
+    definition: >
+      Токен, несущий сами утверждения вместе с подписью; сервер о сессии не
+      хранит ничего. Цена — отзыв: до истечения срока он требует списка
+      завершённых токенов, отказа от токенов старше даты или ротации ключа
+      подписи.
+    defines: [sessions-vs-tokens]
+    see_also: [token, reference-token, jwt]
+    source: ASVS v5.0-7.4.1
+
+  - id: jwt
+    term: JWT
+    en: JSON Web Token
+    group: state
+    definition: >
+      Формат самодостаточного токена: три части, разделённые точками, первые
+      две декодируются из base64url в осмысленный JSON. Опознаётся по этому
+      признаку без ключа и без проверки подписи.
+    defines: [sessions-vs-tokens]
+    see_also: [self-contained-token, base64url, token]
+    source: RFC 7519 § 3
+
+  - id: base64url
+    term: base64url
+    group: state
+    definition: >
+      Кодирование двоичных данных печатными символами, пригодными для адреса.
+      Не шифрование и не подпись: значение читается без ключа, и содержимое
+      токена в этой кодировке считается открытым.
+    defines: [sessions-vs-tokens]
+    see_also: [jwt]
+    source: RFC 7519
+
+  - id: csrf-token
+    term: CSRF-токен
+    group: state
+    definition: >
+      Значение, которое приложение выдаёт своей странице и требует обратно при
+      изменяющем действии, чтобы отличить свой запрос от подделанного чужим
+      сайтом. Дополняет `SameSite`, а не заменяется им.
+    defines: []
+    see_also: [samesite, same-origin-policy, idempotency]
+
+  # --- headers --------------------------------------------------------------
+
+  - id: csp
+    term: CSP
+    en: Content Security Policy
+    group: headers
+    definition: >
+      Политика в поле ответа, перечисляющая, откуда странице разрешено брать
+      ресурсы и что разрешено исполнять. Состоит из директив; ресурс разрешён,
+      если подходит хотя бы под одно выражение источника своей директивы.
+    defines: [csp]
+    see_also: [directive, nonce, hash-source, frame-ancestors, security-headers]
+    source: CSP Level 3
+
+  - id: directive
+    term: директива
+    en: directive
+    group: headers
+    definition: >
+      Единица политики: имя и либо `'none'`, либо одно и более выражений
+      источника через пробел. Одна директива комбинирует разные виды выражений
+      — одноразовые значения и имена хостов вместе.
+    defines: [csp]
+    see_also: [csp, nonce, hash-source]
+    source: CSP Level 3 § 2.3
+
+  - id: nonce
+    term: одноразовое значение
+    en: nonce
+    group: headers
+    definition: >
+      Выражение источника, разрешающее ровно те скрипты документа, у которых
+      совпал атрибут. Одноразовость обязательна: значение, вычисленное один раз
+      при запуске, разрешает и свой скрипт, и внедрённый, и статическую
+      страницу с такой политикой отдавать нельзя.
+    defines: [csp]
+    see_also: [csp, directive, hash-source, csprng]
+    source: CSP Level 3 § 2.3.1
+
+  - id: hash-source
+    term: отпечаток
+    en: hash-source
+    group: headers
+    definition: >
+      Выражение источника, разрешающее скрипт по хешу его содержимого:
+      `sha256`, `sha384` или `sha512`. Привязано к содержимому, поэтому правка
+      скрипта требует правки политики.
+    defines: [csp]
+    see_also: [csp, nonce, hash-function]
+    source: CSP Level 3 § 2.3.1
+
+  - id: frame-ancestors
+    term: frame-ancestors
+    group: headers
+    definition: >
+      Директива CSP, задающая, кому разрешено встраивать страницу в кадр.
+      Вытеснила отдельное поле `X-Frame-Options` и покрывает его случай
+      целиком.
+    defines: [csp, security-headers]
+    see_also: [csp, directive, security-headers]
+    source: CSP Level 3
+
+  - id: security-headers
+    term: security-заголовки
+    en: security headers
+    group: headers
+    definition: >
+      Группа полей ответа, каждое из которых включает одно небольшое
+      ограничение. Читается с обратным ожиданием: группа сокращается — часть
+      полей вытеснена директивами CSP, часть признана вредной, часть мертва.
+    defines: [security-headers]
+    see_also: [csp, hsts, frame-ancestors, referrer-policy]
+    source: OWASP Secure Headers Cheat Sheet
+
+  - id: hsts
+    term: HSTS
+    en: HTTP Strict Transport Security
+    group: headers
+    definition: >
+      Политика, которой сервер требует обращаться к себе только по защищённому
+      каналу. Единственное поле группы, у которого есть своя спецификация и
+      своя модель угроз.
+    defines: [security-headers]
+    see_also: [security-headers, bootstrap-mitm, tls, secure-attribute]
+    source: RFC 6797
+
+  - id: bootstrap-mitm
+    term: bootstrap MITM
+    group: headers
+    definition: >
+      Окно, которое HSTS не закрывает: первое обращение к незнакомому узлу по
+      адресу со схемой `http` идёт по незащищённому каналу, и политики у
+      браузера ещё нет.
+    defines: [security-headers]
+    see_also: [hsts, mitm, tls]
+    source: RFC 6797 § 14.6
+
+  - id: referrer-policy
+    term: Referrer-Policy
+    group: headers
+    definition: >
+      Поле ответа, управляющее тем, сколько сведений об адресе страницы уйдёт в
+      поле `Referer` следующего запроса. Требуется политика, не пускающая путь
+      и строку запроса третьим сторонам.
+    defines: [security-headers]
+    see_also: [security-headers, url]
+    source: ASVS v5.0-3.4.5
+
+  - id: vary
+    term: Vary
+    group: headers
+    definition: >
+      Поле ответа, называющее поля запроса, от которых ответ зависит. В связке
+      с CORS обязательно: без него кеш отдаёт разрешение, выданное одному
+      origin, другому.
+    defines: [cors]
+    see_also: [cors, cache]
+    source: RFC 9110
+
+  # --- transport ------------------------------------------------------------
+
+  - id: tls
+    term: TLS
+    en: Transport Layer Security
+    group: transport
+    definition: >
+      Протокол защиты канала: подтверждает, с кем установлено соединение, и
+      закрывает содержимое от посредника. Аутентификацию узла даёт проверка
+      сертификата, и без неё остальное не имеет силы.
+    defines: [tls-and-proxy]
+    see_also: [certificate-chain, trust-anchor, mitm, hsts]
+    source: RFC 9846
+
+  - id: certificate-chain
+    term: цепочка сертификатов
+    en: certificate chain
+    group: transport
+    definition: >
+      Последовательность сертификатов от предъявленного до якоря доверия. Для
+      каждого звена проверяется четыре вещи: подпись, срок, отзыв и
+      соответствие имени.
+    defines: [tls-and-proxy]
+    see_also: [trust-anchor, tls, self-signed]
+    source: RFC 5280 § 6.1.3
+
+  - id: trust-anchor
+    term: якорь доверия
+    en: trust anchor
+    group: transport
+    definition: >
+      Вход алгоритма проверки пути: сертификат, которому доверяют без проверки.
+      Цель алгоритма — подтвердить связь между именем субъекта и его открытым
+      ключом, опираясь на открытый ключ якоря.
+    defines: [tls-and-proxy]
+    see_also: [certificate-chain, tls, self-signed]
+    source: RFC 5280 § 6.1
+
+  - id: self-signed
+    term: самоподписанный сертификат
+    en: self-signed certificate
+    group: transport
+    definition: >
+      Сертификат, подписанный своим же ключом. На стенде законен, но требует
+      явно настроенного якоря; отключение проверки вместо этого остаётся в коде
+      после отладки и снимает аутентификацию узла целиком.
+    defines: [tls-and-proxy]
+    see_also: [trust-anchor, certificate-chain, tls]
+    source: ASVS v5.0-12.3.4
+
+  - id: mitm
+    term: MITM
+    en: man in the middle
+    group: transport
+    definition: >
+      Посредник в канале, который читает и меняет сообщения. В работе это не
+      только атака: перехватывающий прокси инструментального набора устроен так
+      же и требует того же доверенного корня.
+    defines: [tls-and-proxy]
+    see_also: [tls, intercepting-proxy, bootstrap-mitm]
+
+  - id: intercepting-proxy
+    term: перехватывающий прокси
+    en: intercepting proxy
+    group: transport
+    definition: >
+      Инструмент, который встаёт между клиентом и сервером и предъявляет
+      клиенту свой сертификат. Работает только там, где его корень добавлен в
+      доверенные, и на этом же держится разница между инструментом и атакой.
+    defines: [tls-and-proxy]
+    see_also: [mitm, tls, reverse-proxy]
+
+  - id: reverse-proxy
+    term: обратный прокси
+    en: reverse proxy
+    group: transport
+    definition: >
+      Посредник со стороны сервера: скрывает серверы и берёт на себя
+      балансировку, кеширование и завершение TLS. Разбирает и пересобирает
+      сообщение, поэтому список точек входа, собранный на нём, неполон.
+    defines: [app-architecture]
+    see_also: [forward-proxy, cdn, x-forwarded-for, endpoint]
+    source: MDN
+
+  - id: forward-proxy
+    term: прямой прокси
+    en: forward proxy
+    group: transport
+    definition: >
+      Посредник со стороны клиента: обслуживает клиента или группу клиентов и
+      может скрывать их адреса.
+    defines: [app-architecture]
+    see_also: [reverse-proxy, x-forwarded-for]
+    source: MDN
+
+  - id: cdn
+    term: сеть доставки
+    en: content delivery network
+    abbr: CDN
+    group: transport
+    definition: >
+      Слой узлов, отдающих ответы близко к клиенту. Ещё одно место, где
+      сообщение пересобирается, а поля ответа дописываются или переписываются.
+    defines: [app-architecture]
+    see_also: [reverse-proxy, cache, security-headers]
+
+  - id: cache
+    term: кеш
+    en: cache
+    group: transport
+    definition: >
+      Узел, отдающий сохранённый ответ вместо обращения к серверу. Опасен
+      ровно там, где ответ зависит от того, чего кеш не учитывает, — отсюда
+      обязательность `Vary`.
+    defines: [app-architecture]
+    see_also: [vary, cdn, reverse-proxy]
+    source: RFC 9111 (STD 98)
+
+  - id: x-forwarded-for
+    term: X-Forwarded-For
+    group: transport
+    definition: >
+      Поле, в которое посредники пишут адреса клиента и предыдущих
+      посредников. Наличие поля нормально: его ставит свой прокси. Дефект — это
+      решение о доступе, ограничение частоты или сборка ссылок по нему.
+    defines: [app-architecture]
+    see_also: [reverse-proxy, forward-proxy, header-field, rate-limiting]
+    source: RFC 7239
+
+  - id: spa
+    term: SPA
+    en: single-page application
+    group: transport
+    definition: >
+      Приложение, у которого разметку собирает клиент. Для разбора важно не
+      быстродействие, а то, что уезжает на клиент: логика вместе с адресами
+      эндпоинтов, именами полей и признаками ролей.
+    defines: [app-architecture]
+    see_also: [endpoint, rest, graphql]
+
+  # --- api ------------------------------------------------------------------
+
+  - id: rest
+    term: REST
+    group: api
+    definition: >
+      Стиль устройства API, в котором точка входа — пара «метод и путь». Точки
+      входа перечислимы: они видны в маршрутах и в описании OpenAPI.
+    defines: [rest-and-graphql]
+    see_also: [graphql, endpoint, openapi]
+    source: OWASP REST Security Cheat Sheet
+
+  - id: graphql
+    term: GraphQL
+    group: api
+    definition: >
+      Язык запросов к схеме, у которого адрес один, а точками входа служат поля
+      схемы: их сотни, и каждое исполняется своим резолвером. Правило на прокси,
+      разрешающее один этот адрес, разрешает всё, что можно выразить схемой.
+    defines: [rest-and-graphql]
+    see_also: [rest, resolver, introspection, alias, endpoint]
+
+  - id: resolver
+    term: резолвер
+    en: resolver
+    group: api
+    definition: >
+      Функция, исполняющая одно поле схемы GraphQL. Уровень, на котором стоит
+      проверка доступа, определяет её ценность: проверка в резолвере корневого
+      поля не защищает ни одно вложенное.
+    defines: [rest-and-graphql]
+    see_also: [graphql, endpoint, authorization]
+
+  - id: introspection
+    term: интроспекция
+    en: introspection
+    group: api
+    definition: >
+      Возможность запросить у сервера GraphQL описание его собственной схемы.
+      Включённая интроспекция сама по себе находкой не служит: её выключение —
+      это security through obscurity, и одного его недостаточно.
+    defines: [rest-and-graphql]
+    see_also: [graphql, resolver]
+
+  - id: alias
+    term: псевдоним
+    en: alias
+    group: api
+    definition: >
+      Имя, под которым результат поля возвращается в ответе GraphQL. Один
+      запрос с сотней псевдонимов одного поля остаётся одним запросом `POST` и
+      проходит любой ограничитель, считающий запросы.
+    defines: [rest-and-graphql]
+    see_also: [graphql, rate-limiting, resolver]
+
+  - id: openapi
+    term: OpenAPI
+    group: api
+    definition: >
+      Формат описания REST API. Задаёт, среди прочего, где искать параметр
+      операции: `path`, `query`, `querystring`, `header`, `cookie`.
+    defines: [rest-and-graphql]
+    see_also: [rest, endpoint]
+    source: OpenAPI v3.2.0
+
+  - id: rate-limiting
+    term: ограничение частоты
+    en: rate limiting
+    group: api
+    definition: >
+      Ограничение числа запросов за интервал. Считать запросы достаточно не
+      всегда: сервер заранее не знает, насколько дорого обойдётся конкретный
+      набор полей, поэтому ограничения ставят в слое бизнес-логики.
+    defines: [rest-and-graphql, app-architecture]
+    see_also: [alias, graphql, x-forwarded-for]
+
+  - id: authorization
+    term: авторизация
+    en: authorization
+    group: api
+    definition: >
+      Решение о том, что этому обратившемуся можно. Отделено от
+      аутентификации, которая отвечает на другой вопрос — кто обратился; в
+      GraphQL выполняется бизнес-логикой на уровне поля.
+    defines: [rest-and-graphql]
+    see_also: [authentication, resolver, graphql]
+
+  - id: authentication
+    term: аутентификация
+    en: authentication
+    group: api
+    definition: >
+      Установление того, кто обратился. GraphQL ставится после всего
+      промежуточного слоя аутентификации, и после неё сервер не принимает
+      решений об авторизации до начала исполнения.
+    defines: []
+    see_also: [authorization, session, password-hash]
+
+  # --- crypto ---------------------------------------------------------------
+
+  - id: hash-function
+    term: хеш-функция
+    en: hash function
+    group: crypto
+    definition: >
+      Функция, сводящая вход произвольной длины к значению фиксированной. Для
+      хранения паролей быстрая функция не годится: скорость — её достоинство и
+      ровно то, что помогает атакующему.
+    defines: [password-storage]
+    see_also: [password-hash, salt, cost-factor, hash-source]
+
+  - id: password-hash
+    term: функция хеширования паролей
+    en: password hashing function
+    aliases: ['функция с настраиваемой ценой']
+    group: crypto
+    definition: >
+      Функция с настраиваемой ценой вычисления и уникальной солью на запись:
+      argon2id, scrypt, bcrypt или PBKDF2. Отличать «хеширует» от «хеширует
+      так, что перебор дорог» — навык ревьюера.
+    defines: [password-storage]
+    see_also: [salt, cost-factor, argon2id, scrypt, bcrypt, pbkdf2, hash-function]
+    source: OWASP Password Storage Cheat Sheet
+
+  - id: salt
+    term: соль
+    en: salt
+    group: crypto
+    definition: >
+      Уникальное для каждой записи значение, добавляемое к паролю перед
+      хешированием. Секретом не считается. Даёт три следствия: хеши вскрываются
+      по одному, заранее посчитанные таблицы не подходят, и по дампу не видно,
+      что два пользователя выбрали один пароль. Одну догадку не удорожает.
+    defines: [password-storage]
+    see_also: [cost-factor, rainbow-table, password-hash]
+    source: OWASP Password Storage Cheat Sheet
+
+  - id: cost-factor
+    term: фактор стоимости
+    en: cost factor
+    group: crypto
+    definition: >
+      Настраиваемая цена одного вычисления хеша. Без него перебор идёт на
+      полной скорости функции; вместе с уникальной солью он и определяет, во
+      что атакующему обойдётся одна догадка.
+    defines: [password-storage]
+    see_also: [salt, password-hash, argon2id, scrypt]
+    source: NIST SP 800-63B-4 § 3.1.1.2
+
+  - id: rainbow-table
+    term: радужная таблица
+    en: rainbow table
+    group: crypto
+    definition: >
+      Заранее посчитанная таблица соответствий «хеш — пароль». Перестаёт
+      подходить при уникальной соли, и только при уникальной: общая соль на всю
+      базу оставляет одну таблицу кандидатов пригодной ко всем записям.
+    defines: [password-storage]
+    see_also: [salt, password-hash]
+
+  - id: argon2id
+    term: Argon2id
+    group: crypto
+    definition: >
+      Функция хеширования паролей с настраиваемыми временем, памятью и
+      параллелизмом. Первая рекомендация Cheat Sheet для новых систем.
+    defines: [password-storage]
+    see_also: [password-hash, cost-factor, scrypt, bcrypt]
+    source: RFC 9106
+
+  - id: scrypt
+    term: scrypt
+    group: crypto
+    definition: >
+      Функция хеширования паролей, цена которой задаётся параметрами `N`, `r` и
+      `p`. Вызов без явных параметров опасен умолчаниями: они бывают на порядки
+      ниже нужного.
+    defines: [password-storage]
+    see_also: [password-hash, cost-factor, argon2id]
+
+  - id: bcrypt
+    term: bcrypt
+    group: crypto
+    definition: >
+      Функция хеширования паролей с фактором стоимости в самом значении.
+      Отдельная особенность — ограничение длины входа, из-за которого длинный
+      пароль усекается.
+    defines: [password-storage]
+    see_also: [password-hash, cost-factor]
+
+  - id: pbkdf2
+    term: PBKDF2
+    group: crypto
+    definition: >
+      Функция вывода ключа из пароля, цена которой задаётся числом итераций.
+      Годится там, где требуется алгоритм из утверждённого списка; по цене
+      догадки уступает argon2id и scrypt.
+    defines: [password-storage]
+    see_also: [password-hash, cost-factor, argon2id]
+    source: NIST SP 800-63B-4
+
+  - id: entropy
+    term: энтропия
+    en: entropy
+    group: crypto
+    definition: >
+      Мера непредсказуемости значения. Различает два случая: идентификатор
+      сессии порождает сервер, и от него энтропию требуют, а пароль выбирает
+      человек, и энтропия у него низкая и внешне непроверяемая.
+    defines: [password-storage, sessions-vs-tokens]
+    see_also: [csprng, session-id, password-hash]
+    source: ASVS v5.0-6.5.2
+
+  - id: csprng
+    term: CSPRNG
+    en: cryptographically secure pseudorandom number generator
+    group: crypto
+    definition: >
+      Генератор случайных значений, пригодный для секретов. Требуется там, где
+      значение обязано быть непредсказуемым: идентификатор сессии, соль,
+      одноразовое значение политики.
+    defines: [sessions-vs-tokens, password-storage]
+    see_also: [entropy, session-id, salt, nonce]
+
+  # --- craft ----------------------------------------------------------------
+
+  - id: threat-model
+    term: модель угроз
+    en: threat model
+    group: craft
+    definition: >
+      Ответ на вопрос, от кого и от чего защищаемся, до разговора о средствах.
+      У темы про хранение паролей она начинается там, где дамп уже у
+      атакующего, и вопрос стоит один: во что ему обойдётся восстановление.
+    defines: [password-storage, security-headers]
+    see_also: [trust-boundary, sink]
+
+  - id: dump
+    term: дамп
+    en: dump
+    group: craft
+    definition: >
+      Выгрузка содержимого базы. Появляется не только при взломе базы:
+      резервные копии, реплики для чтения, снимки для тестовых стендов и
+      выгрузки для аналитики дают тот же результат.
+    defines: [password-storage]
+    see_also: [threat-model, password-hash]
+
+  - id: exploit
+    term: эксплойт
+    en: exploit
+    group: craft
+    definition: >
+      Работающее воспроизведение дефекта. В проверке фикса служит ретестом:
+      прогоняется тот же эксплойт, и признаком починки считается заранее
+      названное изменение вывода.
+    defines: [password-storage]
+    see_also: [regression-test, stand]
+
+  - id: regression-test
+    term: тест на регресс
+    en: regression test
+    aliases: ['регресс']
+    group: craft
+    definition: >
+      Тест, который остаётся в репозитории после починки и ловит откат фикса.
+      Важнее ретеста: ретест подтверждает починку один раз, тест на регресс
+      переживает правку.
+    defines: [password-storage]
+    see_also: [exploit]

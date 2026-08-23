@@ -1,0 +1,8 @@
+extends: existence
+message: "6.5: эмодзи и восклицательный знак в основном тексте не используются — «%s»"
+link: STYLE.md#L-EMOJI
+level: error
+nonword: true
+tokens:
+  - '[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]'
+  - '!(?:\s|$)'

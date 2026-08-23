@@ -1,0 +1,48 @@
+# Правило темы same-origin-policy: обработчик межоригинных сообщений, который
+# не сверяет происхождение. Ловит блок 5 темы и не ловит блок 6.
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/postmessage-no-origin-check.yaml <путь>
+# Сверка с разметкой тест-кейсов:
+#   .venv-tools/bin/python pilot/semgrep/check.py postmessage
+rules:
+  - id: postmessage-no-origin-check
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      Обработчик события message не читает origin сообщения. Любой документ,
+      получивший ссылку на это окно, вызывает обработчик от своего имени.
+      HTML Standard 9.3.2.1 требует сверять origin, а после него проверять и
+      форму данных.
+    metadata:
+      cwe: 'CWE-346: Origin Validation Error'
+      asvs: v5.0-3.5.5
+      topic: same-origin-policy
+    patterns:
+      - pattern-either:
+          - pattern: window.addEventListener("message", $H)
+          - pattern: addEventListener("message", $H)
+      - metavariable-pattern:
+          metavariable: $H
+          patterns:
+            - pattern-either:
+                - pattern: function ($E) { ... }
+                - pattern: ($E) => { ... }
+            - pattern-not-regex: \.origin\b
+
+  - id: postmessage-handler-by-name
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: >-
+      Обработчик message передан по имени: тела в этом месте нет, и проверку
+      origin автоматика здесь не подтверждает. Смотрите глазами.
+    metadata:
+      cwe: 'CWE-346: Origin Validation Error'
+      topic: same-origin-policy
+    patterns:
+      - pattern-either:
+          - pattern: window.addEventListener("message", $H)
+          - pattern: addEventListener("message", $H)
+      - metavariable-regex:
+          metavariable: $H
+          regex: ^[A-Za-z_$][A-Za-z0-9_$.]*$

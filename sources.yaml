@@ -537,6 +537,29 @@ sources:
       «формальной спецификации у SOP нет» верно только для самой политики —
       понятие origin определено здесь нормативно.
 
+  - id: whatwg-html-web-messaging
+    url: https://html.spec.whatwg.org/multipage/web-messaging.html
+    title: HTML Standard — 9.3 Cross-document messaging
+    type: spec
+    level: 1
+    publisher: WHATWG
+    version_or_date: Living Standard, правка 21 августа 2026
+    volatility: medium
+    license: CC BY 4.0
+    checked: 2026-08-23
+    status: ok
+    notes: >
+      Нормативная часть про postMessage, которой нет в §7.1.1: требования к
+      автору принимающей страницы (§9.3.2.1) — сверять origin, а после него
+      проверять и форму данных, потому что доверенный отправитель мог быть
+      взломан и тогда непроверенное тело разносит атаку дальше; запрет на
+      подстановку «*» в targetOrigin для сообщений с чувствительными
+      данными; алгоритм доставки (§9.3.3), где несовпадение targetOrigin
+      приводит к отбрасыванию сообщения, «to avoid information leakage».
+      Добавлено миссией appsec-stage0-close для темы 0.05, поднятой до L1:
+      без этого раздела блоки 5-8 ссылались бы на §7.1.1, где про
+      postMessage ничего нет. Открыт лично 2026-08-23, http 200, 134 КБ.
+
   - id: mdn-cors-errors
     url: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS/Errors
     title: CORS errors

@@ -1,0 +1,8 @@
+extends: existence
+message: "6.5: проверьте «%s» — местоимение «данный» вместо «этот» запрещено, существительное «данные» законно"
+link: STYLE.md#L-CLERICAL2
+level: warning
+ignorecase: true
+nonword: true
+tokens:
+  - '(?:^|[^\p{L}\p{N}_-])(данн(?:ые|ых|ым|ыми|ым))(?:[^\p{L}]|$)'

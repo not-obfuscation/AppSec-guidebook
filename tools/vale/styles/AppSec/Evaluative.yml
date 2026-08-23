@@ -1,0 +1,11 @@
+extends: existence
+message: "6.5: оценка «%s» без факта — замените фактом"
+link: STYLE.md#L-EVAL
+level: error
+ignorecase: true
+nonword: true
+tokens:
+  - '(?:^|[^\p{L}\p{N}_-])(мощн\p{L}*)'
+  - '(?:^|[^\p{L}\p{N}_-])(удобн\p{L}*)'
+  - '(?:^|[^\p{L}\p{N}_-])(эффективн\p{L}*)'
+  - '(?:^|[^\p{L}\p{N}_-])(гибк\p{L}*)'
