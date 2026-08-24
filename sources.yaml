@@ -896,6 +896,29 @@ sources:
       записью миссией appsec-stage1-a01: адрес издания (owasp-top10-2025)
       ведёт на оглавление, а темы подраздела 1.1 стоят на этой странице.
 
+  - id: owasp-top10-2025-a05
+    url: https://owasp.org/Top10/2025/A05_2025-Injection/
+    title: "A05:2025 Injection"
+    type: owasp
+    level: 2
+    publisher: OWASP Top 10 Team (OWASP Foundation)
+    version_or_date: издание 2025; даты релиза страница не указывает
+    volatility: medium
+    license: CC BY 3.0
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Разбор категории, а не титульный лист издания: определение
+      инъекции (недоверенные данные, которые интерпретатор исполняет как
+      команды), условия уязвимости, три меры защиты (безопасный API с
+      параметрами или ORM, серверная проверка по списку разрешённого,
+      экранирование как ненадёжная крайняя мера) и два сценария атаки —
+      SQL и команда ОС. Инъекция опустилась с третьего места на пятое,
+      37 сопоставленных CWE, из них CWE-89 (SQL), CWE-79 (XSS), CWE-78
+      (команда ОС), CWE-90 (LDAP), CWE-643 (XPath). Заведена отдельной
+      записью подразделом 1.3: адрес издания (owasp-top10-2025) ведёт на
+      оглавление, а темы Injection стоят на этой странице.
+
   - id: spring-security-authorize-http-requests
     url: https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html
     title: Spring Security Reference — Authorize HttpServletRequests

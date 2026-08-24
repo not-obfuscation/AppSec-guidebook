@@ -50,6 +50,13 @@ SUITES = {
         "fixed": "pilot/lab/ssrf-basics/solution.py",
         "note": "адрес собран приложением после сверки со списком",
     },
+    "sql-query": {
+        "rule": "pilot/semgrep/sql-query-string-built.yaml",
+        "cases": ["pilot/semgrep/sql-query-string-built.py"],
+        "vulnerable": "pilot/lab/sqli-basics/code.py",
+        "fixed": "pilot/lab/sqli-basics/solution.py",
+        "note": "текст запроса постоянный, данные — связанными параметрами",
+    },
     "postmessage": {
         "rule": "pilot/semgrep/postmessage-no-origin-check.yaml",
         "cases": ["pilot/semgrep/postmessage-no-origin-check.js",

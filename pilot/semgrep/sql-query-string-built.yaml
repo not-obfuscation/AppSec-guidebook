@@ -1,0 +1,32 @@
+rules:
+  - id: sql-query-string-built
+    languages: [python]
+    severity: WARNING
+    mode: taint
+    message: >-
+      Текст запроса SQL собран из строк: склейкой, f-строкой, оператором
+      % или .format(), — и уходит в execute. Любые данные в такой строке
+      база прочитает как код, это SQL-инъекция. Передавайте текст запроса
+      постоянной строкой, а данные — связанными параметрами:
+      cursor.execute("... WHERE x = ?", (value,)). Требование: ASVS
+      v5.0-1.2.4.
+    metadata:
+      cwe:
+        - "CWE-89: Improper Neutralization of Special Elements used in an SQL Command"
+      asvs: v5.0-1.2.4
+      references:
+        - https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html
+        - https://owasp.org/Top10/2025/A05_2025-Injection/
+      confidence: MEDIUM
+    pattern-sources:
+      - pattern: f"...{$X}..."
+      - pattern: $A + $B
+      - pattern: $S % $X
+      - pattern: $S.format(...)
+    pattern-sinks:
+      - patterns:
+          - pattern: $CUR.execute($Q, ...)
+          - focus-metavariable: $Q
+      - patterns:
+          - pattern: $CUR.executemany($Q, ...)
+          - focus-metavariable: $Q
