@@ -15,7 +15,7 @@ time_min: 15
 teaches:
   - Узнать SAML и его роли по обмену assertion между IdP и SP
   - Назвать проверку подписи всего assertion как защиту от обёртывания
-prerequisites: []
+prerequisites: [hmac-vs-signature]
 related: [oauth-basics, oidc, jwt-attacks]
 tags: [auth, xml, crypto]
 cwe: [CWE-347, CWE-345]
@@ -31,6 +31,8 @@ review_interval: 12
 # SAML
 
 Уровень **L3** · время 15 мин
+
+Что прочитать сначала: `hmac-vs-signature`.
 
 ## 0. Коротко
 
@@ -103,7 +105,7 @@ sheet перечисляет меры. Сверять документ по ст
 
 Каркас этапа: `owasp-asvs-5-document` (ASVS v5.0.0), `owasp-wstg-42`,
 `owasp-top10-2025`. Наследуются всеми темами и отдельной строкой не
-повторяются. Тема 1.11.07 разбирает разницу подписи, HMAC и шифрования, на
+повторяются. Тема `hmac-vs-signature` разбирает разницу подписи, HMAC и шифрования, на
 которую опирается разбор подписи assertion.
 
 **Скоропортящийся слой.** Библиотеки разбора XML и их поведение по выбору

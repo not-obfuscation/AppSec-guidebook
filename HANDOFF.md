@@ -1,5 +1,27 @@
 # Передача работы
 
+## Миссия `appsec-stage1-crypto` — В РАБОТЕ
+
+Досье — `~/.supermanager/missions/appsec-stage1-crypto/dossier.md`. Отчёт будет
+в `STAGE1-CRYPTO.md`, маркер `ПОДРАЗДЕЛ CRYPTO СДАН` — последней строкой после
+коммита. Статус — `.smgr/appsec-stage1-crypto/status.json`, рабочая карта —
+`.smgr/appsec-stage1-crypto/NOTES.md`, первоисточники текстом — `src/`,
+двенадцать стендов и их вывод — `exp/`.
+
+**Что уже сделано.** Прочитаны и сохранены все одиннадцать первоисточников
+подраздела плюс ASVS 5.0.0 и десять страниц категорий Top 10:2025. Поставлены и
+прогнаны двенадцать стендов (`exp/e01`…`e12`), вывод каждого рядом в
+`*.out.txt`. Ни одного файла в `content/` пока не написано.
+
+**Что писать.** Семь тем подраздела 1.11 по замороженному оглавлению: место 50
+`hmac-vs-signature` (order 500, L2) и места 74–79 `plaintext-data` (740),
+`weak-algorithms` (750), `crypto-misuse` (760), `padding-oracle` (770, L3),
+`secure-random` (780), `secrets-in-code` (790). Категории `CRYPTO` в
+`code_categories` ещё нет — завести с первой темой.
+
+**Восемь ссылок вперёд перевести на слаги** после написания тем: список с
+номерами строк — в `NOTES.md`. Они же закрывают `C-REF-ORPHAN` четырём темам.
+
 ## Миссия `appsec-stage1-advanced` — ЗАВЕРШЕНА
 
 Досье — `~/.supermanager/missions/appsec-stage1-advanced/dossier.md`. Отчёт —
