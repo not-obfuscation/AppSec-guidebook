@@ -1,0 +1,62 @@
+# Правило темы csrf-mechanics: значение из строки запроса доходит до изменения
+# состояния приложения. Изменяющее действие, достижимое методом GET, — это
+# ссылка, по которой достаточно перейти. Ловит блок 5 темы и не ловит блок 6.
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/state-change-from-query.yaml <путь>
+# Сверка с разметкой тест-кейсов:
+#   .venv-tools/bin/python pilot/semgrep/check.py state-change
+rules:
+  - id: state-change-from-query
+    languages: [javascript, typescript]
+    severity: ERROR
+    mode: taint
+    message: >-
+      Значение из строки запроса записывается в состояние приложения. Такое
+      действие выполняется одним переходом по ссылке, и ни синхронизирующий
+      токен в форме, ни атрибут SameSite=Lax его не закрывают: браузер шлёт
+      cookie с навигацией верхнего уровня. ASVS v5.0-3.5.3 требует для
+      изменяющих действий метода POST, PUT, PATCH или DELETE.
+    metadata:
+      cwe: 'CWE-352: Cross-Site Request Forgery (CSRF)'
+      asvs: v5.0-3.5.3
+      topic: csrf-mechanics
+    pattern-sources:
+      - pattern: $U.searchParams
+      - pattern: $REQ.query
+      - pattern: $U.searchParams.get(...)
+      - pattern: $REQ.query.$P
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $OBJ.$FIELD = $VALUE
+              - pattern: $OBJ[$KEY] = $VALUE
+          - focus-metavariable: $VALUE
+
+  - id: state-change-on-get-route
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: >-
+      Маршрут объявлен на методе GET, а его обработчик меняет состояние.
+      Метод GET спецификация HTTP относит к безопасным, и на этом построены
+      и умолчания браузера, и кеши, и журналы. Изменяющее действие переносится
+      на POST, PUT, PATCH или DELETE (ASVS v5.0-3.5.3).
+    metadata:
+      cwe: 'CWE-352: Cross-Site Request Forgery (CSRF)'
+      asvs: v5.0-3.5.3
+      topic: csrf-mechanics
+    patterns:
+      - pattern-either:
+          - pattern: $APP.get($PATH, $H)
+          - pattern: $APP.get($PATH, ..., $H)
+      - metavariable-pattern:
+          metavariable: $H
+          patterns:
+            - pattern-either:
+                - pattern: function (...) { ... }
+                - pattern: (...) => { ... }
+            - pattern-either:
+                - pattern: $O.$F = $V
+                - pattern: $O[$K] = $V
+                - pattern: $O.$F.delete(...)
+                - pattern: $O.$F.push(...)

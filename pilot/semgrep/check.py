@@ -85,6 +85,13 @@ SUITES = {
         "fixed": "pilot/lab/xss-contexts/solution.mjs",
         "note": "атрибут в кавычках, значение скрипта — готовым литералом JSON",
     },
+    "state-change": {
+        "rule": "pilot/semgrep/state-change-from-query.yaml",
+        "cases": ["pilot/semgrep/state-change-from-query.js"],
+        "vulnerable": "pilot/lab/csrf-mechanics/code.mjs",
+        "fixed": "pilot/lab/csrf-mechanics/solution.mjs",
+        "note": "значение берётся только из тела запроса, метод GET отклонён",
+    },
     "postmessage": {
         "rule": "pilot/semgrep/postmessage-no-origin-check.yaml",
         "cases": ["pilot/semgrep/postmessage-no-origin-check.js",
