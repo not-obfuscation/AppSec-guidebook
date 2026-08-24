@@ -1,0 +1,37 @@
+# Правило темы path-traversal: файл открывается по пути, собранному
+# os.path.join, без приведения пути к каноническому виду. Переходы вверх и
+# символические ссылки разбирает операционная система при открытии, поэтому
+# сверка собранной строки с базовым каталогом выхода за него не закрывает.
+# Ловит блок 5 темы (сверка до канонизации) и молчит на блоке 6 (realpath,
+# затем commonpath).
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/path-join-user-input.yaml <путь>
+#   .venv-tools/bin/python pilot/semgrep/check.py path-join
+rules:
+  - id: path-join-user-input
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Путь собран os.path.join и открыт без канонизации. Переходы вверх
+      (`..`) и символические ссылки разбирает операционная система при
+      открытии файла, поэтому сверка собранной строки с базовым каталогом
+      выхода за него не закрывает. Приведите путь к каноническому виду
+      (os.path.realpath) и только потом сверьте с каноническим базовым
+      каталогом через os.path.commonpath или PurePath.is_relative_to.
+      CWE-22, OWASP WSTG-v42-ATHZ-01.
+    metadata:
+      cwe:
+        - "CWE-22: Improper Limitation of a Pathname to a Restricted Directory"
+      asvs: v5.0-4.3.2
+      references:
+        - https://cwe.mitre.org/data/definitions/22.html
+      confidence: MEDIUM
+    patterns:
+      - pattern: open($P, ...)
+      - pattern-inside: |
+          $P = os.path.join(...)
+          ...
+      - pattern-not-inside: |
+          $P = os.path.realpath(...)
+          ...

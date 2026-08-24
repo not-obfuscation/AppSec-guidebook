@@ -113,6 +113,13 @@ SUITES = {
         "fixed": "pilot/lab/csrf-mechanics/solution.mjs",
         "note": "значение берётся только из тела запроса, метод GET отклонён",
     },
+    "path-join": {
+        "rule": "pilot/semgrep/path-join-user-input.yaml",
+        "cases": ["pilot/semgrep/path-join-user-input.py"],
+        "vulnerable": "pilot/lab/path-traversal/code.py",
+        "fixed": "pilot/lab/path-traversal/solution.py",
+        "note": "путь канонизирован realpath до сверки через commonpath",
+    },
     "postmessage": {
         "rule": "pilot/semgrep/postmessage-no-origin-check.yaml",
         "cases": ["pilot/semgrep/postmessage-no-origin-check.js",
