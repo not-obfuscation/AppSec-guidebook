@@ -16,7 +16,7 @@ teaches:
   - Назвать, что защищает подпись токена и чего она не защищает
   - Отличить подмену параметра роли от эскалации через отсутствующую проверку
   - Составить ретест подмены роли по трём местам из WSTG
-prerequisites: [access-control-models]
+prerequisites: [access-control-models, jwt-attacks]
 related: [access-control-models, privilege-escalation-vertical, client-side-access-checks]
 tags: [access-control, jwt]
 cwe: [CWE-285, CWE-565]
@@ -34,7 +34,7 @@ review_interval: 24
 Уровень **L2** · время 30 мин (теория 17 / задача 8 / самопроверка 5,
 оценка)
 
-Что прочитать сначала: `access-control-models`.
+Что прочитать сначала: `access-control-models`, `jwt-attacks`.
 
 Тяжёлая половина темы — атаки на подпись и разбор JWT — вынесена в тему
 1.7.02 уровнем выше; здесь только решение о правах, принятое по значению от
@@ -235,7 +235,7 @@ if authz.can(user, "admin_console"):  # права — вычислены на �
 
 ## 13. Дальше
 
-- Тема 1.7.02 — атаки на JWT: подмена алгоритма, путаница ключей, разбор
+- `jwt-attacks` — атаки на JWT: подмена алгоритма, путаница ключей, разбор
   подписи.
 - `privilege-escalation-vertical` — эскалация там, где проверки нет вовсе.
 - `client-side-access-checks` — почему признак прав вообще уезжает клиенту.

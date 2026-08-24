@@ -5984,6 +5984,28 @@ sources:
       ALLOWED_HOSTS, DEBUG в проде, mark_safe, SECRET_KEY. Список настроек,
       по которому и идёт ревью проекта на Django.
 
+  - id: django-transactions
+    url: https://docs.djangoproject.com/en/stable/topics/db/transactions/
+    title: Database transactions — Django
+    type: official-docs
+    level: 1
+    publisher: Django Software Foundation
+    version_or_date: документация stable; открылась как Django 6.1
+    volatility: medium
+    license: BSD-3-Clause (документация Django)
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Умолчания и границы транзакции, названные самим фреймворком: автофиксация
+      по умолчанию, ATOMIC_REQUESTS оборачивает только исполнение view
+      (мидлварь и отрисовка шаблона остаются снаружи), врезка «Avoid catching
+      exceptions inside atomic!» и врезка о том, что откат не возвращает
+      значения полей объекта, состояние кэша и глобальные переменные;
+      transaction.on_commit как способ отложить побочный эффект до фиксации.
+      Взят под блок «как чинится» темы 1.12.04: WSTG-BUSL-06 формулирует
+      требование отката, но не даёт ни семантики транзакции, ни того, что за её
+      границей остаётся.
+
   - id: flask-security-considerations
     url: https://flask.palletsprojects.com/en/stable/web-security/
     title: Security Considerations — Flask
