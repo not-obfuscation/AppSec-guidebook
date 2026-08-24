@@ -3227,6 +3227,46 @@ sources:
       по её адресу стоит строка «This content has been merged into: Testing
       for Improper Error Handling». Отдельной записи для неё не заводили.
 
+  - id: wstg-v42-busl-01-data-validation
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/10-Business_Logic_Testing/01-Test_Business_Logic_Data_Validation
+    title: WSTG-BUSL-01 — Test Business Logic Data Validation
+    type: owasp
+    level: 2
+    publisher: OWASP Foundation (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2; даты обновления страницы нет
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Отличие логической проверки данных от проверки формата: значение
+      бывает синтаксически правильным и при этом невозможным по правилам
+      предметной области. Названы точки передачи между системами как место,
+      где проверка теряется, и требование, что проверять надо на сервере и
+      на каждой передаче, а не один раз на входе. Три примера: заказ,
+      уходящий партнёру мимо оплаты; решение по вчерашнему остатку по
+      карте; кампания микропереводов, делающая приём платежей убыточным.
+
+  - id: wstg-v42-busl-05-function-limits
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/10-Business_Logic_Testing/05-Test_Number_of_Times_a_Function_Can_Be_Used_Limits
+    title: WSTG-BUSL-05 — Test Number of Times a Function Can Be Used Limits
+    type: owasp
+    level: 2
+    publisher: OWASP Foundation (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2; даты обновления страницы нет
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Предел на число вызовов функции как предмет отдельного теста: найти
+      функции, у которых предел должен быть, и проверить, что он есть и
+      что его нельзя обойти возвратом на прошлый шаг. Раздел Remediation
+      прямо требует ставить ограничение на уровне СУБД или счётчика на
+      бэкенде, а не на уровне интерфейса. Опора для темы 1.9.02 со
+      стороны чёрного ящика: PortSwigger даёт механизм гонки, WSTG —
+      процедуру ретеста предела.
+
   - id: wstg-v42-busl-06-workflow-circumvention
     url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/10-Business_Logic_Testing/06-Testing_for_the_Circumvention_of_Work_Flows
     title: WSTG-BUSL-06 — Testing for the Circumvention of Work Flows
@@ -3248,6 +3288,29 @@ sources:
       затем правкой и удалением привести его в состояние, которое
       сохраняться не должно. Это тест на частично применённые изменения, а
       не на порядок шагов.
+
+  - id: pg-transaction-iso
+    url: https://www.postgresql.org/docs/17/transaction-iso.html
+    title: PostgreSQL 17 Documentation, 13.2. Transaction Isolation
+    type: official-docs
+    level: 1
+    publisher: PostgreSQL Global Development Group
+    version_or_date: документация ветки 17
+    volatility: medium
+    license: PostgreSQL License (BSD-подобная)
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Первоисточник против расхожего «транзакция спасает от гонок».
+      Read Committed — уровень по умолчанию, и раздел 13.2.1 говорит
+      прямо: SELECT видит снимок на момент начала команды, а UPDATE
+      перевычисляет WHERE на уже обновлённой версии строки. Отсюда
+      различение, на котором держится тема 1.9.02: `SET balance =
+      balance - 100 WHERE balance >= 100` безопасен, а `SET balance =
+      <значение, посчитанное в приложении>` теряет чужую запись.
+      Соседний раздел 13.4.2 (`applevel-consistency.html`) добавляет,
+      что при неserializable-записи текущее состояние строки удерживают
+      только SELECT FOR UPDATE, SELECT FOR SHARE или LOCK TABLE.
 
   - id: python-decimal
     url: https://docs.python.org/3/library/decimal.html

@@ -120,6 +120,13 @@ SUITES = {
         "fixed": "pilot/lab/path-traversal/solution.py",
         "note": "путь канонизирован realpath до сверки через commonpath",
     },
+    "money-value": {
+        "rule": "pilot/semgrep/money-value-from-request.yaml",
+        "cases": ["pilot/semgrep/money-value-from-request.py"],
+        "vulnerable": "pilot/lab/business-logic-flaws/code.py",
+        "fixed": "pilot/lab/business-logic-flaws/solution.py",
+        "note": "цена берётся по артикулу из каталога на сервере",
+    },
     "postmessage": {
         "rule": "pilot/semgrep/postmessage-no-origin-check.yaml",
         "cases": ["pilot/semgrep/postmessage-no-origin-check.js",

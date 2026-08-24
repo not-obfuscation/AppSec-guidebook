@@ -1,0 +1,33 @@
+# Правило темы business-logic-flaws: денежная величина взята из тела запроса.
+# Цена, сумма и скидка — свойства каталога и правил магазина, а не поля,
+# которые называет клиент. Ловит блок 5 темы (цена приходит вместе с
+# артикулом) и молчит на блоке 6 (цена берётся по артикулу из каталога).
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/money-value-from-request.yaml <путь>
+#   .venv-tools/bin/python pilot/semgrep/check.py money-value
+rules:
+  - id: money-value-from-request
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Денежная величина взята из тела запроса. Цена, сумма и размер скидки
+      задаются справочником и правилами на сервере; значение, названное
+      клиентом, к расчёту не допускается. Берите цену по артикулу из
+      каталога, а итог и скидку вычисляйте заново на каждом изменении
+      заказа. CWE-602, ASVS v5.0-2.2.2.
+    metadata:
+      cwe:
+        - "CWE-602: Client-Side Enforcement of Server-Side Security"
+      asvs: v5.0-2.2.2
+      references:
+        - https://cwe.mitre.org/data/definitions/602.html
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+          - pattern: Decimal($REQ[$KEY])
+          - pattern: float($REQ[$KEY])
+          - pattern: Decimal(str($REQ[$KEY]))
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: (?i)^["'](price|amount|total|discount|cost|sum|fee)["']$
