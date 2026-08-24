@@ -1,0 +1,37 @@
+rules:
+  - id: os-command-shell-built
+    languages: [python]
+    severity: WARNING
+    mode: taint
+    message: >-
+      Команда ОС собрана из строк (склейка, f-строка, % или .format) и
+      запущена через оболочку или os.system. Присланные метасимволы (`;`,
+      `|`, `&&`, `` ` ``, `$()`) оболочка разберёт как команды — это
+      инъекция команд ОС. Вызывайте программу без оболочки, передавая
+      аргументы списком: subprocess.run(["prog", arg], shell=False).
+      Требование: ASVS v5.0-1.2.5.
+    metadata:
+      cwe:
+        - "CWE-78: Improper Neutralization of Special Elements used in an OS Command"
+      asvs: v5.0-1.2.5
+      references:
+        - https://portswigger.net/web-security/os-command-injection
+        - https://owasp.org/Top10/2025/A05_2025-Injection/
+      confidence: MEDIUM
+    pattern-sources:
+      - pattern: f"...{$X}..."
+      - pattern: $A + $B
+      - pattern: $S % $X
+      - pattern: $S.format(...)
+    pattern-sinks:
+      - patterns:
+          - pattern: os.system($Q)
+          - focus-metavariable: $Q
+      - patterns:
+          - pattern-either:
+              - pattern: subprocess.run($Q, ..., shell=True, ...)
+              - pattern: subprocess.call($Q, ..., shell=True, ...)
+              - pattern: subprocess.check_call($Q, ..., shell=True, ...)
+              - pattern: subprocess.check_output($Q, ..., shell=True, ...)
+              - pattern: subprocess.Popen($Q, ..., shell=True, ...)
+          - focus-metavariable: $Q

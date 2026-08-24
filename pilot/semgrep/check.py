@@ -57,6 +57,13 @@ SUITES = {
         "fixed": "pilot/lab/sqli-basics/solution.py",
         "note": "текст запроса постоянный, данные — связанными параметрами",
     },
+    "os-command": {
+        "rule": "pilot/semgrep/os-command-shell-built.yaml",
+        "cases": ["pilot/semgrep/os-command-shell-built.py"],
+        "vulnerable": "pilot/lab/os-command-injection/code.py",
+        "fixed": "pilot/lab/os-command-injection/solution.py",
+        "note": "программа вызвана без оболочки, аргументы списком",
+    },
     "postmessage": {
         "rule": "pilot/semgrep/postmessage-no-origin-check.yaml",
         "cases": ["pilot/semgrep/postmessage-no-origin-check.js",
