@@ -1,0 +1,41 @@
+# Правило темы jwt-basics: конфиденциальное поле кладётся в полезную нагрузку
+# JWT. Нагрузка — base64url поверх JSON, читается любым предъявителем без
+# ключа; подпись защищает от изменения, а не от чтения. Ловит блок 5 темы
+# (секрет в claims) и не ловит блок 6 (в нагрузке только несекретные поля).
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/jwt-confidential-claim.yaml <путь>
+#   .venv-tools/bin/python pilot/semgrep/check.py jwt-confidential
+rules:
+  - id: jwt-confidential-claim
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Конфиденциальное поле помещено в полезную нагрузку JWT. Нагрузка
+      кодируется base64url и читается любым, у кого есть токен: подпись
+      подтверждает целостность, но не скрывает содержимое. Секреты, PII и
+      внутренние коды держат на сервере и достают по проверенному sub, а в
+      токене оставляют только несекретные утверждения. RFC 7519 и OWASP JSON
+      Web Token Cheat Sheet.
+    metadata:
+      cwe:
+        - "CWE-522: Insufficiently Protected Credentials"
+      asvs: v5.0-3.1.1
+      references:
+        - https://www.rfc-editor.org/rfc/rfc7519.html
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+          - pattern: 'jwt.encode({..., "password": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "passwd": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "secret": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "api_key": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "apikey": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "ssn": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "credit_card": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "card_number": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "private_key": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "discount_code": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "email": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "phone": $V, ...}, ...)'
+          - pattern: 'jwt.encode({..., "address": $V, ...}, ...)'

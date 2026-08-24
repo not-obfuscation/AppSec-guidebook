@@ -1,0 +1,33 @@
+# Правило темы oauth-basics: клиент OAuth просит неявный поток или парольный
+# грант. response_type=token отдаёт токен доступа во фронтальном канале (адрес
+# браузера); grant_type=password проводит пароль владельца через клиент. Оба
+# объявлены устаревшими в OAuth 2.0 Security BCP (RFC 9700 § 2.1.2 и § 2.4).
+# Ловит блок 5 темы и не ловит блок 6 (response_type=code, обмен кода).
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/oauth-implicit-grant.yaml <путь>
+#   .venv-tools/bin/python pilot/semgrep/check.py oauth-grant
+rules:
+  - id: oauth-implicit-grant
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Клиент OAuth просит устаревший поток. response_type=token (неявный поток)
+      возвращает токен доступа во фрагменте адреса — он оседает в истории,
+      журналах и заголовке Referer; grant_type=password проводит учётные данные
+      владельца через клиент. OAuth 2.0 Security BCP предписывает поток кода
+      авторизации (response_type=code) и запрещает парольный грант. RFC 9700
+      § 2.1.2 и § 2.4.
+    metadata:
+      cwe:
+        - "CWE-522: Insufficiently Protected Credentials"
+      asvs: v5.0-3.5.4
+      references:
+        - https://www.rfc-editor.org/rfc/rfc9700.html
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+          - pattern: '{..., "response_type": "token", ...}'
+          - pattern: '{..., "grant_type": "password", ...}'
+          - pattern: '$D["response_type"] = "token"'
+          - pattern: '$D["grant_type"] = "password"'

@@ -1,5 +1,57 @@
 # Передача работы
 
+## Миссия `appsec-stage1-tokens` — В РАБОТЕ
+
+Досье — `~/.supermanager/missions/appsec-stage1-tokens/dossier.md`. Отчёт
+будет в `STAGE1-TOKENS.md`, маркер готовности — `ПОДРАЗДЕЛ TOKENS СДАН`.
+Статус — `.smgr/appsec-stage1-tokens/status.json`, первоисточники текстом —
+`.smgr/appsec-stage1-tokens/src/`, стенды и вывод — `exp/` и `final/` там же.
+
+**Что писать.** Подраздел 1.7 «Токены и делегирование доступа», семь тем,
+состав и уровни из `STAGE1-TOC.md` (строки 163–187) и `topics.yaml` (1.7):
+
+| место | order | plan_id | слаг | ур. | предпосылки по оглавлению |
+|---:|---:|---|---|:-:|---|
+| 51 | 510 | t-1-7-01 | `jwt-basics` | L1 | `sessions-vs-tokens`, `hmac-vs-signature` |
+| 52 | 520 | t-1-7-02 | `jwt-attacks` | L1 | `jwt-basics` |
+| 54 | 540 | t-1-7-03 | `token-lifetime-revocation` | L2 | `jwt-basics`, `sessions-vs-tokens` |
+| 55 | 550 | t-1-7-04 | `oauth-basics` | L1 | `sessions-vs-tokens`, `app-architecture` |
+| 56 | 560 | t-1-7-05 | `oauth-attacks` | L2 | `oauth-basics`, `csrf-mechanics` |
+| 57 | 570 | t-1-7-06 | `oidc` | L3 | `oauth-basics` |
+| 58 | 580 | t-1-7-07 | `saml` | L3 | `hmac-vs-signature` |
+
+`order` 530 занят написанной `role-parameter-tampering` — так и задумано
+оглавлением, подраздел 1.7 разорван темой 1.1.10 и темой 1.11.07.
+
+**Что надо знать до первой правки**
+
+1. **`hmac-vs-signature` (1.11.07, место 50) не написана**, а оглавление
+   ставит её предпосылкой `jwt-basics` и `saml`. Порядок тот же, каким
+   миссия A01 закрыла эту развилку в `role-parameter-tampering`: в поле
+   `prerequisites` кладутся только существующие темы, ненаписанная
+   называется в прозе номером плана (`C-REF-PLAN` такую ссылку разрешает),
+   долг записывается в отчёт. Оглавление при этом не правится.
+2. **Категории `TOKEN` в `code_categories` (`taxonomy.yaml`) ещё нет.**
+   `C-TAX-CATEGORY` роняет проверку, как только в `content/stage-1/`
+   появляется первая тема подраздела 1.7. Заводить вместе с ней:
+   `sub: "1.7"`. Форма кода — `AG-TOKEN-01` (`STAGE1-TOC.md`, строка 628).
+3. **Девять источников подраздела уже в реестре** и открыты лично
+   2026-08-20: `rfc7519-jwt`, `owasp-cs-jwt`, `ps-jwt`, `rfc8725-jwt-bcp`,
+   `rfc6749-oauth2`, `rfc9700-oauth-bcp`, `ps-oauth`, `oidc-core`,
+   `owasp-cs-saml`. Тексты сняты в `src/`. RFC 7636 (PKCE) и RFC 6819 сняты
+   туда же, в реестре их нет.
+4. **PyJWT 2.13.0 и cryptography 50.0.0 стоят в `.venv-tools`.** Это
+   названная библиотека для стендов по атакам на JWT; Node v26.7.0 — для
+   браузерных лаб. Ставить ничего не нужно.
+5. Базовое состояние проверок на входе миссии: `make check` 0 ошибок,
+   0 предупреждений, 5 снято; 61 тема в корпусе.
+
+**Порядок работы.** Темы пишутся в порядке оглавления. Три L1 (`jwt-basics`,
+`jwt-attacks`, `oauth-basics`) несут по своей лабе и своему правилу SAST;
+две L2 — блок 11 «Задача» без лабы; две L3 — блоки 0, 3, 13, 14 и
+300–500 слов.
+
+
 ## Миссия `appsec-stage1-auth` — ЗАВЕРШЕНА
 
 Досье — `~/.supermanager/missions/appsec-stage1-auth/dossier.md`. Отчёт —

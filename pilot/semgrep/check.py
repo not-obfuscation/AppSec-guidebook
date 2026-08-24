@@ -85,6 +85,27 @@ SUITES = {
         "fixed": "pilot/lab/xss-contexts/solution.mjs",
         "note": "атрибут в кавычках, значение скрипта — готовым литералом JSON",
     },
+    "jwt-confidential": {
+        "rule": "pilot/semgrep/jwt-confidential-claim.yaml",
+        "cases": ["pilot/semgrep/jwt-confidential-claim.py"],
+        "vulnerable": "pilot/lab/jwt-basics/code.py",
+        "fixed": "pilot/lab/jwt-basics/solution.py",
+        "note": "в нагрузке остались только несекретные утверждения",
+    },
+    "jwt-alg": {
+        "rule": "pilot/semgrep/jwt-alg-from-token.yaml",
+        "cases": ["pilot/semgrep/jwt-alg-from-token.py"],
+        "vulnerable": "pilot/lab/jwt-attacks/code.py",
+        "fixed": "pilot/lab/jwt-attacks/solution.py",
+        "note": "список алгоритмов закрыт литералом, подпись проверяется",
+    },
+    "oauth-grant": {
+        "rule": "pilot/semgrep/oauth-implicit-grant.yaml",
+        "cases": ["pilot/semgrep/oauth-implicit-grant.py"],
+        "vulnerable": "pilot/lab/oauth-basics/code.py",
+        "fixed": "pilot/lab/oauth-basics/solution.py",
+        "note": "запрос просит response_type=code, токен не в адресе",
+    },
     "state-change": {
         "rule": "pilot/semgrep/state-change-from-query.yaml",
         "cases": ["pilot/semgrep/state-change-from-query.js"],

@@ -1,0 +1,40 @@
+# Правило темы jwt-attacks: подпись JWT проверяется алгоритмом, взятым из
+# самого токена, или список принимаемых алгоритмов открыт. Заголовок токена —
+# неаутентифицированный ввод предъявителя: он не должен решать, чем проверять
+# подпись. Ловит блок 5 темы (alg из заголовка, verify_signature=False,
+# none в списке) и не ловит блок 6 (список закрыт постоянным литералом).
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/jwt-alg-from-token.yaml <путь>
+#   .venv-tools/bin/python pilot/semgrep/check.py jwt-alg
+rules:
+  - id: jwt-alg-from-token
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Способ проверки подписи JWT берётся из самого токена или проверка
+      ослаблена. Заголовок токена приходит от предъявителя и до проверки
+      подписи не защищён: если алгоритм читается из него, предъявитель включает
+      alg=none или подменяет RS256 на HS256. Список принимаемых алгоритмов
+      задают постоянным литералом на стороне проверки. RFC 8725 и OWASP JSON
+      Web Token Cheat Sheet.
+    metadata:
+      cwe:
+        - "CWE-347: Improper Verification of Cryptographic Signature"
+      asvs: v5.0-9.2.1
+      references:
+        - https://www.rfc-editor.org/rfc/rfc8725.html
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+          - pattern: 'jwt.decode(..., verify=False, ...)'
+          - pattern: 'jwt.decode(..., options={..., "verify_signature": False, ...}, ...)'
+          - patterns:
+              - pattern: 'jwt.decode($T, $K, ..., algorithms=$ALGS, ...)'
+              - metavariable-pattern:
+                  metavariable: $ALGS
+                  patterns:
+                    - pattern-either:
+                        - pattern: '$HDR["alg"]'
+                        - pattern: '$HDR.get("alg")'
+                        - pattern: '[..., "none", ...]'
