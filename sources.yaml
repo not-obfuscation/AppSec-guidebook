@@ -3009,6 +3009,103 @@ sources:
       (ссылка на тест таймаута сессии). Раздел Remediation прямой: никаких
       учётных данных на клиенте, только серверные токены.
 
+  - id: wstg-v42-athn-03-weak-lockout
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/04-Authentication_Testing/03-Testing_for_Weak_Lock_Out_Mechanism
+    title: WSTG-ATHN-03 — Testing for Weak Lock Out Mechanism
+    type: owasp
+    level: 2
+    publisher: OWASP Foundation (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2; даты обновления страницы нет
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Ретест блокировки для темы 1.6.01: пошаговый сценарий (пять неудач,
+      затем проверка на 5, 10 и 15 минуте), порог 5–10 попыток, диапазон
+      выдержки 5–30 минут как компромисс. Разбирает механизм разблокировки
+      отдельно от восстановления пароля (одноразовая ссылка против повтора) и
+      прямо называет отказ в обслуживании через чужую блокировку. Список
+      дефектов CAPTCHA: проверка по коду ответа вместо успеха, серверная
+      логика по умолчанию «решено», результат не сверяется на сервере, обход
+      через альтернативный API без CAPTCHA.
+
+  - id: wstg-v42-idnt-04-account-enumeration
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account
+    title: WSTG-IDNT-04 — Testing for Account Enumeration and Guessable User Account
+    type: owasp
+    level: 2
+    publisher: OWASP Foundation (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2; даты обновления страницы нет
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Процедура для темы 1.6.02: снять ответ на верную пару, на верный логин с
+      неверным паролем и на несуществующий логин, найти признак, который их
+      различает. Перечисляет каналы утечки помимо текста ошибки: код ответа и
+      длина, различие в URL-редиректах (Error=0 против Error=2), проба
+      каталогов (403 против 404), заголовок страницы, ответ формы
+      восстановления и «дружелюбный 404» с картинкой вместо кода.
+
+  - id: wstg-v42-athn-09-weak-password-change
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/04-Authentication_Testing/09-Testing_for_Weak_Password_Change_or_Reset_Functionalities
+    title: WSTG-ATHN-09 — Testing for Weak Password Change or Reset Functionalities
+    type: owasp
+    level: 2
+    publisher: OWASP Foundation (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2; даты обновления страницы нет
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Ретест восстановления и смены пароля для темы 1.6.03: что требуется для
+      сброса, как новый секрет доводится до пользователя (показ на экране —
+      худший случай), случайно ли он порождается, требуется ли подтверждение
+      по ссылке до фактической смены (иначе отказ в обслуживании и старый
+      пароль гасится раньше времени), и запрашивается ли текущий пароль при
+      смене. Remediation: смена и сброс — чувствительные функции, нужна
+      повторная аутентификация или экран подтверждения.
+
+  - id: wstg-v42-sess-03-session-fixation
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/06-Session_Management_Testing/03-Testing_for_Session_Fixation
+    title: WSTG-SESS-03 — Testing for Session Fixation
+    type: owasp
+    level: 2
+    publisher: OWASP Foundation (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2; даты обновления страницы нет
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Признак дефекта для темы 1.6.04 сформулирован прямо: если после успешного
+      входа сервер не выдал новый идентификатор, закрепление сессии возможно.
+      Даёт процедуру Test with Forced Cookies (снять слепок cookie до входа без
+      префиксов __Host-/__Secure-, войти жертвой, вернуть слепок, проверить,
+      что защищённая функция срабатывает) и оговорку про сеть и HSTS.
+
+  - id: wstg-v42-sess-06-logout
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/06-Session_Management_Testing/06-Testing_for_Logout_Functionality
+    title: WSTG-SESS-06 — Testing for Logout Functionality
+    type: owasp
+    level: 2
+    publisher: OWASP Foundation (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2; даты обновления страницы нет
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Серверная сторона инвалидации для темы 1.6.04: сохранить cookie сессии,
+      выйти, попытаться дойти до страницы под аутентификацией (в том числе
+      кнопкой «назад» и перезагрузкой из сети), затем вернуть старое значение
+      cookie и повторить — «воскрешение» сессии восстановленной cookie и есть
+      дефект. Отдельно единый выход в SSO. Формулировка «сессия завершается на
+      сервере, а не гашением cookie» здесь нормативная.
+
   - id: wstg-v42-sess-07-session-timeout
     url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/06-Session_Management_Testing/07-Testing_Session_Timeout
     title: WSTG-SESS-07 — Testing Session Timeout
