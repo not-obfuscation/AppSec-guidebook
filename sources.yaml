@@ -45,6 +45,43 @@ sources:
       так что ссылки на старую серию устарели. Раздел про посредников
       (proxy, gateway) — опора для темы про reverse proxy и CDN.
 
+  - id: rfc9112-http11
+    url: https://www.rfc-editor.org/rfc/rfc9112.html
+    title: RFC 9112 — HTTP/1.1
+    type: spec
+    level: 1
+    publisher: IETF (HTTP Working Group)
+    version_or_date: STD 99, Standards Track, июнь 2022; обсолетит части RFC 7230
+    volatility: stable
+    license: IETF Trust (BCP 78); код — Revised BSD
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Синтаксис и разбор сообщения HTTP/1.1: § 6.1 Transfer-Encoding, § 6.2
+      Content-Length, § 6.3 определение длины тела по приоритету (п.3 — оба
+      поля вместе, TE перекрывает CL, сообщение обрабатывается как ошибка;
+      посредник обязан удалить CL перед пересылкой). § 11.2 Request Smuggling.
+      Опора темы request-smuggling: нормативное правило кадрирования.
+
+  - id: rfc9113-http2
+    url: https://www.rfc-editor.org/rfc/rfc9113.html
+    title: RFC 9113 — HTTP/2
+    type: spec
+    level: 1
+    publisher: IETF (HTTP Working Group)
+    version_or_date: Standards Track, июнь 2022; обсолетит RFC 7540 и 8740
+    volatility: stable
+    license: IETF Trust (BCP 78); код — Revised BSD
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Единое кадрирование по кадрам DATA, отсюда иммунитет end-to-end. § 8.1.1
+      Malformed Messages, § 8.2.1 обязательная валидация полей (CR, LF, COLON
+      в значении — сообщение malformed; без неё — request smuggling при
+      понижении до HTTP/1.1), § 8.2.2 запрет connection-specific полей
+      (Transfer-Encoding), § 10.3 Intermediary Encapsulation Attacks. Опора
+      темы про H2-десинхронизацию и понижение версии.
+
   - id: rfc3986-uri
     url: https://www.rfc-editor.org/rfc/rfc3986.html
     title: 'RFC 3986 — Uniform Resource Identifier (URI): Generic Syntax'

@@ -18,7 +18,7 @@ teaches:
   - Найти проверку доступа, поставленную не на том уровне схемы
   - Перечислить меры контроля спроса, которые GraphQL требует, а REST нет
 prerequisites: [http-basics, app-architecture]
-related: [app-architecture, cors, sessions-vs-tokens]
+related: [app-architecture, cors, sessions-vs-tokens, graphql-vulns]
 tags: [api, architecture]
 cwe: [CWE-200, CWE-770]
 asvs: ['v5.0-3.5.3']

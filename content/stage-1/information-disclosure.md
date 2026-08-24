@@ -18,7 +18,7 @@ teaches:
   - Развести адресата сообщения: пользователю общее, в журнал подробное
   - Оценить утечку по тому, что она даёт следующему шагу атаки
 prerequisites: [http-basics, app-architecture]
-related: [source-config-exposure, user-enumeration, path-traversal, file-upload]
+related: [source-config-exposure, user-enumeration, path-traversal, file-upload, llm-prompt-injection]
 tags: [disclosure, http]
 cwe: [CWE-209, CWE-215]
 asvs: ['v5.0-16.5.1', 'v5.0-13.4.2', 'v5.0-16.5.4', 'v5.0-13.4.5', 'v5.0-13.4.6']
