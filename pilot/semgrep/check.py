@@ -142,6 +142,13 @@ SUITES = {
         "fixed": "pilot/lab/same-origin-policy/solution.js",
         "note": "второй стек — TypeScript, идиома React",
     },
+    "aes-mode": {
+        "rule": "pilot/semgrep/aes-mode-ecb-or-static-iv.yaml",
+        "cases": ["pilot/semgrep/aes-mode-ecb-or-static-iv.py"],
+        "vulnerable": "pilot/lab/crypto-misuse/code.py",
+        "fixed": "pilot/lab/crypto-misuse/solution.py",
+        "note": "один AES-GCM со свежим nonce на каждую операцию",
+    },
 }
 
 MARKS = ("ruleid:", "ok:")

@@ -1,0 +1,58 @@
+# Правило темы crypto-misuse: режим блочного шифра, обесценивающий шифр.
+# Ловит два случая блока 5 темы — режим ECB (одинаковые блоки открытого
+# текста дают одинаковые блоки шифротекста) и одноразовое значение,
+# заданное константой на уровне модуля (повтор IV/nonce под одним ключом).
+# Молчит на блоке 6 (AES-GCM со свежим os.urandom на каждую операцию).
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/aes-mode-ecb-or-static-iv.yaml <путь>
+#   .venv-tools/bin/python pilot/semgrep/check.py aes-mode
+rules:
+  - id: aes-mode-ecb
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Режим ECB шифрует каждый блок независимо, поэтому одинаковые блоки
+      открытого текста дают одинаковые блоки шифротекста — структура данных
+      видна снаружи, а целостность не защищена вовсе. Возьмите
+      аутентифицированный режим (AES-GCM, ChaCha20-Poly1305) со свежим
+      одноразовым значением на каждую операцию. CWE-327, ASVS v5.0-11.3.1.
+    metadata:
+      cwe:
+        - "CWE-327: Use of a Broken or Risky Cryptographic Algorithm"
+      asvs: v5.0-11.3.1
+      references:
+        - https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+      confidence: HIGH
+    pattern: modes.ECB(...)
+
+  - id: aes-static-iv
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Одноразовое значение задано константой уровня модуля и повторяется на
+      каждой операции. Повтор IV или nonce под одним ключом раскрывает связь
+      сообщений, а в режиме счётчика — их содержимое. Порождайте значение
+      заново на каждую операцию (os.urandom) и предпочтите аутентифицированный
+      режим. CWE-323, ASVS v5.0-11.3.4.
+    metadata:
+      cwe:
+        - "CWE-323: Reusing a Nonce, Key Pair in Encryption"
+      asvs: v5.0-11.3.4
+      references:
+        - https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+          - pattern: modes.CTR($IV)
+          - pattern: modes.CBC($IV)
+          - pattern: modes.OFB($IV)
+          - pattern: modes.CFB($IV)
+      - metavariable-pattern:
+          metavariable: $IV
+          patterns:
+            - pattern-not: os.urandom(...)
+            - pattern-not: secrets.token_bytes(...)
+      - metavariable-regex:
+          metavariable: $IV
+          regex: ^[A-Z_][A-Z0-9_]*$
