@@ -1,0 +1,44 @@
+# Правило темы race-conditions: строка прочитана, значение посчитано в
+# приложении и записано обратно. Между чтением и записью лежит окно, в
+# котором ту же строку успевает изменить соседний запрос, и его правка
+# теряется. Ловит блок 5 темы (проверка остатка отдельно от списания) и
+# молчит на блоке 6 (условие внутри UPDATE, новое значение — выражение над
+# столбцом).
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/read-modify-write-no-lock.yaml <путь>
+#   .venv-tools/bin/python pilot/semgrep/check.py read-modify-write
+rules:
+  - id: read-modify-write-no-lock
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Значение прочитано, изменено в приложении и записано обратно
+      присвоением столбцу. Между чтением и записью лежит окно гонки:
+      соседний запрос успевает записать своё значение, и одна из двух
+      правок теряется. Сделайте решение и запись одной операцией
+      хранилища — условие в самом UPDATE и новое значение выражением над
+      столбцом (`SET balance=balance-? WHERE balance>=?`), либо возьмите
+      строку под запись до чтения. CWE-367, ASVS v5.0-15.4.2.
+    metadata:
+      cwe:
+        - "CWE-367: Time-of-check Time-of-use (TOCTOU) Race Condition"
+      asvs: v5.0-15.4.2
+      references:
+        - https://cwe.mitre.org/data/definitions/367.html
+      confidence: MEDIUM
+    patterns:
+      - pattern: $CONN.execute($SQL, ...)
+      - metavariable-regex:
+          metavariable: $SQL
+          regex: (?is).*\bupdate\b\s+\w+\s+set\s+\w+\s*=\s*\?.*
+      - pattern-either:
+          - pattern-inside: |
+              $ROW = $C.execute(...).fetchone()[$I]
+              ...
+          - pattern-inside: |
+              $ROW = $C.execute(...).fetchone()
+              ...
+      - pattern-not-inside: |
+          $C.execute("BEGIN IMMEDIATE")
+          ...

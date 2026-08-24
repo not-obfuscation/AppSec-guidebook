@@ -120,6 +120,13 @@ SUITES = {
         "fixed": "pilot/lab/path-traversal/solution.py",
         "note": "путь канонизирован realpath до сверки через commonpath",
     },
+    "read-modify-write": {
+        "rule": "pilot/semgrep/read-modify-write-no-lock.yaml",
+        "cases": ["pilot/semgrep/read-modify-write-no-lock.py"],
+        "vulnerable": "pilot/lab/race-conditions/code.py",
+        "fixed": "pilot/lab/race-conditions/solution.py",
+        "note": "условие и новое значение живут внутри одного UPDATE",
+    },
     "money-value": {
         "rule": "pilot/semgrep/money-value-from-request.yaml",
         "cases": ["pilot/semgrep/money-value-from-request.py"],
