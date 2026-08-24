@@ -1,70 +1,79 @@
 # Передача работы
 
-## Миссия `appsec-stage1-injection` — В РАБОТЕ (7 из 11 тем)
+## Миссия `appsec-stage1-injection` — ЗАВЕРШЕНА
 
-Досье — `~/.supermanager/missions/appsec-stage1-injection/dossier.md`. Статус —
-`.smgr/appsec-stage1-injection/status.json`. Отчёт `STAGE1-INJECTION.md` ещё не
-создан (пишется в конце с маркером `ПОДРАЗДЕЛ INJECTION СДАН`).
+Досье — `~/.supermanager/missions/appsec-stage1-injection/dossier.md`. Отчёт —
+`STAGE1-INJECTION.md`; последней строкой стоит фраза-маркер из досье. Статус —
+`.smgr/appsec-stage1-injection/status.json`, вывод прогонов —
+`.smgr/appsec-stage1-injection/final/`. Вопросов оператору не задавалось: всё
+решалось в рамках досье.
 
-**Что сделано (закоммичено, коммиты 0ae0247, bcbf53f, ec8c174, 146e955).**
-Написаны 7 из 11 тем подраздела 1.3 в `content/stage-1/`:
+**Что сдано.** Подраздел 1.3 «Injection» написан целиком: одиннадцать тем в
+`content/stage-1/`. Три L1 (`sqli-basics` 2520, `parameterized-queries` 2502,
+`os-command-injection` 2508), шесть L2 (`sqli-blind`, `filter-and-waf-bypass`,
+`nosql-injection`, `ssti`, `xxe`, `crlf-injection` — 840–1027), две L3
+(`sqli-oob` 313, `ldap-xpath-injection` 309). Три лабы (`lab-sqli-basics`,
+`lab-parameterized-queries`, `lab-os-command-injection`) и два правила SAST
+(`sql-query-string-built`, `os-command-shell-built`, оба taint) прогнаны и
+сошлись. Уровни, слаги, предпосылки и порядок — из замороженного оглавления без
+правок.
 
-1. `sqli-basics` (L1) — лаба `lab-sqli-basics`, правило `sql-query-string-built` (taint).
-2. `sqli-blind` (L2).
-3. `sqli-oob` (L3).
-4. `filter-and-waf-bypass` (L2).
-5. `parameterized-queries` (L1) — лаба `lab-parameterized-queries`. Своего правила
-   нет: блок 8 честно показывает, что `sql-query-string-built` срабатывает и на
-   решении (сборка заполнителей `?` неотличима от склейки данных) — эта лаба
-   НАМЕРЕННО не в `SUITES` файла `pilot/semgrep/check.py`.
-6. `nosql-injection` (L2).
-7. `os-command-injection` (L1) — лаба `lab-os-command-injection`, правило
-   `os-command-shell-built` (taint). Седьмое правило проекта.
+**Состояние проверок на 2026-08-24**
 
-Каждая тема в норме объёма (wordcount) и проходит точечные vale/markdownlint/model.
-Все 7 правил semgrep сверены (`pilot/semgrep/check.py`).
+```text
+make check          0 ошибок, 397 предупреждений, 5 снято — пройдено
+make lint-selftest  166 из 166 — пройдено
+make links          0 ошибок, 0 предупреждений, 3 снято — пройдено
+make site           45 страниц, 3155 внутренних ссылок — пройдено
+make phone          пройдено
+semgrep check.py    семь правил из семи — ПРАВИЛО СВЕРЕНО
+```
 
-**Что осталось (4 темы).** По замороженному оглавлению `STAGE1-TOC.md` строки
-104–107:
-- 8. `ssti` (L2), order 230, plan t-1-3-08, источник `ps-ssti`.
-- 9. `ldap-xpath-injection` (L3), order 240, plan t-1-3-09, источники
-  `owasp-cs-ldap-injection`, `wstg-v42-inpv-09-xpath`.
-- 10. `xxe` (L2), order 250, plan t-1-3-10, источники `ps-xxe`,
-  `owasp-cs-xxe-prevention`. Предпосылка `ssrf-basics` уже существует.
-- 11. `crlf-injection` (L2), order 260, plan t-1-3-11, источники
-  `wstg-v42-inpv-15-splitting`, `cwe-113-crlf`.
+Прирост предупреждений (145 → 397) — почти целиком `L-CLERICAL2` на законном
+существительном «данные»: подраздел про инъекции. Новых видов предупреждений на
+одиннадцати темах нет; `S-SENT-LONG`, `L-NBSP`, `S-CODE-*` — ноль.
 
-Затем: финальный `make check`, `make lint-selftest`, `make site`, `make phone`,
-`pilot/semgrep/check.py`; отчёт `STAGE1-INJECTION.md` с маркером; коммит.
+**Что изменилось в обвязке — знать обязательно**
 
-**Что знать про обвязку (изменено этой миссией).**
-- `sources.yaml`: заведён `owasp-top10-2025-a05` (адрес издания ведёт на
-  оглавление, темы Injection стоят на странице категории — как у A01).
-- `taxonomy.yaml`: категория кода `INJ`; теги `sql, nosql, oscmd, template,
-  ldap, xml, xpath, injection`. (Категория `code_categories` мертва — см.
-  находку Н-S2 отчёта SSRF, `validate_content.py` её не проверяет; заведена для
-  человеческой карты.)
-- `labs.yaml`: `lab-sqli-basics`, `lab-parameterized-queries`,
-  `lab-os-command-injection`.
-- `pilot/semgrep/check.py`: добавлены наборы `sql-query`, `os-command`.
-- ASVS-номера сверены с документом v5.0.0 §V1.2 Injection Prevention:
-  1.2.4 SQL/NoSQL (параметризация), 1.2.5 OS command, 1.2.6 LDAP, 1.2.7 XPath.
+1. **Реестр источников: +2** — `owasp-top10-2025-a05`, `owasp-top10-2025-a02`
+   (последний под сноску XXE, находка Н-I1).
+2. **`taxonomy.yaml`:** мёртвая категория `INJ` (Н-I3) и теги `sql`, `nosql`,
+   `oscmd`, `template`, `ldap`, `xpath`, `xml`, `injection`.
+3. **`labs.yaml`:** три записи лаб этой миссии.
+4. **`pilot/semgrep/check.py`:** наборы `sql-query`, `os-command`.
+5. **ASVS сверены с документом v5.0.0 §V1.2:** 1.2.4 SQL/NoSQL, 1.2.5 OS,
+   1.2.6 LDAP, 1.2.7 XPath, 1.2.1 (заголовки/CRLF).
 
-**Грабли этой миссии.**
-- Неразрывный пробел в шапке «NN мин» вставляется отдельным проходом; скрипт —
-  `/tmp/.../scratchpad/nbsp.py` (regex `время \d+ мин`). При письме heredoc он
-  теряется, `L-NBSP` ловит.
-- `wordcount.py` НЕ считает абзацы «Зачем это в работе AppSec-инженера»,
-  «Откуда это взялось» и «Маркеры уверенности», листинги, ответы `<details>`.
-  Добор объёма делать в обычных блоках (0 без «зачем», 3 без «откуда», 4–12).
-- Перекрёстные ссылки `related`/блок 13 на ещё не написанные темы дают
-  `C-REF-TOPIC` (ошибка) и `C-REF-ORPHAN` (предупреждение) до появления всех
-  тем — это ожидаемо, разрешится финальным прогоном.
-- Правило `sql-query-string-built` в режиме taint флагует любую сборку строки
-  запроса из частей, включая безопасную генерацию заполнителей `?` — см. тему 5.
-- В `tests.py` лаб держать только функциональность, проходящую и на `code.py`:
-  свойство, верное лишь после починки (апостроф в SQL, `;` как текст в OS-cmd),
-  ловит `hack.py`, а не `tests.py` (иначе `tests.py` красный на исходном файле).
+**Ключевые решения и находки**
+
+* **XXE (CWE-611) в издании 2025 — A02 Security Misconfiguration, не Injection**
+  (Н-I1). Тема стоит в подразделе 1.3 по учебному плану, но поле `owasp` у неё
+  `A02:2025` по факту. Аналог Н-S1 (SSRF/A03). Оглавление не тронуто.
+* **`parameterized-queries` — L1 без своего правила SAST осознанно** (раздел 5
+  отчёта). На границе применимости параметра форма безопасной сборки
+  заполнителей и опасной склейки данных совпадает; `sql-query-string-built`
+  срабатывает на обоих. Лаба намеренно НЕ в `SUITES` `check.py`; блок 8
+  разбирает это как слепое пятно SAST.
+* **Сироты подраздела закрыты** перекрёстными ссылками; осталась
+  `password-storage` — долг подраздела A01, не этой миссии.
+
+**Грабли (в дополнение к граблям миссии SSRF ниже)**
+
+* `wordcount.py` не считает абзацы «Зачем это в работе AppSec-инженера»,
+  «Откуда это взялось», «Маркеры уверенности», листинги и ответы `<details>`.
+  Добор объёма делать в обычных блоках.
+* Неразрывный пробел «NN мин» в шапке — отдельным проходом
+  (`scratchpad/nbsp.py`, regex `время \d+ мин`), при heredoc теряется.
+* В `tests.py` лаб — только функциональность, зелёная и на `code.py`. Свойство,
+  верное лишь после починки (апостроф в SQL, `;` как текст в OS-cmd), ловит
+  `hack.py`, не `tests.py`.
+* Условная ошибка `1/0` в слепом SQLi на SQLite не воспроизводится (даёт NULL) —
+  привязана к SQL Server, помечать по документации.
+
+**Что писать следующей миссии.** Подраздел 1.4 «XSS и клиентские уязвимости»,
+восемь тем (`STAGE1-TOC.md` строки 111+). Тема `xxe` теперь существует —
+ссылки вперёд на неё из тем SSRF можно перевести с номера плана на слаг (долг 3
+отчёта).
 
 ---
 
