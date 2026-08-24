@@ -1,0 +1,41 @@
+rules:
+  - id: outbound-url-unvalidated
+    languages: [python]
+    severity: ERROR
+    mode: taint
+    message: >-
+      Адрес исходящего запроса пришёл из данных запроса и дошёл до
+      клиента, не пройдя через сверку со списком разрешённого. Сервер
+      сходит туда, куда его попросят: петля, внутренняя сеть, сервер
+      метаданных облака. Соберите адрес сами из разрешённой схемы и
+      разрешённого хоста, сверьте адрес после разрешения имени и не
+      проходите перенаправления. Требования: ASVS v5.0-1.3.6,
+      ASVS v5.0-13.2.4.
+    metadata:
+      cwe:
+        - "CWE-918: Server-Side Request Forgery (SSRF)"
+        - "CWE-441: Unintended Proxy or Intermediary ('Confused Deputy')"
+      asvs: v5.0-1.3.6
+      references:
+        - https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html
+        - https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/
+      confidence: MEDIUM
+    pattern-sources:
+      - pattern: request[...]
+      - pattern: request.args[...]
+      - pattern: request.json[...]
+      - pattern: request.headers[...]
+      - pattern: $R["query"][...]
+      - pattern: $R["query"].get(...)
+    pattern-sanitizers:
+      - pattern: int(...)
+      - pattern: allowed_url(...)
+      - pattern: allowlisted_url(...)
+      - pattern: validate_url(...)
+    pattern-sinks:
+      - pattern: net.get($URL, ...)
+      - pattern: requests.$M($URL, ...)
+      - pattern: requests.$M(..., url=$URL, ...)
+      - pattern: httpx.$M($URL, ...)
+      - pattern: urlopen($URL, ...)
+      - pattern: urllib.request.urlopen($URL, ...)

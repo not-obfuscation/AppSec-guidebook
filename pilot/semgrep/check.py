@@ -43,6 +43,13 @@ SUITES = {
         "fixed": "pilot/lab/idor/solution.py",
         "note": "выборка ограничена владельцем, получатель вызова — не таблица",
     },
+    "outbound-url": {
+        "rule": "pilot/semgrep/outbound-url-unvalidated.yaml",
+        "cases": ["pilot/semgrep/outbound-url-unvalidated.py"],
+        "vulnerable": "pilot/lab/ssrf-basics/code.py",
+        "fixed": "pilot/lab/ssrf-basics/solution.py",
+        "note": "адрес собран приложением после сверки со списком",
+    },
     "postmessage": {
         "rule": "pilot/semgrep/postmessage-no-origin-check.yaml",
         "cases": ["pilot/semgrep/postmessage-no-origin-check.js",

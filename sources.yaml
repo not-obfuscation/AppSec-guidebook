@@ -1121,6 +1121,65 @@ sources:
       сессионный токен через PUT, хоп-лимит, обязательный режим. Документация
       живого сервиса, перепроверять при каждом использовании.
 
+  - id: gcp-metadata-server
+    url: https://cloud.google.com/compute/docs/metadata/querying-metadata
+    title: View and query VM metadata
+    type: official-docs
+    level: 1
+    publisher: Google (Compute Engine documentation)
+    version_or_date: живая документация, даты на странице нет; адрес
+      редиректит на docs.cloud.google.com
+    volatility: fast
+    license: не указана; © Google LLC
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Вторая половина темы 1.2.04: у Google сервер метаданных отвечает по тем
+      же адресам 169.254.169.254 и metadata.google.internal, но требует поля
+      заголовка «Metadata-Flavor: Google» и без него запрос отклоняет. Легаси
+      «X-Google-Metadata-Request» объявлено устаревшим. Это ровно тот случай,
+      когда SSRF без управления заголовками не проходит, — и его стоит
+      показывать рядом с IMDSv1, где проходит.
+
+  - id: azure-imds
+    url: https://learn.microsoft.com/en-us/azure/virtual-machines/instance-metadata-service
+    title: Azure Instance Metadata Service (IMDS)
+    type: official-docs
+    level: 1
+    publisher: Microsoft (Azure documentation)
+    version_or_date: живая документация; примеры на api-version 2025-04-07
+    volatility: fast
+    license: не указана; © Microsoft
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Третий провайдер той же темы. Раздел «Security and authentication»:
+      запрос обязан нести «Metadata: true» и обязан НЕ нести «X-Forwarded-For»,
+      иначе служба его отвергает; интерфейс не аутентифицирован и открыт всем
+      процессам виртуальной машины. Второе условие важно для ревью: оно
+      выключает целый класс SSRF через прокси и заголовки.
+
+  - id: iana-ipv4-special-registry
+    url: https://www.iana.org/assignments/iana-ipv4-special-registry
+    title: IPv4 Special-Purpose Address Space
+    type: reference-db
+    level: 1
+    publisher: IANA
+    version_or_date: создан 2009-08-19, обновлён 2025-10-09; процедура —
+      IETF Review, ссылки RFC 6890 и RFC 8190
+    volatility: medium
+    license: не указана; © IANA / ICANN
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Машиночитаемый список того, что запрещающий список обязан закрыть, — и
+      единственный способ не выдумывать диапазоны по памяти: 0.0.0.0/8, 10/8
+      и 172.16/12 и 192.168/16 (RFC 1918), 100.64.0.0/10 (RFC 6598, CGNAT —
+      чаще всего забывают именно его), 127/8 (RFC 1122), 169.254.0.0/16
+      (RFC 3927 — на нём стоят метаданные всех трёх облаков). Колонка
+      «Globally Reachable» отвечает на вопрос «публичный ли адрес» без
+      экспертизы.
+
   # 1.3 Injection
 
   - id: owasp-cs-injection
