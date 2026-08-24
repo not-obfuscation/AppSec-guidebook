@@ -1458,6 +1458,23 @@ sources:
       существует вовсе. Второй якорь подраздела: показывает границы канона,
       без которых блок «как чинится» врёт.
 
+  - id: wstg-v42-inpv-02-stored-xss
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/07-Input_Validation_Testing/02-Testing_for_Stored_Cross_Site_Scripting
+    title: Testing for Stored Cross Site Scripting
+    type: owasp
+    level: 2
+    publisher: OWASP (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Хранимый случай как отдельный тест: два запроса вместо одного,
+      перечень мест хранения (профиль, комментарий, журнал, менеджер
+      файлов), сценарий с администратором и загрузка файла с чужим типом
+      содержимого как ещё один сток.
+
   - id: owasp-cs-dom-xss-prevention
     url: https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html
     title: DOM based XSS Prevention Cheat Sheet
