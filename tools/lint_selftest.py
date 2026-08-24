@@ -687,14 +687,23 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
          taxonomy(lambda c: None),
          "у каждого написанного подраздела ровно одна категория"),
 
+        # Сирота делается из темы, на которую нет ссылок из блока 13: `corpus`
+        # правит только frontmatter, а входящей считается и ссылка «дальше».
+        # На `cookies` такие ссылки есть у трёх тем, и фикстура зеленела не
+        # своей мутацией, а настоящей сиротой корпуса — `password-storage`,
+        # у которой входящих не было вовсе. Как только сироту закрыли, обман
+        # вскрылся: правило молчало, а утверждение считалось выполненным.
         ("тема без входящих ссылок", "C-REF-ORPHAN", CATCH,
          corpus(lambda d: [p.front.__setitem__(
              "prerequisites", [x for x in p.front.get("prerequisites") or []
-                               if x != "cookies"])
+                               if x != "access-control-models"])
              or p.front.__setitem__(
                  "related", [x for x in p.front.get("related") or []
-                             if x != "cookies"])
+                             if x != "access-control-models"])
              for p in d.values()])),
+        ("настоящий корпус: сирот нет", "C-REF-ORPHAN", SILENT,
+         corpus(lambda d: None),
+         "на каждую тему ссылается хотя бы одна другая"),
     ]
     return out
 
