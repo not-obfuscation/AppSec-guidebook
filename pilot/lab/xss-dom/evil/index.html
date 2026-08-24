@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>Чужая площадка</title></head>
+<body>
+<p>Открываем кабинет…</p>
+<script>
+  // Имя окна переживает переход на другой origin: чужая площадка кладёт в
+  // него что угодно и уводит браузер на приложение.
+  const target = new URLSearchParams(location.search).get('to');
+  window.name = '<img src=/нет onerror="window.__ran=2">';
+  location.href = target;
+</script>
+</body>
+</html>

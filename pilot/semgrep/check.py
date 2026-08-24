@@ -71,6 +71,13 @@ SUITES = {
         "fixed": "pilot/lab/xss-reflected/solution.mjs",
         "note": "значение экранировано у самого места вставки",
     },
+    "dom-sink": {
+        "rule": "pilot/semgrep/dom-untrusted-to-sink.yaml",
+        "cases": ["pilot/semgrep/dom-untrusted-to-sink.js"],
+        "vulnerable": "pilot/lab/xss-dom/code.js",
+        "fixed": "pilot/lab/xss-dom/solution.js",
+        "note": "текст пишется в textContent, адрес сверен с формой пути",
+    },
     "postmessage": {
         "rule": "pilot/semgrep/postmessage-no-origin-check.yaml",
         "cases": ["pilot/semgrep/postmessage-no-origin-check.js",

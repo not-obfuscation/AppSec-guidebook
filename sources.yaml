@@ -1492,6 +1492,25 @@ sources:
       кодирования при переходе между контекстами внутри DOM — то, чего
       серверное экранирование не закрывает в принципе.
 
+  - id: ps-dom-based
+    url: https://portswigger.net/web-security/dom-based
+    title: DOM-based vulnerabilities
+    type: course
+    level: 3
+    publisher: PortSwigger (Web Security Academy)
+    version_or_date: живая платформа, даты на странице нет
+    volatility: medium
+    license: не указана; © PortSwigger Ltd
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Рамка «источник — сток — поток помеченных данных» для клиентской
+      стороны: список источников (location, document.referrer, window.name,
+      document.cookie, хранилища браузера), таблица стоков по видам дефекта
+      и разбор, почему серверная проверка этого пути не видит. Общая
+      страница для всего клиентского куста подраздела 1.4, не только для
+      XSS в DOM.
+
   - id: ps-csp
     url: https://portswigger.net/web-security/cross-site-scripting/content-security-policy
     title: Content security policy

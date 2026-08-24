@@ -1,0 +1,63 @@
+# Правило темы xss-dom: значение из браузерного источника доезжает до стока,
+# который разбирает его как разметку или как код. Ловит блок 5 темы и не
+# ловит блок 6.
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/dom-untrusted-to-sink.yaml <путь>
+# Сверка с разметкой тест-кейсов:
+#   .venv-tools/bin/python pilot/semgrep/check.py dom-sink
+rules:
+  - id: dom-untrusted-to-sink
+    languages: [javascript, typescript]
+    severity: WARNING
+    mode: taint
+    message: >-
+      Значение, которым распоряжается тот, кто привёл пользователя на
+      страницу (адрес, фрагмент адреса, имя окна, ссылающийся адрес),
+      доезжает до стока, разбирающего его как разметку или как код. Сервер
+      этого пути не видит: фрагмент адреса до него не доезжает вовсе. Пишите
+      текст в textContent, разметку — через санитайзер, а адрес проверяйте
+      по схеме и форме. Требования: ASVS v5.0-3.2.2 и v5.0-1.2.2.
+    metadata:
+      cwe:
+        - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+      asvs: v5.0-3.2.2
+      references:
+        - https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html
+        - https://portswigger.net/web-security/dom-based
+      confidence: MEDIUM
+      topic: xss-dom
+    pattern-sources:
+      - pattern: location.hash
+      - pattern: location.search
+      - pattern: location.href
+      - pattern: document.location.$P
+      - pattern: document.referrer
+      - pattern: document.baseURI
+      - pattern: window.name
+      - pattern: $W.location.hash
+    pattern-sanitizers:
+      # Значение прошло сверку со списком разрешённого или с формой.
+      - pattern: "$LIST.includes($X) ? $X : $DEFAULT"
+      - pattern: "$RE.test($X) ? $X : $DEFAULT"
+      - pattern: $LIB.sanitize(...)
+      - pattern: DOMPurify.sanitize(...)
+      - pattern: encodeURIComponent(...)
+      - pattern: Number(...)
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $EL.innerHTML = $Q
+              - pattern: $EL.outerHTML = $Q
+              - pattern: document.write($Q)
+              - pattern: document.writeln($Q)
+              - pattern: $EL.insertAdjacentHTML($POS, $Q)
+              - pattern: $EL.setHTMLUnsafe($Q)
+              - pattern: eval($Q)
+              - pattern: Function($Q)
+              - pattern: setTimeout($Q, ...)
+              - pattern: setInterval($Q, ...)
+              - pattern: $EL.setAttribute("href", $Q)
+              - pattern: $EL.setAttribute("src", $Q)
+              - pattern: $EL.href = $Q
+          - focus-metavariable: $Q
