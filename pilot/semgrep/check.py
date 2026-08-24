@@ -149,6 +149,13 @@ SUITES = {
         "fixed": "pilot/lab/crypto-misuse/solution.py",
         "note": "один AES-GCM со свежим nonce на каждую операцию",
     },
+    "authz-fail-open": {
+        "rule": "pilot/semgrep/authz-fail-open.yaml",
+        "cases": ["pilot/semgrep/authz-fail-open.py"],
+        "vulnerable": "pilot/lab/fail-open/code.py",
+        "fixed": "pilot/lab/fail-open/solution.py",
+        "note": "конкретное исключение отказа и явная проверка поля решения",
+    },
 }
 
 MARKS = ("ruleid:", "ok:")

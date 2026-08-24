@@ -1,0 +1,65 @@
+# Правило темы fail-open-vs-fail-closed: отказ проверки, прочитанный как
+# разрешение. Ловит два случая блока 5 темы — широкий перехват, из которого
+# возвращается разрешение, и умолчание разбора ответа, подставляющее
+# разрешение вместо отсутствующего решения. Молчит на блоке 6 (конкретное
+# исключение отказа, ответ 503, явная проверка наличия поля решения).
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/authz-fail-open.yaml <путь>
+#   .venv-tools/bin/python pilot/semgrep/check.py authz-fail-open
+rules:
+  - id: authz-broad-except-allow
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Широкий перехват вокруг проверки возвращает разрешение: отказ
+      зависимости становится неотличим от положительного решения, и правило
+      доступа оказывается записано в обработчике ошибки. Ловите конкретное
+      исключение отказа и отвечайте 503, а не 200. CWE-636, ASVS v5.0-16.5.3.
+    metadata:
+      cwe:
+        - "CWE-636: Not Failing Securely ('Failing Open')"
+      asvs: v5.0-16.5.3
+      references:
+        - https://cwe.mitre.org/data/definitions/636.html
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: |
+              try:
+                  ...
+              except Exception:
+                  ...
+                  return True
+          - pattern: |
+              try:
+                  ...
+              except BaseException:
+                  ...
+                  return True
+          - pattern: |
+              try:
+                  ...
+              except:
+                  ...
+                  return True
+
+  - id: authz-default-allow-on-missing-decision
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Разбор ответа подставляет разрешение как значение по умолчанию: ответ
+      без решения читается так же, как ответ «разрешено». Требуйте поле
+      решения явно и отвечайте 503, когда его нет. CWE-754, ASVS v5.0-16.5.3.
+    metadata:
+      cwe:
+        - "CWE-754: Improper Check for Unusual or Exceptional Conditions"
+      asvs: v5.0-16.5.3
+      references:
+        - https://cwe.mitre.org/data/definitions/754.html
+      confidence: MEDIUM
+    patterns:
+      - pattern: $RESP.get($KEY, True)
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: (?i)^["'](allow|allowed|permit|permitted|granted|access|is_allowed|authorized)["']$
