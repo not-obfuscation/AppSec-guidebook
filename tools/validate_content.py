@@ -360,7 +360,7 @@ class Ctx:
         self.modes = set(self.tax["modes"])
         self.statuses = set(self.tax["statuses"])
         self.depths = set(self.tax["depths"])
-        self.categories = set(self.tax["code_categories"])
+        self.categories = dict(self.tax["code_categories"])
         self.blocks = {b["num"]: b for b in self.tax["blocks"]}
         self.plan, self.subsections = load_plan()
         self.sources = load_sources()
@@ -705,6 +705,67 @@ def check_refs(pages: list[Page], ctx: Ctx) -> list[Finding]:
     return out
 
 
+# ── C-TAX-*: словари против плана обучения ────────────────────────────────────
+#
+# Словарь `code_categories` описывает подразделы плана, а не темы, и после того
+# как код `AG-<CAT>-<NN>` ушёл со страницы (свод 4.1), ни одна тема на него не
+# ссылается. Проверять его через тему больше нечем — поэтому сверка идёт прямо
+# с планом: категория обязана указывать на существующий подраздел, подраздел —
+# иметь ровно одну категорию, а написанный подраздел — иметь её обязательно.
+#
+# Без этой сверки словарь молчаливо расходится с планом: ровно так он и стал
+# мёртвым (Н-S2 миссии SSRF, повтор Н-I3 миссии Injection) — загружался и не
+# использовался, и две миссии подряд дописывали в него значения, которые никто
+# не читал.
+
+
+def check_taxonomy(pages: list[Page], ctx: Ctx) -> list[Finding]:
+    out: list[Finding] = []
+    where = TAXONOMY.name
+    raw = TAXONOMY.read_text(encoding="utf-8").split("\n")
+
+    def at(cat: str) -> int:
+        for n, line in enumerate(raw, 1):
+            if line.startswith(f"  {cat}:"):
+                return n
+        return 1
+
+    plan_subs = {sub for _stage, sub in ctx.subsections}
+    by_sub: dict[str, list[str]] = defaultdict(list)
+
+    for cat, body in ctx.categories.items():
+        if not isinstance(body, dict) or "sub" not in body or "means" not in body:
+            out.append(Finding(where, at(cat), 1, "C-TAX-CATEGORY", ERROR,
+                               f"категория `{cat}` записана без полей `sub` и "
+                               f"`means`: без номера подраздела её не с чем сверить"))
+            continue
+        sub = str(body["sub"])
+        by_sub[sub].append(cat)
+        if sub not in plan_subs:
+            out.append(Finding(where, at(cat), 1, "C-TAX-CATEGORY", ERROR,
+                               f"категория `{cat}` объявлена для подраздела {sub}, "
+                               f"а такого подраздела в плане нет (`topics.yaml`)"))
+
+    for sub, cats in sorted(by_sub.items()):
+        if len(cats) > 1:
+            out.append(Finding(where, at(sorted(cats)[1]), 1, "C-TAX-CATEGORY", ERROR,
+                               f"на подраздел {sub} заведено несколько категорий "
+                               f"({', '.join('`' + c + '`' for c in sorted(cats))}): "
+                               f"соответствие подраздел — категория одно к одному"))
+
+    written: dict[str, str] = {}
+    for page in pages:
+        entry = ctx.plan.get(page.front.get("plan_id"))
+        if entry:
+            written.setdefault(entry["sub"], page.id)
+    for sub, example in sorted(written.items()):
+        if sub not in by_sub:
+            out.append(Finding(where, 1, 1, "C-TAX-CATEGORY", ERROR,
+                               f"подраздел {sub} написан (например, `{example}`), "
+                               f"а категории в `code_categories` у него нет"))
+    return out
+
+
 # ── C-HEAD-*: шапка против frontmatter ────────────────────────────────────────
 #
 # Шапка темы — то немногое из frontmatter, что нужно читателю перед чтением:
@@ -1024,6 +1085,7 @@ def collect() -> list[Finding]:
         findings += check_blocks(page, ctx)
         findings += check_body(page, ctx)
     findings += check_refs(pages, ctx)
+    findings += check_taxonomy(pages, ctx)
     findings.sort(key=Finding.sort_key)
     return findings
 
