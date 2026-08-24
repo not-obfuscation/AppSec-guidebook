@@ -1656,6 +1656,24 @@ sources:
       переменные через id и name, почему это проходит сквозь санитайзеры,
       разрешающие «безопасные» атрибуты, и чем защищаться.
 
+  - id: owasp-cs-dom-clobbering
+    url: https://cheatsheetseries.owasp.org/cheatsheets/DOM_Clobbering_Prevention_Cheat_Sheet.html
+    title: DOM Clobbering Prevention Cheat Sheet
+    type: owasp
+    level: 2
+    publisher: OWASP Cheat Sheet Series Team
+    version_or_date: живой документ, даты публикации на странице нет
+    volatility: medium
+    license: CC BY-SA 4.0
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Именованный доступ как причина: браузер заводит свойства window и
+      document по атрибутам id и name, и они находятся раньше встроенных
+      интерфейсов и переменных разработчика. Десять правил защиты: изоляция
+      пространства имён санитайзером, явное объявление переменных, строгая
+      проверка типов, отказ от хранения глобальных значений на document.
+
   - id: ps-websockets
     url: https://portswigger.net/web-security/websockets
     title: Testing for WebSockets security vulnerabilities
