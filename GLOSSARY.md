@@ -354,6 +354,66 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [cors](content/stage-0/cors.md); рядом: [CORS](#cors), [кеш](#cache); источник: RFC 9110.*
 
+## Браузер как исполнитель
+
+### гаджет { #gadget }
+
+*англ. gadget*
+
+Место кода, которое читает свойство и делает из него что-то опасное. Само по себе безвредно: вредным становится вместе с записью в прототип, которая подставляет этому месту чужое значение.
+
+*вводится в [prototype-pollution](content/stage-1/prototype-pollution.md); рядом: [загрязнение прототипа](#prototype-pollution), [sink](#sink); источник: PortSwigger Web Security Academy, Prototype pollution.*
+
+### загрязнение прототипа { #prototype-pollution }
+
+*англ. prototype pollution*
+
+Запись присланного значения в прототип встроенного объекта JavaScript. Свойство после этого видно каждому объекту, у которого своего такого свойства нет, поэтому дефект действует не в одном месте, а во всём коде страницы сразу.
+
+*вводится в [prototype-pollution](content/stage-1/prototype-pollution.md); рядом: [гаджет](#gadget), [sink](#sink); источник: OWASP Prototype Pollution Prevention Cheat Sheet.*
+
+### контекст вставки { #insertion-context }
+
+*англ. insertion context*
+
+Место разметки, куда попадает значение, вместе с правилами разбора, действующими в этом месте: тело документа, значение атрибута, строковый литерал скрипта, значение свойства стиля, адрес. Контекст решает, какое экранирование верно; одно и то же правило в соседнем контексте не защищает.
+
+*вводится в [xss-contexts](content/stage-1/xss-contexts.md); рядом: [санитайзер](#sanitizer), [sink](#sink), [процентное кодирование](#percent-encoding); источник: OWASP Cross Site Scripting Prevention Cheat Sheet.*
+
+### санитайзер { #sanitizer }
+
+*англ. sanitizer*
+
+Разбирает присланную разметку и возвращает её же с вырезанным опасным: тегами, атрибутами и адресами вне списка разрешённого. Нужен там, где разметка от пользователя обязана остаться разметкой, и потому не заменяет экранирование, а покрывает случай, где экранирование ломает задачу.
+
+*вводится в [xss-filter-bypass](content/stage-1/xss-filter-bypass.md); рядом: [контекст вставки](#insertion-context), [Trusted Types](#trusted-types); источник: OWASP Cross Site Scripting Prevention Cheat Sheet.*
+
+### clickjacking { #clickjacking }
+
+*англ. clickjacking · то же: «подмена нажатия»*
+
+Приложение встроено в кадр на чужой странице и накрыто её разметкой. Пользователь нажимает на то, что видит, а нажатие достаётся невидимому приложению, где он уже вошёл.
+
+*вводится в [clickjacking](content/stage-1/clickjacking.md); рядом: [frame-ancestors](#frame-ancestors), [политика одного источника](#same-origin-policy); источник: OWASP Clickjacking Defense Cheat Sheet.*
+
+### DOM clobbering { #dom-clobbering }
+
+Подмена ожидаемого значения переменной или свойства элементом разметки: браузер заводит для элемента с атрибутом `id` или `name` одноимённое свойство `document` и глобальной области. Скрипта в разметке при этом нет, поэтому санитайзер её пропускает.
+
+*вводится в [dom-clobbering](content/stage-1/dom-clobbering.md); рядом: [санитайзер](#sanitizer), [гаджет](#gadget); источник: HTML Standard, named access.*
+
+### Trusted Types { #trusted-types }
+
+Механизм браузера, при котором опасные стоки DOM перестают принимать обычную строку и принимают только значение, выданное объявленной политикой. Включается директивой `require-trusted-types-for 'script'`.
+
+*вводится в [xss-dom](content/stage-1/xss-dom.md); рядом: [санитайзер](#sanitizer), [CSP](#csp), [sink](#sink); источник: OWASP Cross Site Scripting Prevention Cheat Sheet.*
+
+### WebSocket { #websocket }
+
+Двусторонний канал между браузером и сервером, открываемый переключением с HTTP по рукопожатию. После переключения политика одного источника к каналу не применяется, поэтому происхождение проверяет сервер.
+
+*вводится в [websocket-vulns](content/stage-1/websocket-vulns.md); рядом: [политика одного источника](#same-origin-policy), [CSRF-токен](#csrf-token); источник: RFC 6455.*
+
 ## Транспорт и посредники
 
 ### кеш { #cache }
