@@ -1,0 +1,14 @@
+rules:
+  - id: sql-built-go
+    message: Текст запроса собран из частей и ушёл в Query
+    severity: ERROR
+    languages: [go]
+    metadata:
+      cwe: "CWE-89"
+    patterns:
+      - pattern-either:
+          - pattern: $D.Query("..." + $X, ...)
+          - pattern: |
+              $Q := fmt.Sprintf("...", ...)
+              ...
+              $D.Query($Q, ...)

@@ -1,0 +1,95 @@
+[main]	INFO	profile include tests: None
+[main]	INFO	profile exclude tests: None
+[main]	INFO	cli include tests: None
+[main]	INFO	cli exclude tests: None
+[main]	INFO	running on Python 3.14.7
+Run started:2026-08-24 21:36:57.971585+00:00
+
+Test results:
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: code/py/cache.py:8:11
+7	    # ЧИСТЫЙ КОД, ПОХОЖИЙ НА ДЕФЕКТ: md5 берётся как быстрая свёртка ключа.
+8	    return hashlib.md5(raw).hexdigest()
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: code/py/db.py:13:12
+12	    # ПОДСТАВЛЕННЫЙ ДЕФЕКТ 1: конкатенация в SQL, источник — параметр запроса.
+13	    sql = f"SELECT id, item, price FROM orders WHERE id = {order_id}"
+14	    return conn.execute(sql).fetchall()
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: code/py/db.py:28:26
+27	        raise ValueError("unknown table")
+28	    return conn.execute(f"SELECT count(*) FROM {table}").fetchone()[0]
+29	
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: code/py/db.py:33:24
+32	    # ПОДСТАВЛЕННЫЙ ДЕФЕКТ 2: тот же дефект, но источник в другом файле.
+33	    return conn.execute("SELECT id FROM orders WHERE " + where).fetchall()
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: code/py/report.py:2:0
+1	"""Выгрузка отчёта во внешний конвертер."""
+2	import subprocess
+3	
+
+--------------------------------------------------
+>> Issue: [B602:subprocess_popen_with_shell_equals_true] subprocess call with shell=True identified, security issue.
+   Severity: High   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b602_subprocess_popen_with_shell_equals_true.html
+   Location: code/py/report.py:10:11
+9	    cmd = f"/usr/bin/env cat {path} | /usr/bin/env tr ',' '{fmt}'"
+10	    return subprocess.run(cmd, shell=True, capture_output=True, text=True)
+11	
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: code/py/report.py:17:11
+16	    sep = "," if fmt == "csv" else "\t"
+17	    return subprocess.run(
+18	        ["/usr/bin/env", "tr", ",", sep], stdin=open(path), capture_output=True
+19	    )
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 59
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 2
+		Medium: 3
+		High: 2
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 1
+		Medium: 2
+		High: 4
+Files skipped (0):

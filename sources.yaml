@@ -4757,6 +4757,77 @@ sources:
       после чего в ветке-фиче показываются только новые находки. Это и есть
       механизм базовой линии, отделяющий унаследованный долг от свежего кода.
 
+  - id: gosec-rule-guidelines
+    url: https://securego.io/docs/rules/rule-intro.html
+    title: About gosec's security rules
+    type: tool-docs
+    level: 1
+    publisher: Secure Go (проект gosec)
+    version_or_date: сайт проекта, даты на странице нет
+    volatility: medium
+    license: не указана на странице; © 2020 Grant Murphy
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Пояснения к отдельным правилам gosec, которых нет в README: G101
+      (учётные данные в коде), G102 (привязка ко всем интерфейсам), G103
+      (unsafe), G104 (непроверенные ошибки), G107 (адрес запроса из внешних
+      данных), G201/G202 (сборка SQL форматом и конкатенацией), G304 (путь к
+      файлу из внешних данных).
+
+      ГРАНИЦА ИСТОЧНИКА (проверено 2026-08-25): страница покрывает семь правил
+      из нескольких десятков, и группы G7xx — правил на распространении метки,
+      которые в версии 2.28.0 и дают находки по инъекциям, — на ней нет вовсе.
+      Состав правил берётся из README репозитория (запись gosec-repo), а
+      отсюда — только пояснения к перечисленным семи.
+
+  - id: sonarqube-feature-comparison
+    url: https://docs.sonarsource.com/sonarqube-community-build/feature-comparison-table
+    title: Feature comparison table — SonarQube Community Build
+    type: tool-docs
+    level: 1
+    publisher: Sonar (SonarSource)
+    version_or_date: документация SonarQube Community Build, даты на странице нет
+    volatility: fast
+    license: не указана; © SonarSource
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Таблица, отвечающая на вопрос «что именно даёт бесплатная сборка».
+      Строка «Injection vulnerabilities detection» у SonarQube Community Build
+      пуста, а у Cloud Free plan, Server и облачных планов стоит отметка: то
+      есть поиск инъекций в бесплатной серверной сборке отсутствует, а не
+      выключен. Строка «Advanced SAST» — от Enterprise. Строка «Branch
+      analysis» — «Only main branch analysis». Строк «Pull request analysis»,
+      «Quality gate status report on pull requests; Preventing merge when
+      quality gate fails» у Community Build нет.
+
+      Страница отдаёт разметку через JavaScript; читаемый текст берётся тем же
+      адресом с суффиксом `.md` — это описано на самой странице документации.
+
+  - id: isp-ras-svace
+    url: https://www.ispras.ru/technologies/svace/
+    title: Статический анализатор Svace
+    type: tool-docs
+    level: 1
+    publisher: ИСП РАН
+    version_or_date: страница технологии, даты на странице нет
+    volatility: medium
+    license: не указана на странице; © ИСП РАН
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Проверяемые факты о российском статическом анализаторе: более 70 классов
+      ошибок, языки C/C++, C#, Java, Kotlin, Go, Python, Scala, Visual
+      Basic .NET и облегчённый анализ JavaScript, номер 4047 в Едином реестре
+      российского ПО, интеграция с системой сборки, символьное выполнение с
+      учётом связей между функциями, веб-интерфейс просмотра предупреждений
+      Svacer.
+
+      Это страница разработчика, а не независимая оценка: годится, чтобы знать
+      назначение и заявленные возможности, и не годится как источник
+      утверждений о качестве анализа. Прогона не было — лицензии нет.
+
   # --- Этап 3. Встройка в CI/CD ----------------------------------------------
   # Каркас этапа: платформенно-независимая таксономия рисков пайплайна.
 

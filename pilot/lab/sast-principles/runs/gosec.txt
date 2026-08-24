@@ -1,0 +1,78 @@
+[gosec] 2026/08/25 00:37:38 Including rules: default
+[gosec] 2026/08/25 00:37:38 Excluding rules: default
+[gosec] 2026/08/25 00:37:38 Including analyzers: default
+[gosec] 2026/08/25 00:37:38 Excluding analyzers: default
+[gosec] 2026/08/25 00:37:38 Import directory: /home/tarchok/bootcamp/AppSec-guidebook/.smgr/appsec-stage2-sast/exp/svc
+[gosec] 2026/08/25 00:37:38 Checking package: svc
+[gosec] 2026/08/25 00:37:38 Checking file: code/go/cmd.go
+[gosec] 2026/08/25 00:37:38 Checking file: code/go/db.go
+[gosec] 2026/08/25 00:37:38 Checking file: code/go/files.go
+[gosec] 2026/08/25 00:37:38 Checking file: code/go/handler.go
+[gosec] 2026/08/25 00:37:38 Checking file: code/go/hash.go
+[gosec] 2026/08/25 00:37:38 Checking file: code/go/util.go
+Results:
+
+
+[code/go/db.go:30] - G701 (CWE-89): SQL injection via taint analysis (Confidence: HIGH, Severity: HIGH)
+    29: func RawQuery(db *sql.DB, where string) (*sql.Rows, error) {
+  > 30: 	return db.Query("SELECT id FROM orders WHERE " + where)
+    31: }
+
+Autofix: 
+
+[code/go/db.go:13] - G701 (CWE-89): SQL injection via taint analysis (Confidence: HIGH, Severity: HIGH)
+    12: 	q := fmt.Sprintf("SELECT id, item FROM orders WHERE id = %s", orderID)
+  > 13: 	return db.Query(q)
+    14: }
+
+Autofix: 
+
+[code/go/files.go:10] - G703 (CWE-22): Path traversal via taint analysis (Confidence: HIGH, Severity: HIGH)
+    9: func ReadInvoice(name string) ([]byte, error) {
+  > 10: 	return os.ReadFile(filepath.Join("/srv/invoices", name))
+    11: }
+
+Autofix: 
+
+[code/go/cmd.go:7] - G702 (CWE-78): Command injection via taint analysis (Confidence: HIGH, Severity: HIGH)
+    6: func Export(format string) ([]byte, error) {
+  > 7: 	return exec.Command("/usr/bin/env", "tr", ",", format).Output()
+    8: }
+
+Autofix: 
+
+[code/go/hash.go:11] - G401 (CWE-328): Use of weak cryptographic primitive (Confidence: HIGH, Severity: MEDIUM)
+    10: func CacheKey(parts []string) string {
+  > 11: 	sum := md5.Sum([]byte(strings.Join(parts, "|")))
+    12: 	return hex.EncodeToString(sum[:])
+
+Autofix: 
+
+[code/go/cmd.go:7] - G204 (CWE-78): Subprocess launched with variable (Confidence: HIGH, Severity: MEDIUM)
+    6: func Export(format string) ([]byte, error) {
+  > 7: 	return exec.Command("/usr/bin/env", "tr", ",", format).Output()
+    8: }
+
+Autofix: 
+
+[code/go/files.go:10] - G304 (CWE-22): Potential file inclusion via variable (Confidence: HIGH, Severity: MEDIUM)
+    9: func ReadInvoice(name string) ([]byte, error) {
+  > 10: 	return os.ReadFile(filepath.Join("/srv/invoices", name))
+    11: }
+
+Autofix: Consider using os.Root to scope file access under a fixed root (Go >=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal.
+
+[code/go/hash.go:4] - G501 (CWE-327): Blocklisted import crypto/md5: weak cryptographic primitive (Confidence: HIGH, Severity: MEDIUM)
+    3: import (
+  > 4: 	"crypto/md5"
+    5: 	"encoding/hex"
+
+Autofix: 
+
+Summary:
+  Gosec  : 2.28.0
+  Files  : 6
+  Lines  : 113
+  Nosec  : 0
+  Issues : 8
+

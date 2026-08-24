@@ -1,0 +1,22 @@
+# Заполните колонку `вердикт` одной буквой и колонку `признак` — фразой.
+#   и  истинная находка: дефект настоящий
+#   л  ложная находка: дефекта тут нет
+#   д  дубль: то же место уже названо другим правилом выше
+# Колонка `признак` — по чему это видно в коде или в отчёте. Одна фраза.
+# Строки не переставлять: сверка идёт по колонкам инструмент/файл/строка/правило.
+инструмент,файл,строка,правило,вердикт,признак
+bandit,code/py/cache.py,8,B324,,
+bandit,code/py/db.py,13,B608,,
+bandit,code/py/db.py,28,B608,,
+bandit,code/py/db.py,33,B608,,
+bandit,code/py/report.py,2,B404,,
+bandit,code/py/report.py,10,B602,,
+bandit,code/py/report.py,17,B603,,
+gosec,code/go/db.go,30,G701,,
+gosec,code/go/db.go,13,G701,,
+gosec,code/go/files.go,10,G703,,
+gosec,code/go/cmd.go,7,G702,,
+gosec,code/go/hash.go,11,G401,,
+gosec,code/go/cmd.go,7,G204,,
+gosec,code/go/files.go,10,G304,,
+gosec,code/go/hash.go,4,G501,,

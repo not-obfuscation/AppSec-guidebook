@@ -1,0 +1,21 @@
+# Заготовка. Прогон разметки на ней не сходится — это и есть задание.
+rules:
+  - id: sql-string-built
+    message: Текст запроса собран из частей и ушёл в execute
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-89"
+    mode: taint
+    pattern-sources:
+      - pattern: |
+          def $F(..., $X, ...):
+            ...
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $C.execute("..." + $V, ...)
+              - pattern: $C.execute($V + "...", ...)
+              - pattern: $C.execute(f"...{$V}...", ...)
+              - pattern: $C.execute($V)
+          - focus-metavariable: $V

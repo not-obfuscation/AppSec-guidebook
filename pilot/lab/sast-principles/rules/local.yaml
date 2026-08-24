@@ -1,0 +1,37 @@
+# Локальный набор правил Semgrep для лабы: сети не требует.
+# Прогон:  semgrep --config=rules/local.yaml --metrics=off --no-git-ignore code/
+rules:
+  - id: lab-sql-string-built
+    message: Текст запроса собран из частей и ушёл в execute
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-89"
+    mode: taint
+    pattern-sources:
+      - pattern: |
+          def $F(..., $X, ...):
+            ...
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $C.execute("..." + $V, ...)
+              - pattern: $C.execute($V + "...", ...)
+              - pattern: $C.execute(f"...{$V}...", ...)
+              - pattern: $C.execute($V)
+          - pattern-not: $C.execute("...")
+          - focus-metavariable: $V
+
+  - id: lab-sql-string-built-go
+    message: Текст запроса собран из частей и ушёл в Query
+    severity: ERROR
+    languages: [go]
+    metadata:
+      cwe: "CWE-89"
+    patterns:
+      - pattern-either:
+          - pattern: $D.Query("..." + $X, ...)
+          - pattern: |
+              $Q := fmt.Sprintf("...", ...)
+              ...
+              $D.Query($Q, ...)
