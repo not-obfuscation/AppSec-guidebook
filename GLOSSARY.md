@@ -542,7 +542,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Установление того, кто обратился. GraphQL ставится после всего промежуточного слоя аутентификации, и после неё сервер не принимает решений об авторизации до начала исполнения.
 
-*рядом: [авторизация](#authorization), [сессия](#session), [функция хеширования паролей](#password-hash).*
+*рядом: [авторизация](#authorization), [сессия](#session), [функция хеширования паролей](#password-hash), [MFA](#mfa).*
 
 ### интроспекция { #introspection }
 
@@ -584,11 +584,27 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [rest-and-graphql](content/stage-0/rest-and-graphql.md); рядом: [REST](#rest), [GraphQL](#graphql), [резолвер](#resolver), [OpenAPI](#openapi).*
 
+### credential stuffing { #credential-stuffing }
+
+*англ. credential stuffing · то же: «подстановка учётных данных»*
+
+Атака на живой вход парами «логин и пароль» из чужой утечки, каждая пробуется один раз, в расчёте на повторно используемые пароли. Счётчик по учётной записи её не видит: по каждой учётке одна попытка.
+
+*вводится в [credential-stuffing](content/stage-1/credential-stuffing.md); рядом: [password spraying](#password-spraying), [MFA](#mfa), [ограничение частоты](#rate-limiting).*
+
 ### GraphQL { #graphql }
 
 Язык запросов к схеме, у которого адрес один, а точками входа служат поля схемы: их сотни, и каждое исполняется своим резолвером. Правило на прокси, разрешающее один этот адрес, разрешает всё, что можно выразить схемой.
 
 *вводится в [rest-and-graphql](content/stage-0/rest-and-graphql.md); рядом: [REST](#rest), [резолвер](#resolver), [интроспекция](#introspection), [псевдоним](#alias), [эндпоинт](#endpoint).*
+
+### MFA { #mfa }
+
+*англ. multi-factor authentication · сокр. MFA · то же: «многофакторная аутентификация», «двухфакторная аутентификация»*
+
+Проверка входа несколькими разными факторами: то, что пользователь знает (пароль), плюс то, что у него есть (код из приложения, ключ). Защищает поток вокруг фактора, а не факт включения: обходят её дырами в логике второго шага, а не взломом фактора.
+
+*вводится в [mfa-bypass](content/stage-1/mfa-bypass.md); рядом: [аутентификация](#authentication), [TOTP](#totp), [credential stuffing](#credential-stuffing).*
 
 ### OpenAPI { #openapi }
 
@@ -596,11 +612,27 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [rest-and-graphql](content/stage-0/rest-and-graphql.md); рядом: [REST](#rest), [эндпоинт](#endpoint); источник: OpenAPI v3.2.0.*
 
+### password spraying { #password-spraying }
+
+*англ. password spraying · то же: «распыление пароля»*
+
+Атака на живой вход одним частым паролем против многих учётных записей, по одной попытке на каждую. Обходит блокировку по учётке и выдаёт себя тем, что один пароль пробуют на многих учётках.
+
+*вводится в [credential-stuffing](content/stage-1/credential-stuffing.md); рядом: [credential stuffing](#credential-stuffing), [ограничение частоты](#rate-limiting).*
+
 ### REST { #rest }
 
 Стиль устройства API, в котором точка входа — пара «метод и путь». Точки входа перечислимы: они видны в маршрутах и в описании OpenAPI.
 
 *вводится в [rest-and-graphql](content/stage-0/rest-and-graphql.md); рядом: [GraphQL](#graphql), [эндпоинт](#endpoint), [OpenAPI](#openapi); источник: OWASP REST Security Cheat Sheet.*
+
+### TOTP { #totp }
+
+*англ. time-based one-time password · сокр. TOTP*
+
+Одноразовый код, привязанный к текущему временному шагу и общему секрету (RFC 6238). Годен один раз и в узком окне времени; без пометки использования и без лимита попыток перебирается.
+
+*вводится в [mfa-bypass](content/stage-1/mfa-bypass.md); рядом: [MFA](#mfa), [CSPRNG](#csprng).*
 
 ## Хеши и хранение паролей
 

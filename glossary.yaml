@@ -907,7 +907,57 @@ terms:
       промежуточного слоя аутентификации, и после неё сервер не принимает
       решений об авторизации до начала исполнения.
     defines: []
-    see_also: [authorization, session, password-hash]
+    see_also: [authorization, session, password-hash, mfa]
+
+  - id: mfa
+    term: MFA
+    en: multi-factor authentication
+    abbr: MFA
+    aliases: [многофакторная аутентификация, двухфакторная аутентификация]
+    group: api
+    definition: >
+      Проверка входа несколькими разными факторами: то, что пользователь
+      знает (пароль), плюс то, что у него есть (код из приложения, ключ).
+      Защищает поток вокруг фактора, а не факт включения: обходят её дырами в
+      логике второго шага, а не взломом фактора.
+    defines: [mfa-bypass]
+    see_also: [authentication, totp, credential-stuffing]
+
+  - id: totp
+    term: TOTP
+    en: time-based one-time password
+    abbr: TOTP
+    group: api
+    definition: >
+      Одноразовый код, привязанный к текущему временному шагу и общему
+      секрету (RFC 6238). Годен один раз и в узком окне времени; без пометки
+      использования и без лимита попыток перебирается.
+    defines: [mfa-bypass]
+    see_also: [mfa, csprng]
+
+  - id: credential-stuffing
+    term: credential stuffing
+    en: credential stuffing
+    aliases: [подстановка учётных данных]
+    group: api
+    definition: >
+      Атака на живой вход парами «логин и пароль» из чужой утечки, каждая
+      пробуется один раз, в расчёте на повторно используемые пароли. Счётчик
+      по учётной записи её не видит: по каждой учётке одна попытка.
+    defines: [credential-stuffing]
+    see_also: [password-spraying, mfa, rate-limiting]
+
+  - id: password-spraying
+    term: password spraying
+    en: password spraying
+    aliases: [распыление пароля]
+    group: api
+    definition: >
+      Атака на живой вход одним частым паролем против многих учётных записей,
+      по одной попытке на каждую. Обходит блокировку по учётке и выдаёт себя
+      тем, что один пароль пробуют на многих учётках.
+    defines: [credential-stuffing]
+    see_also: [credential-stuffing, rate-limiting]
 
   # --- crypto ---------------------------------------------------------------
 
