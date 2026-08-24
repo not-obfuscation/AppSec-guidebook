@@ -37,8 +37,9 @@ review_interval: 24
 
 Что прочитать сначала: `http-basics`.
 
-Кража cookie через XSS разбирается в подразделе 1.4, CSRF — в подразделе
-1.5, session fixation — в теме 1.6.04.
+Кража cookie через XSS разбирается в подразделе 1.4, подделка межсайтового
+запроса (CSRF) — в темах `csrf-mechanics` и `samesite-cookies`, session
+fixation — в теме 1.6.04.
 
 ## 0. Коротко
 
@@ -333,7 +334,7 @@ cookie, установленную с `Path=/admin`, если у неё нет `
 - `sessions-vs-tokens` — что кладут в cookie и чем это отличается от токена.
 - `same-origin-policy` — почему у cookie своя модель области, не совпадающая с
   origin.
-- Подраздел 1.5 — CSRF и роль `SameSite` в защите от него.
+- `samesite-cookies` — роль атрибута `SameSite` в защите от CSRF и её границы.
 - Тема 1.6.04 — session fixation и корректная инвалидация сессии.
 
 ## 14. Источники

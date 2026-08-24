@@ -234,11 +234,27 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [cookies](content/stage-0/cookies.md); рядом: [Set-Cookie](#set-cookie), [префикс имени cookie](#cookie-prefix), [SameSite](#samesite), [HttpOnly](#httponly), [Secure](#secure-attribute), [сессия](#session); источник: draft-ietf-httpbis-rfc6265bis-22.*
 
+### CSRF { #csrf }
+
+*англ. cross-site request forgery · то же: «подделка межсайтового запроса»*
+
+Дефект, при котором чужая страница выполняет изменяющее действие от имени вошедшего пользователя: браузер прикладывает к её запросу сессионную cookie сам. Ответа приложения атакующий при этом не видит, и он ему не нужен — действие выполняется до того, как ответ дойдёт до браузера.
+
+*вводится в [csrf-mechanics](content/stage-1/csrf-mechanics.md); рядом: [CSRF-токен](#csrf-token), [double-submit cookie](#double-submit), [SameSite](#samesite), [политика одного источника](#same-origin-policy); источник: OWASP Top 10:2025 A01, CWE-352.*
+
 ### CSRF-токен { #csrf-token }
+
+*то же: «синхронизирующий токен»*
 
 Значение, которое приложение выдаёт своей странице и требует обратно при изменяющем действии, чтобы отличить свой запрос от подделанного чужим сайтом. Дополняет `SameSite`, а не заменяется им.
 
-*рядом: [SameSite](#samesite), [политика одного источника](#same-origin-policy), [идемпотентность](#idempotency).*
+*вводится в [csrf-tokens](content/stage-1/csrf-tokens.md); рядом: [CSRF](#csrf), [SameSite](#samesite), [double-submit cookie](#double-submit), [идемпотентность](#idempotency).*
+
+### double-submit cookie { #double-submit }
+
+Схема защиты от CSRF без хранения выданных токенов на сервере: значение кладётся в cookie и сверяется с присланным в теле или в заголовке. Надёжна она только тогда, когда токен связан с сессией подписью: сверка двух одинаковых значений ломается подстановкой cookie.
+
+*вводится в [csrf-tokens](content/stage-1/csrf-tokens.md); рядом: [CSRF-токен](#csrf-token), [префикс имени cookie](#cookie-prefix), [CSRF](#csrf); источник: OWASP Cross-Site Request Forgery Prevention Cheat Sheet.*
 
 ### HttpOnly { #httponly }
 

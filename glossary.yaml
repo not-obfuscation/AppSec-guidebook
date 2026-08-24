@@ -515,15 +515,42 @@ terms:
     see_also: [jwt]
     source: RFC 7519
 
+  - id: csrf
+    term: CSRF
+    en: cross-site request forgery
+    aliases: [подделка межсайтового запроса]
+    group: state
+    definition: >
+      Дефект, при котором чужая страница выполняет изменяющее действие от имени
+      вошедшего пользователя: браузер прикладывает к её запросу сессионную
+      cookie сам. Ответа приложения атакующий при этом не видит, и он ему не
+      нужен — действие выполняется до того, как ответ дойдёт до браузера.
+    defines: [csrf-mechanics]
+    see_also: [csrf-token, double-submit, samesite, same-origin-policy]
+    source: OWASP Top 10:2025 A01, CWE-352
+
   - id: csrf-token
     term: CSRF-токен
+    aliases: [синхронизирующий токен]
     group: state
     definition: >
       Значение, которое приложение выдаёт своей странице и требует обратно при
       изменяющем действии, чтобы отличить свой запрос от подделанного чужим
       сайтом. Дополняет `SameSite`, а не заменяется им.
-    defines: []
-    see_also: [samesite, same-origin-policy, idempotency]
+    defines: [csrf-tokens]
+    see_also: [csrf, samesite, double-submit, idempotency]
+
+  - id: double-submit
+    term: double-submit cookie
+    group: state
+    definition: >
+      Схема защиты от CSRF без хранения выданных токенов на сервере: значение
+      кладётся в cookie и сверяется с присланным в теле или в заголовке.
+      Надёжна она только тогда, когда токен связан с сессией подписью:
+      сверка двух одинаковых значений ломается подстановкой cookie.
+    defines: [csrf-tokens]
+    see_also: [csrf-token, cookie-prefix, csrf]
+    source: OWASP Cross-Site Request Forgery Prevention Cheat Sheet
 
   # --- headers --------------------------------------------------------------
 
