@@ -25,7 +25,7 @@ asvs: ['v5.0-7.2.4', 'v5.0-7.4.1']
 wstg: ['WSTG-v42-SESS-03', 'WSTG-v42-SESS-06']
 owasp: ['A07:2025']
 labs: []
-sources: [owasp-cs-session-management, wstg-v42-sess-03-session-fixation, wstg-v42-sess-06-logout, ps-auth-other-mechanisms]
+sources: [owasp-cs-session-management, wstg-v42-sess-03-session-fixation, wstg-v42-sess-06-logout]
 reviewed: 2026-08-24
 review_interval: 12
 ---
