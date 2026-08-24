@@ -909,15 +909,36 @@ class NoTemplate:
     level = "error"
 
 
+class WrongSkeleton:
+    """Заглушка: шаблон лежит под чужим скелетом.
+
+    Без неё шаблон инструмента, забывший поле `skeleton`, прошёл бы как
+    «тема начинается зелёной»: скелет по умолчанию — `уязвимость`, и все
+    проверки состава спросили бы с него не то.
+    """
+
+    rule = "СКЕЛЕТ-НЕ-ТОТ"
+    level = "error"
+
+
+# Имя файла шаблона по скелету: у каждого скелета свода 4.2 своя тройка. Если
+# скелет заведён в словаре, а шаблона к нему нет, `template_cases` печатает
+# «ШАБЛОНА-НЕТ» — автор новой темы иначе узнал бы об этом на пустом месте.
+TEMPLATE_NAME = {"уязвимость": "{depth}.md", "инструмент": "tool-{depth}.md"}
+
+
 def template_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
-    """(имя, правило, режим, найденное) — шаблоны уровней L1, L2, L3."""
+    """(имя, правило, режим, найденное) — шаблоны обоих скелетов, L1, L2, L3."""
     ctx = vc.Ctx()
     staging = tmp / "tpl-raw"
     staging.mkdir(parents=True, exist_ok=True)
     out: list[tuple[str, str, str, list]] = []
-    for depth in sorted(ctx.depths):
-        src = Path("templates") / f"{depth}.md"
-        name = f"шаблон {depth}"
+    pairs = [(skeleton, depth) for skeleton in sorted(ctx.skeletons)
+             for depth in sorted(ctx.depths)]
+    for skeleton, depth in pairs:
+        pattern = TEMPLATE_NAME.get(skeleton, "{depth}.md")
+        src = Path("templates") / pattern.format(depth=depth)
+        name = f"шаблон {skeleton} {depth}"
         if not src.exists():
             out.append((f"{name} существует", ANY, SILENT, [NoTemplate()]))
             continue
@@ -932,6 +953,8 @@ def template_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         page = vc.read_page(dest)
         found = (vc.check_front(page, ctx) + vc.check_head(page, ctx)
                  + vc.check_blocks(page, ctx) + vc.check_body(page, ctx))
+        if ctx.skeleton_of(page) != skeleton:
+            found.append(WrongSkeleton())
         # `C-FM-REVIEW` снято: дата ревизии в шаблоне зафиксирована в файле и
         # неизбежно устареет, а предупреждение о просрочке — про живую тему.
         # Всё остальное, включая ошибки формы даты, проверяется как есть.
@@ -942,6 +965,131 @@ def template_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
                     ls.check_placeholder(dest, mdtext.load(dest)),
                     "заполнители шаблона — та же разметка, которую ловит правило"))
     return out
+
+
+
+# ── второй скелет: правила C-FM-SKELETON, C-BODY-FIX, C-BODY-MECH ────────────
+#
+# Скелетов в своде 4.2 два, и главное требование к проверке — не «пропустить
+# оба», а различать их: скелет, который разрешает всё, хуже прежнего, потому
+# что тогда пропадает единственная машинная защита от халтуры. Фикстуры ниже
+# проверяют ровно это. Базой берутся шаблоны — живой темы-инструмента в корпусе
+# ещё нет, а шаблон прогоняется теми же функциями и в `template_cases` уже
+# объявлен зелёным.
+
+TOOL_BASE = Path("templates/tool-L1.md")
+TOOL_RECIPE = Path("templates/tool-L2.md")
+VULN_BASE = Path("templates/L1.md")
+
+
+def skeleton_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
+    """(имя, правило, режим, найденное) — различение двух скелетов."""
+    ctx = vc.Ctx()
+    home = tmp / "skel" / ctx.stages["appsec-tooling"]["dir"]
+    home.mkdir(parents=True, exist_ok=True)
+    vuln_home = tmp / "skel" / ctx.stages["web-vulns"]["dir"]
+    vuln_home.mkdir(parents=True, exist_ok=True)
+
+    def one(text: str, base: Path, where: Path) -> list:
+        if text == base.read_text(encoding="utf-8"):
+            return [Nothing()]
+        target = where / "new-topic.md"
+        target.write_text(text, encoding="utf-8")
+        page = vc.read_page(target)
+        return (vc.check_front(page, ctx) + vc.check_head(page, ctx)
+                + vc.check_blocks(page, ctx) + vc.check_body(page, ctx))
+
+    def skeletons(mutate) -> list:
+        """Замечания уровня словаря: `skeletons` подменён, темы живые."""
+        alt = copy.copy(ctx)
+        alt.skeletons = {name: {n: dict(b) for n, b in blocks.items()}
+                         for name, blocks in ctx.skeletons.items()}
+        alt.default_skeleton = ctx.default_skeleton
+        mutate(alt)
+        return vc.check_skeletons(alt)
+
+    tool = TOOL_BASE.read_text(encoding="utf-8")
+    recipe = TOOL_RECIPE.read_text(encoding="utf-8")
+    vuln = VULN_BASE.read_text(encoding="utf-8")
+
+    def sub(old_text: str, new_text: str, count: int = -1) -> list:
+        return one(tool.replace(old_text, new_text) if count < 0
+                   else tool.replace(old_text, new_text, count), TOOL_BASE, home)
+
+    def sub_recipe(old_text: str, new_text: str) -> list:
+        return one(recipe.replace(old_text, new_text), TOOL_RECIPE, home)
+
+    def sub_vuln(old_text: str, new_text: str) -> list:
+        return one(vuln.replace(old_text, new_text), VULN_BASE, vuln_home)
+
+    def cut(start: str, stop: str) -> list:
+        i, j = tool.find(start), tool.find(stop)
+        return one(tool if i < 0 or j < i else tool[:i] + tool[j:], TOOL_BASE, home)
+
+    return [
+        # --- подмена скелета -------------------------------------------------
+        # Самая дорогая ошибка: тема про инструмент, не объявившая себя такой,
+        # получает состав темы-уязвимости и обязана нести «Как чинится».
+        ("тема-инструмент не объявила скелет", "C-BLOCK-TITLE", CATCH,
+         sub("skeleton: инструмент\n", "")),
+        ("скелет вне словаря", "C-FM-VOCAB", CATCH,
+         sub("skeleton: инструмент", "skeleton: инструментальный")),
+        ("блок чужого скелета на странице", "C-BLOCK-TITLE", CATCH,
+         sub("## 6. Как читать вывод", "## 6. Как чинится")),
+        ("нет блока, обязательного у инструмента", "C-BLOCK-REQ", CATCH,
+         cut("## 7. Границы метода", "## 8. Ловушка")),
+        ("номер блока вне скелета инструмента", "C-BLOCK-NUM", CATCH,
+         sub("## 8. Ловушка", "## 14. Ловушка")),
+        # Спуск L2 до L3 сразу даёт девять блоков, которых уровень не несёт.
+        ("блок не по уровню в скелете инструмента", "C-BLOCK-EXTRA", CATCH,
+         one(recipe.replace("depth: L2", "depth: L3")
+                   .replace("Уровень **L2**", "Уровень **L3**"),
+             TOOL_RECIPE, home)),
+
+        # --- связь вместо блока «Как чинится» --------------------------------
+        ("тема-инструмент без `fixes_in`", "C-FM-SKELETON", CATCH,
+         sub("fixes_in: [sqli-basics]\n", "")),
+        ("`fixes_in` пуст при названном классе дефекта", "C-FM-SKELETON", CATCH,
+         sub("fixes_in: [sqli-basics]", "fixes_in: []")),
+        ("`fixes_in` у темы-уязвимости", "C-FM-SKELETON", CATCH,
+         sub_vuln("related: [cookies, sessions-vs-tokens]",
+                  "related: [cookies, sessions-vs-tokens]\nfixes_in: [cookies]")),
+        ("связь названа только в шапке", "C-BODY-FIX", CATCH,
+         sub("`sqli-basics`", "`parameterized-queries`")),
+        ("`fixes_in` пуст, класс дефекта не назван", "C-FM-SKELETON", SILENT,
+         one(tool.replace("fixes_in: [sqli-basics]", "fixes_in: []")
+                 .replace("cwe: [CWE-000]", "cwe: []"), TOOL_BASE, home),
+         "инструмент, который дефектов не находит, связывать не с чем"),
+
+        # --- словарь скелетов против проверок, которые его читают -------------
+        # Ключ пропал — проверка не упала, а выключилась: `C-BODY-SOURCES`
+        # промолчит на теме без единой сноски. Это и ловится.
+        ("у скелета нет блока с ключом проверки", "C-TAX-SKELETON", CATCH,
+         skeletons(lambda c: c.skeletons["инструмент"][13].__setitem__(
+             "key", "footnotes"))),
+        ("ключ блока повторяется", "C-TAX-SKELETON", CATCH,
+         skeletons(lambda c: c.skeletons["инструмент"][12].__setitem__(
+             "key", "sources"))),
+        ("умолчание указывает на несуществующий скелет", "C-TAX-SKELETON", CATCH,
+         skeletons(lambda c: setattr(c, "default_skeleton", "никакой"))),
+        ("дыра в нумерации скелета", "C-TAX-SKELETON", CATCH,
+         skeletons(lambda c: c.skeletons["инструмент"].pop(8))),
+        ("живой словарь скелетов сходится с проверками", "C-TAX-SKELETON", SILENT,
+         skeletons(lambda c: None),
+         "у обоих скелетов есть все блоки, которые ищут `C-BODY-*`"),
+
+        # --- механика в рецепте ----------------------------------------------
+        # Оговорка 9.2: механика в рецепте пишется в объёме, нужном, чтобы
+        # понять вывод, а разбор остаётся в своей теме. Машина меряет не объём
+        # — метром тут была бы выдуманная граница, — а наличие адреса.
+        ("механика рецепта без адреса разбора", "C-BODY-MECH", CATCH,
+         sub_recipe("Механизм самого дефекта\nразобран в `sqli-basics` — здесь он "
+                    "не пересказывается.",
+                    "Механизм самого дефекта здесь не пересказывается.")),
+        ("механика концепта без адреса разбора", "C-BODY-MECH", SILENT,
+         sub("разобран в `sqli-basics`", "разобран в теме своего этапа"),
+         "правило спрашивается с рецепта: концепт механизм и объясняет"),
+    ]
 
 
 def main() -> int:
@@ -964,7 +1112,8 @@ def main() -> int:
             case = Case(name, rule, mode, "")
             rows.append((rule, mode, name, "", verdict(case, found), None))
         for row in (list(model_cases(tmp)) + list(volume_cases(tmp))
-                    + list(link_cases(tmp)) + list(template_cases(tmp))):
+                    + list(link_cases(tmp)) + list(template_cases(tmp))
+                    + list(skeleton_cases(tmp))):
             name, rule, mode, found = row[:4]
             why = row[4] if len(row) > 4 else ""
             case = Case(name, rule, mode, "")

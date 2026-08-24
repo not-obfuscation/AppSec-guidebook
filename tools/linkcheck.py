@@ -54,10 +54,13 @@ import mdtext
 ERROR, WARNING = "error", "warning"
 
 SOURCES = Path("sources.yaml")
-SOURCES_BLOCK = 14        # блок «Источники» — единственное место для внешних адресов
-NEXT_BLOCK = 13           # блок «Дальше»
+# Два блока опознаются по заголовку, а не по номеру: скелетов в своде 4.2 два,
+# и в скелете инструмента «Источники» — тринадцатый блок, а не четырнадцатый.
+# Заголовок у обоих скелетов общий, поэтому он и есть признак.
+SOURCES_BLOCK = "Источники"   # единственное место для внешних адресов
+NEXT_BLOCK = "Дальше"
 
-H2_RE = re.compile(r"^##\s*(\d+)\.", re.M)
+H2_RE = re.compile(r"^##\s*(\d+)\.\s*(.+?)\s*$", re.M)
 HEAD_RE = re.compile(r"^(#{1,6})[ \t]+(.+?)[ \t]*$", re.M)
 ATTR_ID_RE = re.compile(r"\{\s*#([^}\s]+)\s*\}\s*$")
 TICK_RE = re.compile(r"`([^`]+)`")
@@ -120,17 +123,17 @@ def linkable(doc) -> str:
     return mdtext.CODE_SPAN_RE.sub(lambda m: _blank(m.group(0)), doc.prose_spans)
 
 
-def blocks_of(doc) -> list[tuple[int, int]]:
-    """Начала блоков канона: (смещение, номер), по возрастанию смещения."""
-    return [(m.start(), int(m.group(1))) for m in H2_RE.finditer(doc.raw)]
+def blocks_of(doc) -> list[tuple[int, str]]:
+    """Начала блоков канона: (смещение, заголовок), по возрастанию смещения."""
+    return [(m.start(), m.group(2)) for m in H2_RE.finditer(doc.raw)]
 
 
-def block_at(marks: list[tuple[int, int]], offset: int) -> int | None:
-    """Номер блока, внутри которого стоит смещение; None — до первого блока."""
+def block_at(marks: list[tuple[int, str]], offset: int) -> str | None:
+    """Заголовок блока, внутри которого стоит смещение; None — до первого."""
     cur = None
-    for start, num in marks:
+    for start, title in marks:
         if start <= offset:
-            cur = num
+            cur = title
         else:
             break
     return cur
@@ -214,13 +217,13 @@ def check_external_placement(path, doc, marks) -> list[Finding]:
     for off, url in ((o, u) for o, u, _a in external_links(doc)):
         block = block_at(marks, off)
         if block != SOURCES_BLOCK:
-            where = f"блок {block}" if block is not None else "шапка темы"
+            where = f"блоке «{block}»" if block is not None else "шапке темы"
             line, col = doc.pos(off)
             out.append(Finding(
                 path, line, col, "S-EXT-IN-BODY", ERROR,
                 f"внешний адрес в {where}: {url}. Границу самодостаточности "
-                "задаёт SCOPE.md § 6 — вне блока 14 внешний адрес может стоять "
-                "только носителем содержания"))
+                f"задаёт SCOPE.md § 6 — вне блока «{SOURCES_BLOCK}» внешний "
+                "адрес может стоять только носителем содержания"))
     for off, url, auto in external_links(doc):
         if not auto:
             line, col = doc.pos(off)
@@ -234,7 +237,7 @@ def check_external_placement(path, doc, marks) -> list[Finding]:
 
 def check_source_urls(path, doc, marks, source_urls) -> list[Finding]:
     """Адрес сноски против `url` реестровой записи, названной в той же сноске."""
-    start = next((s for s, n in marks if n == SOURCES_BLOCK), None)
+    start = next((s for s, title in marks if title == SOURCES_BLOCK), None)
     if start is None:
         return []
     end = next((s for s, n in marks if s > start), len(doc.raw))
@@ -277,11 +280,12 @@ def check_topic_refs(path, doc, marks, ids) -> list[Finding]:
     text = doc.prose_spans
     spots: list[tuple[int, str, str]] = []
 
-    start = next((s for s, n in marks if n == NEXT_BLOCK), None)
+    start = next((s for s, title in marks if title == NEXT_BLOCK), None)
     if start is not None:
-        end = next((s for s, n in marks if s > start), len(doc.raw))
+        end = next((s for s, _t in marks if s > start), len(doc.raw))
         for m in NEXT_ITEM_RE.finditer(text[start:end]):
-            spots.append((start + m.start(1), m.group(1), "пункт блока 13"))
+            spots.append((start + m.start(1), m.group(1),
+                          f"пункт блока «{NEXT_BLOCK}»"))
 
     for m in THEME_REF_RE.finditer(text):
         before = (m.group(1) or "").lower()

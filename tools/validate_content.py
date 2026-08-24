@@ -87,10 +87,22 @@ SCHEMA: list[tuple[str, str, bool]] = [
     ("status", "str", True),
     ("depth", "str", True),
     ("mode", "str", True),
+    # Скелет темы (свод 4.2). Поле условное: его нет ни в одной из 94 тем
+    # этапов 0 и 1, и отсутствие значит `default_skeleton` словаря, то есть
+    # `уязвимость`. Обязательным его сделать нельзя, не переписав 94 шапки;
+    # умолчание записано в словаре, а не спрятано здесь, и названо в § 4
+    # `SCHEMA.md`.
+    ("skeleton", "str", False),
     ("time_min", "int", True),
     ("teaches", "list", True),
     ("prerequisites", "list", True),
     ("related", "list", True),
+    # Где чинится то, что нашёл инструмент (решение оператора 2026-08-24,
+    # находка Н-01 оглавления этапа 2). У темы-инструмента блока «Как чинится»
+    # нет: дефект разобран в своей теме, и пересказ был бы дублем, запрещённым
+    # сводом. Вместо пересказа — связь, и она проверяется. Поле законно только
+    # у темы-инструмента и у неё обязательно, пусть и пустым списком.
+    ("fixes_in", "list", False),
     ("tags", "list", True),
     ("cwe", "list", True),
     ("asvs", "list", True),
@@ -361,20 +373,46 @@ class Ctx:
         self.statuses = set(self.tax["statuses"])
         self.depths = set(self.tax["depths"])
         self.categories = dict(self.tax["code_categories"])
-        self.blocks = {b["num"]: b for b in self.tax["blocks"]}
+        # Скелетов два (свод 4.2), и у каждого своя нумерация блоков: номер
+        # стоит на странице, и дыра в нём читалась бы как пропущенный блок.
+        # Сравнимы блоки двух скелетов по `key`, а не по номеру, — отсюда
+        # `num_of` ниже, которым проверки наполнения находят блок, не зная
+        # номера.
+        self.skeletons = {name: {b["num"]: b for b in body["blocks"]}
+                          for name, body in self.tax["skeletons"].items()}
+        self.default_skeleton = str(self.tax["default_skeleton"])
         self.plan, self.subsections = load_plan()
         self.sources = load_sources()
         self.labs = load_labs()
 
-    def required(self, depth: str) -> list[int]:
-        return [n for n, b in self.blocks.items() if depth in (b.get("required") or [])]
+    def skeleton_of(self, page: "Page") -> str:
+        """Скелет темы: объявленный полем или умолчание словаря.
 
-    def allowed(self, depth: str) -> list[int]:
-        return [n for n, b in self.blocks.items()
+        Значение вне словаря приводится к умолчанию, чтобы вслед за одной
+        ошибкой `C-FM-VOCAB` не посыпался весь скелет: опечатка в поле — это
+        одно замечание, а не пятнадцать.
+        """
+        want = page.front.get("skeleton")
+        return want if want in self.skeletons else self.default_skeleton
+
+    def blocks(self, skeleton: str) -> dict[int, dict]:
+        return self.skeletons[skeleton]
+
+    def num_of(self, skeleton: str, key: str) -> int | None:
+        """Номер блока по машинному имени: в двух скелетах он разный."""
+        return next((n for n, b in self.skeletons[skeleton].items()
+                     if b.get("key") == key), None)
+
+    def required(self, skeleton: str, depth: str) -> list[int]:
+        return [n for n, b in self.blocks(skeleton).items()
+                if depth in (b.get("required") or [])]
+
+    def allowed(self, skeleton: str, depth: str) -> list[int]:
+        return [n for n, b in self.blocks(skeleton).items()
                 if depth in (b.get("required") or []) + (b.get("allowed") or [])]
 
-    def titles(self, num: int, depth: str) -> list[str]:
-        b = self.blocks[num]
+    def titles(self, skeleton: str, num: int, depth: str) -> list[str]:
+        b = self.blocks(skeleton)[num]
         out = [b["title"]]
         for alt, levels in (b.get("alt") or {}).items():
             if depth in levels:
@@ -493,6 +531,36 @@ def check_front(page: Page, ctx: Ctx) -> list[Finding]:
         add("C-FM-VOCAB", ERROR, f"уровень `{f['depth']}` вне словаря", "depth")
     if text("mode") and text("mode") not in ctx.modes:
         add("C-FM-VOCAB", ERROR, f"режим `{f['mode']}` вне словаря", "mode")
+    if "skeleton" in f and text("skeleton") not in ctx.skeletons:
+        add("C-FM-VOCAB", ERROR,
+            f"скелет `{f['skeleton']}` вне словаря `taxonomy.yaml`: "
+            f"известны {', '.join('`' + s + '`' for s in sorted(ctx.skeletons))}",
+            "skeleton")
+
+    # Связь «где чинится» вместо блока «Как чинится» (свод 4.2, решение
+    # оператора 2026-08-24). Поле спрашивается только с темы-инструмента и
+    # только с неё: у темы-уязвимости блок «Как чинится» есть, и вторая запись
+    # о том же разошлась бы с ним при первой же правке.
+    skeleton = ctx.skeleton_of(page)
+    if skeleton == "инструмент":
+        if "fixes_in" not in f:
+            add("C-FM-SKELETON", ERROR,
+                "у темы-инструмента нет поля `fixes_in`: блок «Как чинится» "
+                "она не пишет, а связывает — назовите темы, где разобран "
+                "дефект, или поставьте пустой список, если инструмент дефектов "
+                "не находит", "skeleton")
+        elif not lst("fixes_in") and lst("cwe"):
+            add("C-FM-SKELETON", ERROR,
+                f"`fixes_in` пуст, а `cwe` называет {len(lst('cwe'))} "
+                "слабость: тема объявила класс дефекта и умолчала, где он "
+                "чинится — читателю некуда идти с находкой", "fixes_in")
+    elif "fixes_in" in f:
+        add("C-FM-SKELETON", ERROR,
+            f"`fixes_in` стоит у темы со скелетом `{skeleton}`, а поле "
+            "законно только у темы-инструмента: здесь про починку пишет "
+            "блок «Как чинится» (`SCHEMA.md` § 4.3)", "fixes_in")
+    if page.id in lst("fixes_in"):
+        add("C-FM-SKELETON", ERROR, "тема стоит в своём же `fixes_in`", "fixes_in")
 
     tags = lst("tags")
     if not tags:
@@ -627,7 +695,7 @@ def check_refs(pages: list[Page], ctx: Ctx) -> list[Finding]:
 
     # ссылки по id
     for page in pages:
-        for field in ("prerequisites", "related"):
+        for field in ("prerequisites", "related", "fixes_in"):
             for ref in page.front.get(field) or []:
                 if ref not in ids:
                     out.append(Finding(
@@ -670,10 +738,12 @@ def check_refs(pages: list[Page], ctx: Ctx) -> list[Finding]:
     # сироты: 9.4, предупреждение
     incoming = defaultdict(set)
     for page in pages:
-        for ref in (page.front.get("prerequisites") or []) + (page.front.get("related") or []):
-            if ref in ids and ref != page.id:
-                incoming[ref].add(page.id)
-        nxt = page.block(13)
+        for field in ("prerequisites", "related", "fixes_in"):
+            for ref in page.front.get(field) or []:
+                if ref in ids and ref != page.id:
+                    incoming[ref].add(page.id)
+        num = ctx.num_of(ctx.skeleton_of(page), "next")
+        nxt = page.block(num) if num is not None else None
         if nxt:
             for span in TICK_RE.findall("\n".join(page.text_of(nxt))):
                 if span in ids and span != page.id:
@@ -717,6 +787,58 @@ def check_refs(pages: list[Page], ctx: Ctx) -> list[Finding]:
 # мёртвым (Н-S2 миссии SSRF, повтор Н-I3 миссии Injection) — загружался и не
 # использовался, и две миссии подряд дописывали в него значения, которые никто
 # не читал.
+
+
+# Ключи, по которым проверки наполнения находят блок. Скелет, где такого ключа
+# нет, не роняет проверку — он её выключает: `named("sources")` вернёт None, и
+# `C-BODY-SOURCES` промолчит на теме без единой сноски. Правило, которое молчит,
+# снаружи неотличимо от сломанного, поэтому состав ключей сверяется со словарём.
+BODY_KEYS = {"goals", "mechanics", "checklist", "selfcheck", "next", "sources"}
+
+
+def check_skeletons(ctx: Ctx) -> list[Finding]:
+    """`C-TAX-SKELETON`: словарь скелетов против проверок, которые его читают."""
+    out: list[Finding] = []
+    where = TAXONOMY.name
+    raw = TAXONOMY.read_text(encoding="utf-8").split("\n")
+
+    def at(name: str) -> int:
+        for n, line in enumerate(raw, 1):
+            if line.strip() == f"{name}:":
+                return n
+        return 1
+
+    def add(msg: str, line: int = 1):
+        out.append(Finding(where, line, 1, "C-TAX-SKELETON", ERROR, msg))
+
+    if ctx.default_skeleton not in ctx.skeletons:
+        add(f"`default_skeleton: {ctx.default_skeleton}` не назван в `skeletons`: "
+            "тема без поля `skeleton` осталась бы без скелета вовсе")
+    for name, blocks in sorted(ctx.skeletons.items()):
+        line = at(name)
+        keys = [b.get("key") for b in blocks.values()]
+        if not blocks:
+            add(f"у скелета `{name}` нет ни одного блока", line)
+            continue
+        missing = sorted(k for k in BODY_KEYS if k not in keys)
+        if missing:
+            add(f"у скелета `{name}` нет блоков с ключами "
+                + ", ".join(f"`{k}`" for k in missing)
+                + ": проверки наполнения ищут блок по ключу и на таком скелете "
+                  "промолчат вместо того, чтобы сработать", line)
+        dup = sorted({k for k in keys if k and keys.count(k) > 1})
+        if dup:
+            add(f"у скелета `{name}` ключ повторяется: "
+                + ", ".join(f"`{k}`" for k in dup)
+                + " — по ключу находится ровно один блок", line)
+        if None in keys:
+            add(f"у скелета `{name}` есть блок без ключа `key`", line)
+        nums = sorted(blocks)
+        if nums != list(range(len(nums))):
+            add(f"нумерация скелета `{name}` не сплошная от нуля: {nums}. "
+                "Номер стоит на странице, и пропуск читается как пропущенный "
+                "блок (`SCHEMA.md` § 4.3)", line)
+    return out
 
 
 def check_taxonomy(pages: list[Page], ctx: Ctx) -> list[Finding]:
@@ -763,7 +885,7 @@ def check_taxonomy(pages: list[Page], ctx: Ctx) -> list[Finding]:
             out.append(Finding(where, 1, 1, "C-TAX-CATEGORY", ERROR,
                                f"подраздел {sub} написан (например, `{example}`), "
                                f"а категории в `code_categories` у него нет"))
-    return out
+    return out + check_skeletons(ctx)
 
 
 # ── C-HEAD-*: шапка против frontmatter ────────────────────────────────────────
@@ -841,6 +963,12 @@ def check_head(page: Page, ctx: Ctx) -> list[Finding]:
 
 
 # ── C-BLOCK-*: скелет части 4 ───────────────────────────────────────
+#
+# Скелетов два, и какой из них применяется — сведение о теме, а не догадка
+# автора: тема объявляет его полем `skeleton`, поля нет — скелет `уязвимость`
+# (свод 4.2). Проверки ниже спрашивают состав у объявленного скелета, поэтому
+# блок «Как чинится» у темы-инструмента — не пропуск, а `C-BLOCK-NUM`
+# наоборот: заголовок чужого скелета на странице ловится, а не пропускается.
 
 
 def check_blocks(page: Page, ctx: Ctx) -> list[Finding]:
@@ -848,6 +976,8 @@ def check_blocks(page: Page, ctx: Ctx) -> list[Finding]:
     depth = page.depth
     if depth not in ctx.depths:
         return out
+    skeleton = ctx.skeleton_of(page)
+    canon = ctx.blocks(skeleton)
 
     def add(rule, level, msg, line=1):
         out.append(Finding(page.path, line, 1, rule, level, msg))
@@ -859,19 +989,20 @@ def check_blocks(page: Page, ctx: Ctx) -> list[Finding]:
                 f"заголовок «{b.title}» не по форме `## N. Название`: блоки скелета "
                 "нумерованы, и по номеру их сравнивают между темами", b.line)
             continue
-        if b.num not in ctx.blocks:
+        if b.num not in canon:
             add("C-BLOCK-NUM", ERROR,
-                f"блока {b.num} в скелете части 4 нет (номера 0–14)", b.line)
+                f"блока {b.num} в скелете «{skeleton}» нет "
+                f"(номера {min(canon)}–{max(canon)})", b.line)
             continue
-        titles = ctx.titles(b.num, depth)
+        titles = ctx.titles(skeleton, b.num, depth)
         if b.title not in titles:
             add("C-BLOCK-TITLE", ERROR,
-                f"блок {b.num} назван «{b.title}», канон — "
+                f"блок {b.num} назван «{b.title}», канон скелета «{skeleton}» — "
                 + " / ".join(f"«{t}»" for t in titles), b.line)
         nums.append(b.num)
 
     if nums != sorted(nums):
-        numbered = [b for b in page.blocks if b.num >= 0 and b.num in ctx.blocks]
+        numbered = [b for b in page.blocks if b.num >= 0 and b.num in canon]
         first = next((b.line for a, b in zip(numbered, numbered[1:])
                       if b.num < a.num), page.h1_line or 1)
         add("C-BLOCK-ORDER", ERROR,
@@ -884,13 +1015,14 @@ def check_blocks(page: Page, ctx: Ctx) -> list[Finding]:
             "блок встречается второй раз: " + ", ".join(str(n) for n in dup))
 
     have = set(nums)
-    for num in sorted(set(ctx.required(depth)) - have):
+    for num in sorted(set(ctx.required(skeleton, depth)) - have):
         add("C-BLOCK-REQ", ERROR,
-            f"нет блока {num} «{ctx.blocks[num]['title']}», обязательного на {depth}")
-    for num in sorted(have - set(ctx.allowed(depth))):
+            f"нет блока {num} «{canon[num]['title']}», обязательного на {depth} "
+            f"в скелете «{skeleton}»")
+    for num in sorted(have - set(ctx.allowed(skeleton, depth))):
         add("C-BLOCK-EXTRA", ERROR,
-            f"блок {num} «{ctx.blocks[num]['title']}» на уровне {depth} не предусмотрен "
-            f"(`SCHEMA.md` § 4)", page.block(num).line)
+            f"блок {num} «{canon[num]['title']}» на уровне {depth} не предусмотрен "
+            f"скелетом «{skeleton}» (`SCHEMA.md` § 4)", page.block(num).line)
 
     return out
 
@@ -922,9 +1054,15 @@ def items(page: Page, block: Block, dash: bool = False) -> list[tuple[int, str]]
 def check_body(page: Page, ctx: Ctx) -> list[Finding]:
     out: list[Finding] = []
     depth = page.depth
+    skeleton = ctx.skeleton_of(page)
 
     def add(rule, level, msg, line=1):
         out.append(Finding(page.path, line, 1, rule, level, msg))
+
+    def named(key: str) -> tuple[Block | None, int | None]:
+        """Блок и его номер по машинному имени: номера двух скелетов разные."""
+        num = ctx.num_of(skeleton, key)
+        return (page.block(num) if num is not None else None), num
 
     body = "\n".join(page.lines[page.h1_line:]) if page.h1_line else page.doc.raw
     for marker, rule, why in ((WHY, "C-BODY-WHY", "DoD 6"),
@@ -945,14 +1083,14 @@ def check_body(page: Page, ctx: Ctx) -> list[Finding]:
 
     # блок 1 отражает teaches
     teaches = [str(t) for t in (page.front.get("teaches") or [])]
-    goals = page.block(1)
+    goals, goals_num = named("goals")
     if goals and teaches:
         listed = items(page, goals)
         if len(listed) != len(teaches):
             add("C-BODY-GOALS", ERROR,
-                f"в блоке 1 целей {len(listed)}, во frontmatter `teaches` — "
-                f"{len(teaches)}: читатель и сборка должны видеть один список",
-                goals.line)
+                f"в блоке {goals_num} целей {len(listed)}, во frontmatter "
+                f"`teaches` — {len(teaches)}: читатель и сборка должны видеть "
+                "один список", goals.line)
         # Формулировка не сверяется дословно: `teaches` — короткая форма для
         # карточек и поиска, блок 1 — фраза для читателя, и 11.1 стадия 2
         # требует от автоматики только наличия блока с 2–5 целями. Правило
@@ -964,11 +1102,12 @@ def check_body(page: Page, ctx: Ctx) -> list[Finding]:
             if a == b or difflib.SequenceMatcher(None, a, b).ratio() >= 0.55:
                 continue
             add("C-BODY-GOALS", ERROR,
-                f"цель из frontmatter не отражена в блоке 1:\n"
-                f"    блок 1:      {text}\n    frontmatter: {goal}", line_no)
+                f"цель из frontmatter не отражена в блоке {goals_num}:\n"
+                f"    блок {goals_num}:      {text}\n"
+                f"    frontmatter: {goal}", line_no)
 
-    # блок 10: чеклист
-    check = page.block(10)
+    # чеклист
+    check, _ = named("checklist")
     if check:
         listed = items(page, check)
         if not 5 <= len(listed) <= 8:
@@ -982,15 +1121,15 @@ def check_body(page: Page, ctx: Ctx) -> list[Finding]:
                 add("C-BODY-CHECKLIST", ERROR,
                     f"пункт чеклиста не в залоге «Verify that…»: {text[:50]}", line_no)
 
-    # блок 12: самопроверка
-    self_check = page.block(12)
+    # самопроверка
+    self_check, sc_num = named("selfcheck")
     if self_check:
         raw = page.lines[self_check.start:self_check.end]
         split = next((i for i, line in enumerate(raw) if line.startswith("<details>")), None)
         if split is None:
             add("C-BODY-SELFCHECK", ERROR,
-                "в блоке 12 нет `<details>` с ответами: ответы под спойлером, "
-                "но обязательно есть (часть 4)", self_check.line)
+                f"в блоке {sc_num} нет `<details>` с ответами: ответы под "
+                "спойлером, но обязательно есть (часть 4)", self_check.line)
         else:
             qs = [line for line in raw[:split] if LIST_NUM_RE.match(line)]
             ans = [line for line in raw[split:] if LIST_NUM_RE.match(line)]
@@ -1009,44 +1148,86 @@ def check_body(page: Page, ctx: Ctx) -> list[Finding]:
                     "(часть 4). Возврат опускается только у темы без предпосылок",
                     self_check.line)
 
-    # блок 13: навигация вперёд
-    nxt = page.block(13)
+    # навигация вперёд
+    nxt, nxt_num = named("next")
     if nxt:
         listed = items(page, nxt, dash=True)
         if not 1 <= len(listed) <= 5:
             add("C-BODY-NEXT", ERROR,
-                f"в блоке 13 пунктов {len(listed)} при норме 1–5 (9.5 п. 8)", nxt.line)
+                f"в блоке {nxt_num} пунктов {len(listed)} при норме 1–5 "
+                "(9.5 п. 8)", nxt.line)
         for line_no, text in listed:
             has_id = any(span for span in TICK_RE.findall(text))
             has_plan = PLAN_TOPIC_RE.search(text) or PLAN_SUB_RE.search(text)
             if not has_id and not has_plan:
                 add("C-BODY-NEXT", ERROR,
-                    "пункт блока 13 не называет ни темы (`id`), ни номера плана: "
-                    f"{flat(text)[:60]}", line_no)
+                    f"пункт блока {nxt_num} не называет ни темы (`id`), ни "
+                    f"номера плана: {flat(text)[:60]}", line_no)
 
-    # блок 14: источники
-    src = page.block(14)
+    # источники
+    src, src_num = named("sources")
     declared = {str(s) for s in (page.front.get("sources") or [])}
     if src:
         listed = items(page, src)
         if len(listed) < 2:
             add("C-BODY-SOURCES", ERROR,
-                f"сносок в блоке 14 — {len(listed)}: первоисточников минимум два "
-                "(DoD 8; верхней границы нет)", src.line)
+                f"сносок в блоке {src_num} — {len(listed)}: первоисточников "
+                "минимум два (DoD 8; верхней границы нет)", src.line)
         # Реестровые идентификаторы берутся только из сносок. Абзац после них
         # («Каркас этапа: `owasp-asvs-5-document`, …») называет источники,
         # унаследованные всем этапом: они законно не повторяются в `sources`
         # каждой темы, и ловить их — учить автора пролистывать вывод.
-        named = {span for _, text in listed
+        cited = {span for _, text in listed
                  for span in TICK_RE.findall(text) if span in ctx.sources}
-        for sid in sorted(declared - named):
+        for sid in sorted(declared - cited):
             add("C-BODY-SOURCES", ERROR,
-                f"источник `{sid}` объявлен во frontmatter, но в блоке 14 не назван: "
-                "читатель не увидит, откуда взято", src.line)
-        for sid in sorted(named - declared):
+                f"источник `{sid}` объявлен во frontmatter, но в блоке {src_num} "
+                "не назван: читатель не увидит, откуда взято", src.line)
+        for sid in sorted(cited - declared):
             add("C-BODY-SOURCES", ERROR,
-                f"в блоке 14 назван источник `{sid}`, которого нет во frontmatter",
-                src.line)
+                f"в блоке {src_num} назван источник `{sid}`, которого нет во "
+                "frontmatter", src.line)
+
+    # Связь вместо блока «Как чинится»: она обязана быть видна читателю.
+    #
+    # Поле `fixes_in` — указатель для сборки; читатель шапки не видит. Если тема
+    # нигде не назвала тему, где дефект чинится, связь существует только в
+    # данных, и находка инструмента остаётся без продолжения — то самое, ради
+    # чего блок «Как чинится» и стоял в скелете.
+    # Скан идёт по `prose_spans` — тексту с забитыми листингами и сохранённым
+    # инлайновым кодом. На сыром тексте `TICK_RE` спаривает обратные кавычки
+    # через ограждения листингов и не находит ничего: выражение `[^`]+`
+    # переносы строк не останавливают.
+    spans = page.doc.prose_spans.split("\n")
+    on_page = set(TICK_RE.findall("\n".join(spans[page.h1_line:])))
+    for ref in [str(x) for x in (page.front.get("fixes_in") or [])]:
+        if ref not in on_page:
+            add("C-BODY-FIX", ERROR,
+                f"`fixes_in` называет тему `{ref}`, а на странице её нет: "
+                "у темы-инструмента блок «Как чинится» заменён ссылкой, и "
+                "ссылка эта пишется для читателя, а не для сборки",
+                page.at("fixes_in"))
+
+    # Механика в рецепте: объём по назначению, глубина — по ссылке.
+    #
+    # Решение оператора 2026-08-24 по находке Н-03 оглавления этапа 2: механика
+    # на странице-рецепте пишется в объёме, необходимом, чтобы понять вывод
+    # инструмента, а разбор механизма остаётся в своей теме. Машина меряет не
+    # объём — метром тут была бы выдуманная граница, — а наличие адреса, по
+    # которому разбор лежит. Правило спрашивается только с рецепта: концепт
+    # механизм и объясняет, это его работа.
+    if skeleton == "инструмент" and page.front.get("mode") == "рецепт":
+        num = ctx.num_of(skeleton, "mechanics")
+        mech = page.block(num) if num is not None else None
+        if mech:
+            text_mech = "\n".join(spans[mech.start:mech.end])
+            if not TICK_RE.findall(text_mech) and not (
+                    PLAN_TOPIC_RE.search(text_mech) or PLAN_SUB_RE.search(text_mech)):
+                add("C-BODY-MECH", ERROR,
+                    f"блок {num} «Механика» на странице-рецепте не называет "
+                    "темы, где механизм разобран: в рецепте механика идёт в "
+                    "объёме, нужном, чтобы понять вывод, а глубина живёт по "
+                    "ссылке (9.2)", mech.line)
 
     # Внешние идентификаторы: напечатанное входит в объявленное.
     #
