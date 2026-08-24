@@ -64,6 +64,13 @@ SUITES = {
         "fixed": "pilot/lab/os-command-injection/solution.py",
         "note": "программа вызвана без оболочки, аргументы списком",
     },
+    "html-response": {
+        "rule": "pilot/semgrep/html-response-string-built.yaml",
+        "cases": ["pilot/semgrep/html-response-string-built.js"],
+        "vulnerable": "pilot/lab/xss-reflected/code.mjs",
+        "fixed": "pilot/lab/xss-reflected/solution.mjs",
+        "note": "значение экранировано у самого места вставки",
+    },
     "postmessage": {
         "rule": "pilot/semgrep/postmessage-no-origin-check.yaml",
         "cases": ["pilot/semgrep/postmessage-no-origin-check.js",

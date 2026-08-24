@@ -1,0 +1,53 @@
+# Правило темы xss-reflected: разметка ответа собрана из присланного значения
+# без экранирования на выводе. Ловит блок 5 темы и не ловит блок 6.
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/html-response-string-built.yaml <путь>
+# Сверка с разметкой тест-кейсов:
+#   .venv-tools/bin/python pilot/semgrep/check.py html-response
+rules:
+  - id: html-response-string-built
+    languages: [javascript, typescript]
+    severity: WARNING
+    mode: taint
+    message: >-
+      Значение из запроса попало в разметку ответа без экранирования на
+      выводе. Браузер прочитает знаки разметки в нём как разметку — это
+      отражённый XSS. Экранируйте значение у самого места вставки: в теле
+      документа и в значении атрибута — сущностями HTML, в адресе —
+      процентным кодированием. Чистка на входе этого не заменяет: она не
+      знает, куда значение попадёт. Требование: ASVS v5.0-1.2.1.
+    metadata:
+      cwe:
+        - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+      asvs: v5.0-1.2.1
+      references:
+        - https://portswigger.net/web-security/cross-site-scripting
+        - https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+      confidence: MEDIUM
+      topic: xss-reflected
+    pattern-sources:
+      - pattern: $U.searchParams.get(...)
+      - pattern: $REQ.query.$P
+      - pattern: $REQ.body.$P
+      - pattern: $REQ.params.$P
+      - pattern: $REQ.headers[...]
+    pattern-sanitizers:
+      - pattern: escapeHtml(...)
+      - pattern: escapeHTML(...)
+      - pattern: htmlEscape(...)
+      - pattern: $LIB.escape(...)
+      - pattern: encodeURIComponent(...)
+      - pattern: Number(...)
+      - pattern: parseInt(...)
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $RES.end($Q)
+              - pattern: $RES.write($Q)
+              - pattern: $RES.send($Q)
+              - pattern: return $Q;
+          - focus-metavariable: $Q
+          - metavariable-pattern:
+              metavariable: $Q
+              pattern-regex: (?s)<[A-Za-z!/]

@@ -34,6 +34,8 @@ groups:
     title: Состояние — cookie, сессии, токены
   - id: headers
     title: Поля ответа и политики
+  - id: client
+    title: Браузер как исполнитель
   - id: transport
     title: Транспорт и посредники
   - id: api
@@ -1005,6 +1007,108 @@ terms:
       одноразовое значение политики.
     defines: [sessions-vs-tokens, password-storage]
     see_also: [entropy, session-id, salt, nonce]
+
+  # --- client ---------------------------------------------------------------
+
+  - id: insertion-context
+    term: контекст вставки
+    en: insertion context
+    group: client
+    definition: >
+      Место разметки, куда попадает значение, вместе с правилами разбора,
+      действующими в этом месте: тело документа, значение атрибута, строковый
+      литерал скрипта, значение свойства стиля, адрес. Контекст решает, какое
+      экранирование верно; одно и то же правило в соседнем контексте не
+      защищает.
+    defines: [xss-contexts]
+    see_also: [sanitizer, sink, percent-encoding]
+    source: OWASP Cross Site Scripting Prevention Cheat Sheet
+
+  - id: sanitizer
+    term: санитайзер
+    en: sanitizer
+    group: client
+    definition: >
+      Разбирает присланную разметку и возвращает её же с вырезанным опасным:
+      тегами, атрибутами и адресами вне списка разрешённого. Нужен там, где
+      разметка от пользователя обязана остаться разметкой, и потому не
+      заменяет экранирование, а покрывает случай, где экранирование ломает
+      задачу.
+    defines: [xss-filter-bypass]
+    see_also: [insertion-context, trusted-types]
+    source: OWASP Cross Site Scripting Prevention Cheat Sheet
+
+  - id: trusted-types
+    term: Trusted Types
+    group: client
+    definition: >
+      Механизм браузера, при котором опасные стоки DOM перестают принимать
+      обычную строку и принимают только значение, выданное объявленной
+      политикой. Включается директивой `require-trusted-types-for 'script'`.
+    defines: [xss-dom]
+    see_also: [sanitizer, csp, sink]
+    source: OWASP Cross Site Scripting Prevention Cheat Sheet
+
+  - id: prototype-pollution
+    term: загрязнение прототипа
+    en: prototype pollution
+    group: client
+    definition: >
+      Запись присланного значения в прототип встроенного объекта JavaScript.
+      Свойство после этого видно каждому объекту, у которого своего такого
+      свойства нет, поэтому дефект действует не в одном месте, а во всём коде
+      страницы сразу.
+    defines: [prototype-pollution]
+    see_also: [gadget, sink]
+    source: OWASP Prototype Pollution Prevention Cheat Sheet
+
+  - id: gadget
+    term: гаджет
+    en: gadget
+    group: client
+    definition: >
+      Место кода, которое читает свойство и делает из него что-то опасное.
+      Само по себе безвредно: вредным становится вместе с записью в прототип,
+      которая подставляет этому месту чужое значение.
+    defines: [prototype-pollution]
+    see_also: [prototype-pollution, sink]
+    source: PortSwigger Web Security Academy, Prototype pollution
+
+  - id: dom-clobbering
+    term: DOM clobbering
+    group: client
+    definition: >
+      Подмена ожидаемого значения переменной или свойства элементом разметки:
+      браузер заводит для элемента с атрибутом `id` или `name` одноимённое
+      свойство `document` и глобальной области. Скрипта в разметке при этом
+      нет, поэтому санитайзер её пропускает.
+    defines: [dom-clobbering]
+    see_also: [sanitizer, gadget]
+    source: HTML Standard, named access
+
+  - id: clickjacking
+    term: clickjacking
+    en: clickjacking
+    aliases: ['подмена нажатия']
+    group: client
+    definition: >
+      Приложение встроено в кадр на чужой странице и накрыто её разметкой.
+      Пользователь нажимает на то, что видит, а нажатие достаётся невидимому
+      приложению, где он уже вошёл.
+    defines: [clickjacking]
+    see_also: [frame-ancestors, same-origin-policy]
+    source: OWASP Clickjacking Defense Cheat Sheet
+
+  - id: websocket
+    term: WebSocket
+    group: client
+    definition: >
+      Двусторонний канал между браузером и сервером, открываемый переключением
+      с HTTP по рукопожатию. После переключения политика одного источника к
+      каналу не применяется, поэтому происхождение проверяет сервер.
+    defines: [websocket-vulns]
+    see_also: [same-origin-policy, csrf-token]
+    source: RFC 6455
 
   # --- craft ----------------------------------------------------------------
 
