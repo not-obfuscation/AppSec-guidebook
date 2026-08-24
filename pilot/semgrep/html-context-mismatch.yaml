@@ -1,0 +1,53 @@
+# Правило темы xss-contexts: место вставки выбрано так, что экранирование
+# сущностями его не закрывает. Два признака, оба видны по форме шаблона.
+# Ловит блок 5 темы и не ловит блок 6.
+#
+# Прогон:
+#   .venv-tools/bin/semgrep --config pilot/semgrep/html-context-mismatch.yaml <путь>
+# Сверка с разметкой тест-кейсов:
+#   .venv-tools/bin/python pilot/semgrep/check.py html-context
+rules:
+  - id: html-attr-unquoted-interpolation
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: >-
+      Значение подставлено в атрибут, не заключённый в кавычки. Пробел в
+      значении заканчивает атрибут, и дальше браузер читает новые атрибуты —
+      в том числе обработчики событий. Экранирование сущностями этого не
+      закрывает: в нагрузке нет ни одного знака, который сущности трогают.
+      Возьмите значение атрибута в кавычки. Требование: ASVS v5.0-1.2.1.
+    metadata:
+      cwe:
+        - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+      asvs: v5.0-1.2.1
+      references:
+        - https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+        - https://portswigger.net/web-security/cross-site-scripting/contexts
+      confidence: HIGH
+      topic: xss-contexts
+    patterns:
+      - pattern: "`...`"
+      - pattern-regex: (?s)<[A-Za-z][^>]*\s[A-Za-z:-]+=\$\{
+
+  - id: html-value-in-script-string
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: >-
+      Значение подставлено в строковый литерал внутри элемента script.
+      Разбор разметки идёт раньше разбора кода: последовательность,
+      закрывающая элемент script, выходит из него независимо от того, как
+      экранированы кавычки. Отдавайте значение в скрипт готовым литералом
+      JSON с закрытыми знаками разметки либо через атрибут данных.
+      Требование: ASVS v5.0-1.2.3.
+    metadata:
+      cwe:
+        - "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+      asvs: v5.0-1.2.3
+      references:
+        - https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+        - https://portswigger.net/web-security/cross-site-scripting/contexts
+      confidence: HIGH
+      topic: xss-contexts
+    patterns:
+      - pattern: "`...`"
+      - pattern-regex: (?s)<script[^>]*>[^<]*['"]\$\{

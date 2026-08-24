@@ -78,6 +78,13 @@ SUITES = {
         "fixed": "pilot/lab/xss-dom/solution.js",
         "note": "текст пишется в textContent, адрес сверен с формой пути",
     },
+    "html-context": {
+        "rule": "pilot/semgrep/html-context-mismatch.yaml",
+        "cases": ["pilot/semgrep/html-context-mismatch.js"],
+        "vulnerable": "pilot/lab/xss-contexts/code.mjs",
+        "fixed": "pilot/lab/xss-contexts/solution.mjs",
+        "note": "атрибут в кавычках, значение скрипта — готовым литералом JSON",
+    },
     "postmessage": {
         "rule": "pilot/semgrep/postmessage-no-origin-check.yaml",
         "cases": ["pilot/semgrep/postmessage-no-origin-check.js",
