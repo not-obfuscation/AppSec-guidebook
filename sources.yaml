@@ -1593,6 +1593,22 @@ sources:
       Атакующая сторона postMessage: обработчик без проверки origin как сток
       DOM-XSS, обход проверок вида indexOf на подстроку, лаборатории.
 
+  - id: wstg-v42-clnt-11-web-messaging
+    url: https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/11-Client-side_Testing/11-Testing_Web_Messaging
+    title: Testing Web Messaging
+    type: owasp
+    level: 2
+    publisher: OWASP (Web Security Testing Guide v4.2)
+    version_or_date: WSTG v4.2
+    volatility: stable
+    license: CC BY-SA 4.0
+    checked: 2026-08-24
+    status: ok
+    notes: >
+      Три поля события message (данные, origin отправителя, окно-источник),
+      состав origin как кортежа схемы, хоста и порта, и почему звёздочка в
+      адресе получателя — отдельная беда, а не мелочь оформления.
+
   - id: ps-clickjacking
     url: https://portswigger.net/web-security/clickjacking
     title: Clickjacking
