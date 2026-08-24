@@ -18,7 +18,7 @@ teaches:
   - Найти в коде место, где поле запроса строится прямо из присланного объекта
   - Закрыть дефект приведением к ожидаемому типу и списком ключей
 prerequisites: [sqli-basics, rest-and-graphql]
-related: [sqli-basics, parameterized-queries, filter-and-waf-bypass]
+related: [sqli-basics, parameterized-queries, filter-and-waf-bypass, ldap-xpath-injection]
 tags: [nosql, injection, api]
 cwe: [CWE-943]
 asvs: ['v5.0-1.2.4']
@@ -166,8 +166,10 @@ def login(body):
 
 **Список разрешённых ключей.** Там, где фильтр строится из нескольких полей,
 принимаются только известные ключи, а ключи, начинающиеся с `$`, отвергаются.
-Cheat sheet называет обе меры: проверка типа и белый список ключей. Оператор
-`$where` и серверный JavaScript отключаются на уровне базы, если не нужны.
+Cheat sheet называет свои меры: запрет клиентских операторов (`$where`,
+`$regex`, `$expr`), запрет символа `$` в ключах и запросы через объекты
+драйвера, а не сборку строки. Приведение к типу закрывает частый случай — поле,
+обязанное быть строкой; запрет операторов и ключей с `$` — общий.
 
 **Границы применимости.** Приведение к типу закрывает поля с фиксированным
 типом. Там, где поле по замыслу принимает структуру (сложный фильтр отчёта),
@@ -251,6 +253,7 @@ Cheat sheet называет обе меры: проверка типа и бе�
 - `sqli-basics` — механизм инъекции в рамке источник — путь — сток.
 - `parameterized-queries` — разделение кода и данных и его границы.
 - `filter-and-waf-bypass` — почему список запрещённого не защита и здесь.
+- `ldap-xpath-injection` — та же причина в фильтре LDAP и запросе XPath.
 
 ## 14. Источники
 
@@ -258,10 +261,10 @@ Cheat sheet называет обе меры: проверка типа и бе�
    Разделы: Types of NoSQL injection, NoSQL operator injection, Submitting
    query operators, Exploiting syntax injection.
    <https://portswigger.net/web-security/nosql-injection>
-2. OWASP NoSQL Injection Prevention (страница проекта Cheat Sheet Series);
-   реестр `owasp-cs-nosql-security`. Разделы: приведение типа входных данных,
-   белый список ключей, отключение серверного исполнения.
-   <https://cheatsheetseries.owasp.org/cheatsheets/NoSQL_Injection_Prevention_Cheat_Sheet.html>
+2. OWASP NoSQL Security Cheat Sheet; реестр `owasp-cs-nosql-security`. Разделы:
+   Safe Query APIs, disallow client-controlled query operators (`$where`,
+   `$regex`, `$expr`), reject operator injection by disallowing `$` in keys.
+   <https://cheatsheetseries.owasp.org/cheatsheets/NoSQL_Security_Cheat_Sheet.html>
 
 Каркас этапа: `owasp-asvs-5-document` (ASVS v5.0.0), `owasp-wstg-42`,
 `owasp-top10-2025`. Наследуются всеми темами и отдельной строкой не
@@ -275,9 +278,11 @@ Cheat sheet называет обе меры: проверка типа и бе�
 **Маркеры уверенности.** Форма операторной инъекции — **проверено лично**
 2026-08-24 на Python 3.14.7: `json.loads('{"username":{"$ne":null},...}')`
 даёт для поля `password` объект `{'$ne': None}`, тогда как честный вход даёт
-строку. Обход входа, приёмы через строку запроса, операторы `$regex`, `$gt`,
-`$where` и приёмы починки — **по документации** (Web Security Academy и NoSQL
-Injection Prevention Cheat Sheet, открыты лично 2026-08-24). Запрос к самой
+строку. Обход входа, приёмы через строку запроса и операторы `$regex`, `$gt`,
+`$where` — **по документации** (Web Security Academy, открыта лично 2026-08-24).
+Запрет клиентских операторов, запрет `$` в ключах и запросы через объекты
+драйвера — **по документации** (NoSQL Security Cheat Sheet, открыт лично
+2026-08-24); приведение к типу как защита взято из Web Security Academy. Запрос к самой
 MongoDB **не воспроизводился**: базы в стенде нет, границы миссии её не
 предполагают. Требование 1.2.4 (перечисляет NoSQL прямо) сверено с текстом ASVS
 v5.0.0 (открыт лично 2026-08-24).

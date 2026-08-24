@@ -123,7 +123,8 @@ def search(category):
     if any(w in low for w in BAD):               # (2)
         raise Denied("подозрительный ввод")
     cur.execute(
-        "SELECT name FROM products WHERE category = '" + category + "'")  # (3)
+        "SELECT name FROM products "
+        "WHERE category = '" + category + "'")       # (3)
     return cur.fetchall()
 ```
 

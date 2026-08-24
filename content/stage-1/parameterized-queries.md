@@ -354,10 +354,11 @@ session.query(Product).filter(Product.category == category)
 
 ```java
 // Исправлено.
-if (!SORTABLE.contains(sortCol)) sortCol = "name";       // список разрешённого
+if (!SORTABLE.contains(sortCol)) sortCol = "name";   // из списка
 PreparedStatement ps = conn.prepareStatement(
-    "SELECT name, price FROM products WHERE category = ? ORDER BY " + sortCol);
-ps.setString(1, category);                               // значение — параметром
+    "SELECT name, price FROM products "
+    + "WHERE category = ? ORDER BY " + sortCol);     // имя из набора
+ps.setString(1, category);                     // значение
 ```
 
 **Границы применимости.** Параметр закрывает значения и только их. Идентификатор
