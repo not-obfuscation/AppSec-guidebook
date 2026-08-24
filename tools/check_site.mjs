@@ -91,6 +91,21 @@ async function searchFinds(page) {
   return found;
 }
 
+// Карта сайта. Движок собирает её пустой, потому что `site_url` не задан, а
+// задать его нечем: гайдбук нигде не опубликован. Сборщик такой файл сносит
+// (`tools/build_site.py`, `drop_sitemap`). Здесь проверяется, что он не
+// вернулся: пустой `<urlset>` выглядит как карта сайта с нулём страниц, и
+// именно так этот дефект однажды и прошёл мимо всех проверок.
+function sitemapProblem() {
+  const path = join(SITE, 'sitemap.xml');
+  if (!existsSync(path)) return null;
+  const xml = readFileSync(path, 'utf8');
+  const urls = (xml.match(/<url>/g) || []).length;
+  if (urls === 0) return 'sitemap.xml собран с пустым urlset: карты сайта с '
+    + 'нулём страниц не бывает. Либо задан адрес публикации, либо файла нет';
+  return null;
+}
+
 async function check() {
   if (!existsSync(join(SITE, 'index.html')))
     throw new Error('нет site/index.html — сначала `make site`');
@@ -103,6 +118,10 @@ async function check() {
   });
 
   const problems = [];
+  const sitemap = sitemapProblem();
+  console.log(`  ${sitemap ? 'НЕТ ' : 'ок  '}sitemap.xml: `
+    + (sitemap ?? 'не собран, и это решение — адрес публикации не задан'));
+  if (sitemap) problems.push(sitemap);
   let images = 0, links = 0;
   for (const rel of pages()) {
     const page = await browser.newPage();

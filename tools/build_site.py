@@ -725,6 +725,28 @@ def localize_shim() -> int:
     return changed
 
 
+def drop_sitemap() -> list[str]:
+    """Снести карту сайта, которую движок собирает пустой.
+
+    Карта сайта по схеме sitemaps.org состоит из абсолютных адресов, и взять
+    их движку неоткуда: `site_url` не задан. Задавать его нечем — гайдбук
+    нигде не опубликован, и выдуманный домен был бы неправдой прямо в
+    артефакте. Относительных адресов схема не допускает, так что третьего
+    варианта нет.
+
+    Пустой `<urlset>` хуже отсутствия файла: он выглядит как карта сайта, у
+    которой ноль страниц. Поэтому файл убирается, а его возвращение ловит
+    `tools/check_site.mjs`.
+    """
+    gone = []
+    for name in ("sitemap.xml", "sitemap.xml.gz"):
+        path = SITE / name
+        if path.exists():
+            path.unlink()
+            gone.append(name)
+    return gone
+
+
 def run_mkdocs(args: list[str]) -> int:
     if not MKDOCS.exists():
         print(f"нет {MKDOCS.relative_to(ROOT)}: `make setup`", file=sys.stderr)
@@ -759,6 +781,10 @@ def main() -> int:
     if code == 0:
         n = localize_shim()
         print(f"шим поиска локализован на {n} страницах", file=sys.stderr)
+        gone = drop_sitemap()
+        print(f"карта сайта не собирается: {', '.join(gone) or 'нечего сносить'} "
+              f"(адрес публикации не задан, пустой urlset — не карта)",
+              file=sys.stderr)
         print(f"сайт: {SITE.relative_to(ROOT)}/index.html", file=sys.stderr)
     return code
 
