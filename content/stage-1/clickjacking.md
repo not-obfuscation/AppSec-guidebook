@@ -23,9 +23,9 @@ tags: [ui-redress, browser, headers]
 cwe: [CWE-1021]
 asvs: ['v5.0-3.4.6', 'v5.0-3.3.2']
 wstg: ['WSTG-v42-CLNT-09']
-owasp: ['A02:2025']
+owasp: ['A06:2025']
 labs: []
-sources: [ps-clickjacking, owasp-cs-clickjacking-defense]
+sources: [ps-clickjacking, owasp-cs-clickjacking-defense, owasp-top10-2025-a06]
 reviewed: 2026-08-24
 review_interval: 24
 ---
@@ -52,6 +52,10 @@ Clickjacking — атака на интерфейс, а не на данные. 
 **читать** содержимое кадра — и разрешает его показывать. Проверено прогоном:
 чужой origin встроил приложение и получил отказ при попытке прочитать его
 документ, а нажатие по приманке до кнопки приложения дошло.
+
+Каталог MITRE держит для этого номер CWE-1021. В издании OWASP 2025 года эта
+слабость сопоставлена не категории про инъекции, а A06:2025 Insecure Design:
+дефект здесь в замысле — приложение разрешает себя встраивать.
 
 Академия PortSwigger отделяет это от подделки запроса одной чертой: здесь
 нужно действие пользователя, там запрос подделывается целиком. Отсюда и
@@ -315,7 +319,10 @@ app.get('/widget', (req, res) => {
    scripts, Combining clickjacking with a DOM XSS attack, Multistep
    clickjacking, How to prevent clickjacking attacks, X-Frame-Options.
    <https://portswigger.net/web-security/clickjacking>
-2. OWASP Clickjacking Defense Cheat Sheet; реестр
+2. OWASP Top 10:2025, «A06:2025 Insecure Design»; реестр
+   `owasp-top10-2025-a06`. Раздел: Mapped CWEs — CWE-1021.
+   <https://owasp.org/Top10/2025/A06_2025-Insecure_Design/>
+3. OWASP Clickjacking Defense Cheat Sheet; реестр
    `owasp-cs-clickjacking-defense`. Разделы: Defending with CSP
    frame-ancestors directive, Defending with X-Frame-Options Response
    Headers, Common Defense Mistakes, Limitations, Defending with SameSite
@@ -345,5 +352,6 @@ app.get('/widget', (req, res) => {
 `meta`, границы защиты атрибутом `SameSite` и вырезание заголовков прокси —
 **по документации** (Clickjacking Defense Cheat Sheet, открыт лично
 2026-08-24). Требования 3.4.6 и 3.3.2 сверены с текстом ASVS v5.0.0 (открыт
-лично 2026-08-24). Атака с заранее заполненной формой и многошаговая лично
+лично 2026-08-24). Категория `A06:2025` сверена со списком сопоставленных CWE
+страницы категории (открыта лично 2026-08-24). Атака с заранее заполненной формой и многошаговая лично
 **не воспроизводились**.

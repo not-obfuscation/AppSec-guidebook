@@ -23,9 +23,9 @@ tags: [csp, xss, headers]
 cwe: [CWE-79, CWE-693]
 asvs: ['v5.0-3.4.3', 'v5.0-3.4.7', 'v5.0-3.5.6']
 wstg: []
-owasp: ['A05:2025']
+owasp: ['A05:2025', 'A06:2025']
 labs: []
-sources: [ps-csp, w3c-csp3, owasp-cs-xss-prevention]
+sources: [ps-csp, w3c-csp3, owasp-cs-xss-prevention, owasp-top10-2025-a06]
 reviewed: 2026-08-24
 review_interval: 24
 ---
@@ -58,6 +58,10 @@ review_interval: 24
 Чинится это не правкой политики вместо экранирования, а тем и другим сразу:
 экранирование по месту вставки закрывает дефект, политика ограничивает цену
 промаха.
+
+Это отражено и в каталоге MITRE. Дефект внедрения разметки — CWE-79 и потому
+`A05:2025`. Несработавшая политика — CWE-693, и её издание 2025 года
+сопоставляет категории `A06:2025`, то есть дефекту замысла защиты.
 
 **Зачем это в работе AppSec-инженера.** Политика на странице — самая заметная
 мера, и потому по ней чаще всего судят о защищённости. Ревьюеру нужно уметь
@@ -321,7 +325,10 @@ app.use((req, res, next) => {
    Nonce Reuse, 7.2 Nonce Hijacking (Dangling markup attacks, Nonce
    exfiltration via content attributes), 8.2 Usage of 'strict-dynamic'.
    <https://www.w3.org/TR/CSP3/>
-3. OWASP Cross Site Scripting Prevention Cheat Sheet; реестр
+3. OWASP Top 10:2025, «A06:2025 Insecure Design»; реестр
+   `owasp-top10-2025-a06`. Раздел: Mapped CWEs — CWE-693.
+   <https://owasp.org/Top10/2025/A06_2025-Insecure_Design/>
+4. OWASP Cross Site Scripting Prevention Cheat Sheet; реестр
    `owasp-cs-xss-prevention`. Разделы: Other Controls — Content Security
    Policy, Common Anti-patterns — Sole Reliance on Content-Security-Policy
    Headers.
@@ -350,6 +357,8 @@ app.use((req, res, next) => {
 документации** (Web Security Academy, открыта лично 2026-08-24). Антипаттерн
 опоры на одну политику — **по документации** (Cross Site Scripting Prevention
 Cheat Sheet, открыт лично 2026-08-24). Требования 3.4.3, 3.4.7 и 3.5.6 сверены
-с текстом ASVS v5.0.0 (открыт лично 2026-08-24). Отражение значения в политику
+с текстом ASVS v5.0.0 (открыт лично 2026-08-24). Категории `A05:2025` и
+`A06:2025` сверены со списками сопоставленных CWE на страницах категорий
+(открыты лично 2026-08-24). Отражение значения в политику
 и вынос значения через выражения выбора в стилях лично **не
 воспроизводились**.

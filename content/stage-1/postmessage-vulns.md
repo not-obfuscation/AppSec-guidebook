@@ -23,9 +23,10 @@ tags: [browser, origin, javascript]
 cwe: [CWE-346, CWE-79]
 asvs: ['v5.0-3.5.5']
 wstg: ['WSTG-v42-CLNT-11']
-owasp: ['A01:2025']
+owasp: ['A07:2025', 'A05:2025']
 labs: []
-sources: [ps-postmessage, mdn-postmessage, wstg-v42-clnt-11-web-messaging]
+sources: [ps-postmessage, mdn-postmessage, wstg-v42-clnt-11-web-messaging,
+  owasp-top10-2025-a07]
 reviewed: 2026-08-24
 review_interval: 24
 ---
@@ -59,6 +60,11 @@ origin сверяет.
 Второе: обработчик — источник в той же рамке, что и `location`. Данные
 сообщения попадают в стоки, и потому после проверки отправителя проверяется
 форма самих данных.
+
+Каталог MITRE держит для ошибки проверки происхождения номер CWE-346. В
+издании OWASP 2025 года он сопоставлен категории A07:2025 Authentication
+Failures, а не категории про контроль доступа. Вторая половина дефекта —
+данные сообщения в стоке — это CWE-79 и потому `A05:2025`.
 
 **Зачем это в работе AppSec-инженера.** Обработчик сообщений — короткая
 функция, которая в ревью читается за минуту, а последствия у неё те же, что у
@@ -300,7 +306,10 @@ origin, который прошёл бы найденную проверку. Е
 2. MDN Web Docs, «Window: postMessage() method»; реестр `mdn-postmessage`.
    Разделы: Syntax — targetOrigin, Security concerns.
    <https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage>
-3. OWASP WSTG-CLNT-11 «Testing Web Messaging», WSTG v4.2; реестр
+3. OWASP Top 10:2025, «A07:2025 Authentication Failures»; реестр
+   `owasp-top10-2025-a07`. Раздел: Mapped CWEs — CWE-346.
+   <https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/>
+4. OWASP WSTG-CLNT-11 «Testing Web Messaging», WSTG v4.2; реестр
    `wstg-v42-clnt-11-web-messaging`. Разделы: Summary, Origin Security.
    <https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/11-Client-side_Testing/11-Testing_Web_Messaging>
 
@@ -327,4 +336,5 @@ Academy, открыта лично 2026-08-24). Состав origin и три п
 документации** (WSTG-CLNT-11, открыт лично 2026-08-24). Требование указывать
 конкретный адрес получателя — **по документации** (MDN, открыт лично
 2026-08-24). Требование 3.5.5 сверено с текстом ASVS v5.0.0 (открыт лично
-2026-08-24).
+2026-08-24). Категории `A07:2025` и `A05:2025` сверены со списками
+сопоставленных CWE на страницах категорий (открыты лично 2026-08-24).

@@ -23,9 +23,9 @@ tags: [websocket, browser, origin]
 cwe: [CWE-346, CWE-352]
 asvs: ['v5.0-4.4.1', 'v5.0-4.4.2', 'v5.0-4.4.4']
 wstg: ['WSTG-v42-CLNT-10']
-owasp: ['A01:2025']
+owasp: ['A07:2025', 'A01:2025']
 labs: []
-sources: [ps-websockets, rfc6455-websocket]
+sources: [ps-websockets, rfc6455-websocket, owasp-top10-2025-a07]
 reviewed: 2026-08-24
 review_interval: 24
 ---
@@ -58,6 +58,10 @@ WebSocket — двусторонний канал между браузером 
 
 Отсюда два разных вопроса к ревью. Кто может открыть канал — вопрос
 рукопожатия. Что приходит по открытому каналу — вопрос обработки данных.
+
+Двум вопросам отвечают и два номера каталога MITRE. Ошибка проверки
+происхождения — это CWE-346, сопоставленная в издании 2025 года категории
+`A07:2025`. Захват канала — подделка запроса, то есть CWE-352 и `A01:2025`.
 
 **Зачем это в работе AppSec-инженера.** Канал выпадает из проверки чаще
 других мест: трафик не виден в обычном журнале запросов, а обработчики
@@ -299,7 +303,10 @@ v5.0-4.4.1. Адрес канала задаётся постоянной стр
    vulnerabilities, Using cross-site WebSockets to exploit vulnerabilities,
    How to secure a WebSocket connection.
    <https://portswigger.net/web-security/websockets>
-2. IETF, RFC 6455 «The WebSocket Protocol»; реестр `rfc6455-websocket`.
+2. OWASP Top 10:2025, «A07:2025 Authentication Failures»; реестр
+   `owasp-top10-2025-a07`. Раздел: Mapped CWEs — CWE-346.
+   <https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/>
+3. IETF, RFC 6455 «The WebSocket Protocol»; реестр `rfc6455-websocket`.
    Разделы: 1.3 Opening Handshake (назначение поля `Origin`), 4.1 п. 8
    (требование к клиенту), 10.1 Non-Browser Clients, 10.2 Origin
    Considerations.
@@ -326,5 +333,7 @@ cookie не пришла, а канал всё равно открылся; се
 канала с чужого сайта, перечень дефектов внутри канала и меры защиты — **по
 документации** (Web Security Academy, открыта лично 2026-08-24). Требования
 4.4.1, 4.4.2 и 4.4.4 сверены с текстом ASVS v5.0.0 (открыт лично 2026-08-24).
+Категории `A07:2025` и `A01:2025` сверены со списками сопоставленных CWE на
+страницах категорий (открыты лично 2026-08-24).
 Перехват и правка сообщений уже открытого канала инструментом лично **не
 воспроизводились**: платного инструмента в границах миссии нет.
