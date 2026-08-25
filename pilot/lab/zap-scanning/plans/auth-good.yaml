@@ -1,0 +1,57 @@
+env:
+  contexts:
+    - name: lavka
+      urls:
+        - "http://127.0.0.1:8081/"
+      includePaths:
+        - "http://127.0.0.1:8081.*"
+      excludePaths:
+        - "http://127.0.0.1:8081/logout.*"
+      authentication:
+        method: form
+        parameters:
+          loginPageUrl: "http://127.0.0.1:8081/login"
+          loginRequestUrl: "http://127.0.0.1:8081/login"
+          loginRequestBody: "login={%username%}&password={%password%}"
+        verification:
+          method: response
+          loggedInRegex: "выйти"
+          loggedOutRegex: "войти"
+          pollFrequency: 60
+          pollUnits: requests
+      sessionManagement:
+        method: cookie
+      users:
+        - name: alice
+          credentials:
+            username: alice
+            password: alice-pass
+  parameters:
+    failOnError: true
+    progressToStdout: true
+
+jobs:
+  - type: spider
+    parameters:
+      context: lavka
+      user: alice
+      url: "http://127.0.0.1:8081/"
+      maxDuration: 2
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 3
+  - type: activeScan
+    parameters:
+      context: lavka
+      user: alice
+      maxRuleDurationInMins: 2
+      maxScanDurationInMins: 10
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 3
+  - type: report
+    parameters:
+      template: traditional-json
+      reportDir: "./runs"
+      reportFile: "auth-good"
+      reportTitle: "Лавка — вход со страховкой"

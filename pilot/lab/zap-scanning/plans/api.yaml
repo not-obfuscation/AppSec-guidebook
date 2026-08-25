@@ -1,0 +1,34 @@
+env:
+  contexts:
+    - name: lavka-api
+      urls:
+        - "http://127.0.0.1:8081/"
+      includePaths:
+        - "http://127.0.0.1:8081/api.*"
+  parameters:
+    failOnError: true
+    progressToStdout: true
+
+jobs:
+  - type: openapi
+    parameters:
+      apiUrl: "http://127.0.0.1:8081/api/openapi.json"
+      targetUrl: "http://127.0.0.1:8081/"
+      context: lavka-api
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 3
+  - type: activeScan
+    parameters:
+      context: lavka-api
+      maxRuleDurationInMins: 2
+      maxScanDurationInMins: 10
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 3
+  - type: report
+    parameters:
+      template: traditional-json
+      reportDir: "./runs"
+      reportFile: "api"
+      reportTitle: "Лавка — API по спецификации"

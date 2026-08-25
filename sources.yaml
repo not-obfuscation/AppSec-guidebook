@@ -6838,3 +6838,86 @@ sources:
       genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/;
       проверено, что она отдаёт PDF и без параметра ?tmstv=. Скачан и
       прочитан 2026-08-22 (pdftotext -layout, 102 КБ текста).
+
+  # Добавлено миссией appsec-stage2-dast (2026-08-25): четыре страницы, по
+  # которым велись прогоны подраздела 2.4. Все четыре открыты лично.
+
+  - id: zap-automation
+    url: https://www.zaproxy.org/docs/automate/automation-framework/
+    title: ZAP — Automation Framework
+    type: tool-docs
+    level: 1
+    publisher: ZAP Dev Team (ZAP by Checkmarx)
+    version_or_date: живая документация, даты на странице нет
+    volatility: medium
+    license: не указана на странице; © 2026 the ZAP Dev Team
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Как описать прогон файлом и повторить его: `./zap.sh -cmd -autorun
+      zap.yaml`. План делится на окружение и список работ; работ больше
+      тридцати, из них подразделу нужны spider, spiderAjax, passiveScan-wait,
+      activeScan, openapi, report и exitStatus. Заведён потому, что весь
+      подраздел стоит на воспроизводимом прогоне: щелчки по окну десктопа
+      в тему не переносятся, а план — переносится целиком.
+
+  - id: zap-automation-env
+    url: https://www.zaproxy.org/docs/desktop/addons/automation-framework/environment/
+    title: ZAP Automation Framework — Environment
+    type: tool-docs
+    level: 1
+    publisher: ZAP Dev Team (ZAP by Checkmarx)
+    version_or_date: живая документация дополнения, даты на странице нет
+    volatility: medium
+    license: не указана на странице; © 2026 the ZAP Dev Team
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Раздел `env` плана: `contexts` с обязательным `urls`, необязательные
+      `includePaths` и `excludePaths` регулярными выражениями, `authentication`
+      с методами manual, http, form, json, script, autodetect, browser, client
+      и параметрами `loginPageUrl`, `loginRequestUrl`, `loginRequestBody`;
+      `verification` с методами response, request, both, poll и полями
+      `loggedInRegex`, `loggedOutRegex`, `pollFrequency`, `pollUnits`;
+      `sessionManagement` и `users` с `credentials`. Ключи темы 2.4.02 берутся
+      отсюда: страница zap-desktop-authentication описывает то же самое для
+      окна десктопа, а имена полей плана есть только здесь.
+
+  - id: zap-alerts-index
+    url: https://www.zaproxy.org/docs/alerts/
+    title: ZAP — Alert Details (указатель правил по номерам)
+    type: tool-docs
+    level: 1
+    publisher: ZAP Dev Team (ZAP by Checkmarx)
+    version_or_date: живая документация, даты на странице нет
+    volatility: medium
+    license: не указана на странице; © 2026 the ZAP Dev Team
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Таблица всех правил: номер, название, статус (release, beta, alpha,
+      deprecated), риск, вид (пассивное, активное, инструмент, скрипт),
+      привязка к CWE и WASC; у каждого номера своя страница. Нужен затем, что
+      в отчёте ZAP стоит номер, а не объяснение: без указателя нельзя сказать,
+      пассивное правило дало находку или активное, и в наборе по умолчанию оно
+      или доставлено из магазина. На странице сказано, что по умолчанию в ZAP
+      входят только правила статуса release.
+
+  - id: nuclei-templates-intro
+    url: https://docs.projectdiscovery.io/templates/introduction
+    title: Nuclei — Templates Introduction
+    type: tool-docs
+    level: 1
+    publisher: ProjectDiscovery
+    version_or_date: живая документация, даты на странице нет
+    volatility: fast
+    license: не указана на странице; проект под MIT License
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Устройство шаблона: `id`, блок `info` с именем, автором, уровнем
+      серьёзности и метками, блок протокола (`http`, `dns`, `tcp` и другие) с
+      методом и путём запроса, `matchers` четырёх видов — word, regex, status,
+      dsl — с `matchers-condition`, и `extractors`. Заведён к теме 2.4.05:
+      без разбора шаблона нельзя объяснить, почему Nuclei видит признак и не
+      видит дефекта.

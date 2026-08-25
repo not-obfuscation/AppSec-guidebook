@@ -444,19 +444,19 @@ stages:
         topics:
           - id: t-2-4-01
             title: "OWASP ZAP: пассивное и активное сканирование"
-            sources: [zap-getting-started]
+            sources: [zap-getting-started, zap-automation, zap-alerts-index]
           - id: t-2-4-02
             title: "Аутентифицированное сканирование"
-            sources: [zap-authentication, zap-desktop-authentication]
+            sources: [zap-authentication, zap-desktop-authentication, zap-automation-env]
           - id: t-2-4-03
             title: "Сканирование API по спецификации OpenAPI"
             sources: [zap-openapi, openapi-spec]
           - id: t-2-4-04
             title: "Ограничения метода, где DAST бесполезен"
-            sources: [wstg-v42-introduction]
+            sources: [wstg-v42-introduction, nist-sp-500-268]
           - id: t-2-4-05
             title: "Nuclei обзорно"
-            sources: [nuclei-docs]
+            sources: [nuclei-docs, nuclei-templates-intro]
       - num: "2.5"
         title: "Триаж и управление уязвимостями"
         sources: []

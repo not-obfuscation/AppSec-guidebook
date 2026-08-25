@@ -1,0 +1,26 @@
+env:
+  contexts:
+    - name: lavka
+      urls:
+        - "http://127.0.0.1:8081/"
+      includePaths:
+        - "http://127.0.0.1:8081.*"
+  parameters:
+    failOnError: true
+    progressToStdout: true
+
+jobs:
+  - type: spider
+    parameters:
+      context: lavka
+      url: "http://127.0.0.1:8081/"
+      maxDuration: 2
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 3
+  - type: report
+    parameters:
+      template: traditional-json
+      reportDir: "./runs"
+      reportFile: "passive"
+      reportTitle: "Лавка — пассивный прогон"

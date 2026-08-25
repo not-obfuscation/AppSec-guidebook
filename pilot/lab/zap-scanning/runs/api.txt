@@ -1,0 +1,15 @@
+# Прогон ZAP 2.17.0 по плану plans/api.yaml, стенд «Лавка», 2026-08-25.
+# правило | риск | уверенность | метод | адрес | улика
+40026	Cross Site Scripting (DOM Based)	High (High)	conf=3	GET http://127.0.0.1:8081/api/v1/reports?path=%3Cscript%3Ealert(5397)%3C/script%3E	
+6	Path Traversal	High (Medium)	conf=2	GET http://127.0.0.1:8081/api/v1/reports?path=%2Fetc%2Fpasswd	root:x:0:0
+40018	SQL Injection	High (Low)	conf=1	GET http://127.0.0.1:8081/api/v1/products?filter=%27	HTTP/1.1 500 Internal Server Error
+10036	Server Leaks Version Information via "Server" HTTP Response Header Field	Low (High)	conf=3	GET http://127.0.0.1:8081/api/v1/orders/101	LavkaHTTP/0.9 Python/3.14.7
+10036	Server Leaks Version Information via "Server" HTTP Response Header Field	Low (High)	conf=3	GET http://127.0.0.1:8081/api/v1/products?filter=%D0%BF%D0%BE%D1%81%D1%83%D0%B4%D0%B0	LavkaHTTP/0.9 Python/3.14.7
+10036	Server Leaks Version Information via "Server" HTTP Response Header Field	Low (High)	conf=3	GET http://127.0.0.1:8081/api/v1/reports?path=sales.txt	LavkaHTTP/0.9 Python/3.14.7
+10036	Server Leaks Version Information via "Server" HTTP Response Header Field	Low (High)	conf=3	GET http://127.0.0.1:8081/api/v1/whoami	LavkaHTTP/0.9 Python/3.14.7
+10036	Server Leaks Version Information via "Server" HTTP Response Header Field	Low (High)	conf=3	POST http://127.0.0.1:8081/api/v1/coupons/validate	LavkaHTTP/0.9 Python/3.14.7
+10021	X-Content-Type-Options Header Missing	Low (Medium)	conf=2	GET http://127.0.0.1:8081/api/openapi.json	
+10021	X-Content-Type-Options Header Missing	Low (Medium)	conf=2	GET http://127.0.0.1:8081/api/v1/products?filter=%D0%BF%D0%BE%D1%81%D1%83%D0%B4%D0%B0	
+10021	X-Content-Type-Options Header Missing	Low (Medium)	conf=2	GET http://127.0.0.1:8081/api/v1/reports?path=sales.txt	
+10021	X-Content-Type-Options Header Missing	Low (Medium)	conf=2	GET http://127.0.0.1:8081/api/v1/whoami	
+10021	X-Content-Type-Options Header Missing	Low (Medium)	conf=2	POST http://127.0.0.1:8081/api/v1/coupons/validate	

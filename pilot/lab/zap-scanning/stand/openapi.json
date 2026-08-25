@@ -1,0 +1,78 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Lavka API",
+    "version": "1.0.0",
+    "description": "API стенда «Лавка». Часть ручек не связана ни с одной HTML-страницей."
+  },
+  "servers": [
+    {"url": "http://127.0.0.1:8081"}
+  ],
+  "paths": {
+    "/api/v1/products": {
+      "get": {
+        "summary": "Список товаров",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string", "default": "посуда"}
+          }
+        ],
+        "responses": {"200": {"description": "ok"}}
+      }
+    },
+    "/api/v1/orders/{id}": {
+      "get": {
+        "summary": "Заказ по номеру",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "integer", "default": 101}
+          }
+        ],
+        "responses": {"200": {"description": "ok"}, "401": {"description": "нужен вход"}}
+      }
+    },
+    "/api/v1/reports": {
+      "get": {
+        "summary": "Выгрузка отчёта по имени файла",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string", "default": "sales.txt"}
+          }
+        ],
+        "responses": {"200": {"description": "ok"}}
+      }
+    },
+    "/api/v1/whoami": {
+      "get": {
+        "summary": "Кто вошёл",
+        "responses": {"200": {"description": "ok"}}
+      }
+    },
+    "/api/v1/coupons/validate": {
+      "post": {
+        "summary": "Проверка купона",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {"code": {"type": "string", "default": "LAVKA2026"}}
+              }
+            }
+          }
+        },
+        "responses": {"200": {"description": "ok"}}
+      }
+    }
+  }
+}
