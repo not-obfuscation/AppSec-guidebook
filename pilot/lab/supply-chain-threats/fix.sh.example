@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Эталон фикса: один индекс, без --extra-index-url, и пиннинг версии.
+set -e
+HERE="$(cd "$(dirname "$0")" && pwd)"
+PRIV="file://$HERE/registry/private-simple"
+rm -rf /tmp/sc-lab-fix-venv; python3 -m venv /tmp/sc-lab-fix-venv >/dev/null 2>&1
+/tmp/sc-lab-fix-venv/bin/pip install -q --no-cache-dir \
+  --index-url "$PRIV" "shop-telemetry==1.0.0" 2>&1 | grep -vi "is ignored" || true

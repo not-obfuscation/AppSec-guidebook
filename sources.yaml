@@ -3947,6 +3947,123 @@ sources:
       SBOM, собственная база уязвимостей, поиск фрагментов кода. Как и по
       другим вендорским страницам — уровень «знать по назначению».
 
+  - id: syft-docs
+    url: https://github.com/anchore/syft
+    title: Syft — SBOM generator (README)
+    type: tool-docs
+    level: 1
+    publisher: Anchore
+    version_or_date: README, syft 1.51.0
+    volatility: fast
+    license: Apache License 2.0
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Генератор SBOM: обходит каталоги, образы и архивы, распознаёт менеджеры
+      пакетов по манифестам и по установленным метаданным. Прочитаны разделы
+      про поддерживаемые экосистемы, форматы вывода (cyclonedx-json, spdx-json)
+      и оговорку про каталогизаторы. ПРОВЕРЕНО ЛИЧНО прогоном syft 1.51.0:
+      на манифесте видит объявленные пакеты, транзитивные не разрешает без
+      установленного окружения — это свойство метода, а не настройки.
+
+  - id: pip-install-docs
+    url: https://pip.pypa.io/en/stable/cli/pip_install/
+    title: pip install — CLI reference
+    type: tool-docs
+    level: 1
+    publisher: PyPA
+    version_or_date: stable, pip 26.2.1
+    volatility: fast
+    license: MIT
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Разрешение имён и версий при установке: --index-url, --extra-index-url,
+      выбор наибольшей доступной версии среди всех индексов. Ровно этот абзац
+      объясняет механику dependency confusion. Прочитаны разделы про источники
+      пакетов, про приоритет версий и про --require-hashes.
+
+  - id: pep-503
+    url: https://peps.python.org/pep-0503/
+    title: 'PEP 503 — Simple Repository API'
+    type: spec
+    level: 1
+    publisher: Python Software Foundation
+    version_or_date: PEP 503, Final
+    volatility: stable
+    license: открытая (PSF)
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Формат простого индекса пакетов: страница со ссылками на файлы дистрибутивов
+      и нормализация имени проекта. Нормализация именно и делает confusables
+      опасными: '-' и '_' и регистр сводятся к одному имени, а похожие буквы — нет.
+
+  - id: pep-508
+    url: https://peps.python.org/pep-0508/
+    title: 'PEP 508 — Dependency specification'
+    type: spec
+    level: 1
+    publisher: Python Software Foundation
+    version_or_date: PEP 508, Final
+    volatility: stable
+    license: открытая (PSF)
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Грамматика спецификатора зависимости: имя, диапазон версий, extras,
+      маркеры окружения. Нужна теме про транзитивные зависимости: диапазон,
+      а не точка, и есть тот зазор, который закрывает lock-файл.
+
+  - id: pip-secure-installs
+    url: https://pip.pypa.io/en/stable/topics/secure-installs/
+    title: pip — Secure installs
+    type: tool-docs
+    level: 1
+    publisher: PyPA
+    version_or_date: stable, pip 26.2.1
+    volatility: fast
+    license: MIT
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Режим --require-hashes: установка падает, если файл не совпал с записанным
+      хешем или если хоть у одной зависимости хеша нет. Первоисточник для блока
+      про пиннинг по хешу в теме о транзитивных зависимостях.
+
+  - id: codescoring-docs
+    url: https://docs.codescoring.ru/
+    title: CodeScoring Documentation
+    type: tool-docs
+    level: 1
+    publisher: Profiscope (CodeScoring)
+    version_or_date: онлайн-документация, даты на странице нет
+    volatility: fast
+    license: не указана; © CodeScoring
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Документация продукта: композиционный анализ, генерация SBOM, политики,
+      база уязвимостей. Уровень «знать по назначению»: инструмент коммерческий и
+      локально не запускался. Открыта лично 2026-08-25, отдаёт заголовок
+      "CodeScoring Documentation" и раздел про SCA.
+
+  - id: cvss-calculator-v40
+    url: https://www.first.org/cvss/calculator/4.0
+    title: CVSS v4.0 Calculator
+    type: tool-docs
+    level: 1
+    publisher: FIRST (CVSS SIG)
+    version_or_date: v4.0
+    volatility: stable
+    license: не указана; © FIRST, Inc.
+    checked: 2026-08-25
+    status: ok
+    notes: >
+      Официальный калькулятор вектора v4.0: свод метрик и эталон, с которым
+      сверялся ручной расчёт. Результат воспроизведён библиотекой cvss 3.6
+      (RedHat) локально; калькулятор — второй независимый эталон.
+
   - id: cve-program
     url: https://www.cve.org/
     title: CVE Program
