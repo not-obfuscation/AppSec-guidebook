@@ -1,0 +1,26 @@
+Одна строка отчёта ZAP 2.17.0, активный прогон 2026-08-25.
+
+правило   10027  Information Disclosure - Suspicious Comments
+риск      Informational (Medium)
+CWE       615
+инстансов 2
+
+  инстанс 1
+    метод     GET
+    адрес     http://127.0.0.1:8082
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   FIXME
+    прочее    The following pattern was used: \bFIXME\b and was detected in likely
+    прочее    comment: "<!-- FIXME: убрать тестовый вход перед релизом -->", see
+    прочее    evidence field for the suspicious comment/snippet.
+
+  инстанс 2
+    метод     GET
+    адрес     http://127.0.0.1:8082/
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   FIXME
+    прочее    The following pattern was used: \bFIXME\b and was detected in likely
+    прочее    comment: "<!-- FIXME: убрать тестовый вход перед релизом -->", see
+    прочее    evidence field for the suspicious comment/snippet.

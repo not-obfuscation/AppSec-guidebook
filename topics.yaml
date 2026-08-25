@@ -469,13 +469,13 @@ stages:
             sources: [semgrep-ignore, nist-sp-500-268, semgrep-customize-ci-job]
           - id: t-2-5-03
             title: "Дедупликация находок между инструментами"
-            sources: [defectdojo-dedup]
+            sources: [defectdojo-dedup, zap-alerts-index, bandit-test-plugins]
           - id: t-2-5-04
             title: "SLA на устранение, приоритизация бэклога"
             sources: [cisa-bod-26-04, first-epss]
           - id: t-2-5-05
             title: "ASOC — класс систем оркестрации проверок и агрегации результатов"
-            sources: [defectdojo-docs]
+            sources: [defectdojo-docs, defectdojo-dedup]
           - id: t-2-5-06
             title: "Взаимодействие с разработчиками: как обосновать находку, чтобы её починили"
             sources: [google-bsrs, google-bsrs-ch21-culture]

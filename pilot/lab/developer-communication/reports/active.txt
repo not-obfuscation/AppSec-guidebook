@@ -1,0 +1,194 @@
+Отчёт ZAP 2.17.0, активный прогон стенда лабы, 2026-08-25.
+Всего правил 7, инстансов 19.
+
+правило   40026  Cross Site Scripting (DOM Based)
+риск      High (High)
+CWE       79
+инстансов 1
+
+  инстанс 1
+    метод     GET
+    адрес     http://127.0.0.1:8082/files?name=%3Cscript%3Ealert(5397)%3C/script%3E
+    параметр  name
+    нагрузка  <script>alert(5397)</script>
+    признак   (нет)
+    прочее    The following steps were done to trigger the DOM XSS: With
+    прочее    <PAYLOAD_1> as: %3Cscript%3Ealert(5397)%3C/script%3E Access:
+    прочее    http://127.0.0.1:8082/files?name=<PAYLOAD_1>
+
+правило   6  Path Traversal
+риск      High (Medium)
+CWE       22
+инстансов 1
+
+  инстанс 1
+    метод     GET
+    адрес     http://127.0.0.1:8082/files?name=%2Fetc%2Fpasswd
+    параметр  name
+    нагрузка  /etc/passwd
+    признак   root:x:0:0
+
+правило   10038  Content Security Policy (CSP) Header Not Set
+риск      Medium (High)
+CWE       693
+инстансов 4
+
+  инстанс 1
+    метод     GET
+    адрес     http://127.0.0.1:8082
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   (нет)
+
+  инстанс 2
+    метод     GET
+    адрес     http://127.0.0.1:8082/
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   (нет)
+
+  инстанс 3
+    метод     GET
+    адрес     http://127.0.0.1:8082/files?name=price.txt
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   (нет)
+
+  инстанс 4
+    метод     GET
+    адрес     http://127.0.0.1:8082/sitemap.xml
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   (нет)
+
+правило   10020  Missing Anti-clickjacking Header
+риск      Medium (Medium)
+CWE       1021
+инстансов 3
+
+  инстанс 1
+    метод     GET
+    адрес     http://127.0.0.1:8082
+    параметр  x-frame-options
+    нагрузка  (нет)
+    признак   (нет)
+
+  инстанс 2
+    метод     GET
+    адрес     http://127.0.0.1:8082/
+    параметр  x-frame-options
+    нагрузка  (нет)
+    признак   (нет)
+
+  инстанс 3
+    метод     GET
+    адрес     http://127.0.0.1:8082/files?name=price.txt
+    параметр  x-frame-options
+    нагрузка  (нет)
+    признак   (нет)
+
+правило   10036  Server Leaks Version Information via "Server" HTTP Response Header Field
+риск      Low (High)
+CWE       497
+инстансов 5
+
+  инстанс 1
+    метод     GET
+    адрес     http://127.0.0.1:8082
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   LavkaHTTP/0.9 Python/3.14.7
+
+  инстанс 2
+    метод     GET
+    адрес     http://127.0.0.1:8082/
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   LavkaHTTP/0.9 Python/3.14.7
+
+  инстанс 3
+    метод     GET
+    адрес     http://127.0.0.1:8082/files?name=price.txt
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   LavkaHTTP/0.9 Python/3.14.7
+
+  инстанс 4
+    метод     GET
+    адрес     http://127.0.0.1:8082/robots.txt
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   LavkaHTTP/0.9 Python/3.14.7
+
+  инстанс 5
+    метод     GET
+    адрес     http://127.0.0.1:8082/sitemap.xml
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   LavkaHTTP/0.9 Python/3.14.7
+
+правило   10021  X-Content-Type-Options Header Missing
+риск      Low (Medium)
+CWE       693
+инстансов 3
+
+  инстанс 1
+    метод     GET
+    адрес     http://127.0.0.1:8082
+    параметр  x-content-type-options
+    нагрузка  (нет)
+    признак   (нет)
+    прочее    This issue still applies to error type pages (401, 403, 500, etc.)
+    прочее    as those pages are often still affected by injection issues, in
+    прочее    which case there is still concern for browsers sniffing pages away
+    прочее    from their actual content type. At "High" threshold this scan rule
+    прочее    will not alert on client or server error responses.
+
+  инстанс 2
+    метод     GET
+    адрес     http://127.0.0.1:8082/
+    параметр  x-content-type-options
+    нагрузка  (нет)
+    признак   (нет)
+    прочее    This issue still applies to error type pages (401, 403, 500, etc.)
+    прочее    as those pages are often still affected by injection issues, in
+    прочее    which case there is still concern for browsers sniffing pages away
+    прочее    from their actual content type. At "High" threshold this scan rule
+    прочее    will not alert on client or server error responses.
+
+  инстанс 3
+    метод     GET
+    адрес     http://127.0.0.1:8082/files?name=price.txt
+    параметр  x-content-type-options
+    нагрузка  (нет)
+    признак   (нет)
+    прочее    This issue still applies to error type pages (401, 403, 500, etc.)
+    прочее    as those pages are often still affected by injection issues, in
+    прочее    which case there is still concern for browsers sniffing pages away
+    прочее    from their actual content type. At "High" threshold this scan rule
+    прочее    will not alert on client or server error responses.
+
+правило   10027  Information Disclosure - Suspicious Comments
+риск      Informational (Medium)
+CWE       615
+инстансов 2
+
+  инстанс 1
+    метод     GET
+    адрес     http://127.0.0.1:8082
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   FIXME
+    прочее    The following pattern was used: \bFIXME\b and was detected in likely
+    прочее    comment: "<!-- FIXME: убрать тестовый вход перед релизом -->", see
+    прочее    evidence field for the suspicious comment/snippet.
+
+  инстанс 2
+    метод     GET
+    адрес     http://127.0.0.1:8082/
+    параметр  (нет)
+    нагрузка  (нет)
+    признак   FIXME
+    прочее    The following pattern was used: \bFIXME\b and was detected in likely
+    прочее    comment: "<!-- FIXME: убрать тестовый вход перед релизом -->", see
+    прочее    evidence field for the suspicious comment/snippet.

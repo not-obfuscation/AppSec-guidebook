@@ -1,0 +1,16 @@
+Одна строка отчёта ZAP 2.17.0, активный прогон 2026-08-25.
+
+правило   40026  Cross Site Scripting (DOM Based)
+риск      High (High)
+CWE       79
+инстансов 1
+
+  инстанс 1
+    метод     GET
+    адрес     http://127.0.0.1:8082/files?name=%3Cscript%3Ealert(5397)%3C/script%3E
+    параметр  name
+    нагрузка  <script>alert(5397)</script>
+    признак   (нет)
+    прочее    The following steps were done to trigger the DOM XSS: With
+    прочее    <PAYLOAD_1> as: %3Cscript%3Ealert(5397)%3C/script%3E Access:
+    прочее    http://127.0.0.1:8082/files?name=<PAYLOAD_1>
