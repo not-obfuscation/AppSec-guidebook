@@ -1,0 +1,22 @@
+name: pr-greeter
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+permissions: write-all
+
+jobs:
+  greet:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: greet
+        run: |
+          echo "Спасибо за запрос: ${{ github.event.pull_request.title }}"
+      - name: build
+        run: bash ci/build.sh
+      - uses: some-vendor/publish-action@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

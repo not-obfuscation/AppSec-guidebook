@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""Quality gate: эталон решения.
+
+Читает отчёт сканера в формате Semgrep JSON и решает, останавливать ли сборку.
+Договор о коде возврата, который надо выполнить:
+
+    0  проверка прошла: порог не превышен
+    1  порог превышен: сборка останавливается
+    2  проверка не отработала: вердикта нет — это не «чисто»
+
+Запуск:
+    python3 gate.py reports/head.json
+    python3 gate.py reports/head.json --baseline reports/base.json
+    SEVERITY=ERROR THRESHOLD=0 python3 gate.py reports/head.json
+
+Переменные среды:
+    SEVERITY   уровень, начиная с которого находка считается (по умолчанию ERROR)
+    THRESHOLD  сколько находок пропускается (по умолчанию 0)
+    MODE       block — порог останавливает сборку; warn — только сообщает
+
+"""
+import json
+import os
+import sys
+
+
+def load(path):
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def key(finding):
+    """Опознание находки: одна и та же находка в двух отчётах — одна находка.
+
+    Поля `extra.lines` и `extra.fingerprint` бесплатная сборка сканера отдаёт
+    строкой «requires login», то есть отпечатка в отчёте нет. Остаётся номер
+    строки — ключ хрупкий, и это не изъян лабы, а свойство отчёта.
+    """
+    return (finding.get("check_id"),
+            finding.get("path"),
+            (finding.get("start") or {}).get("line"))
+
+
+def main(argv):
+    path = argv[1]
+    baseline = None
+    if "--baseline" in argv:
+        baseline = argv[argv.index("--baseline") + 1]
+
+    severity = os.environ.get("SEVERITY", "ERROR")
+    threshold = int(os.environ.get("THRESHOLD", "0"))
+    mode = os.environ.get("MODE", "block")
+
+    report = load(path)
+    if report.get("errors"):
+        for e in report["errors"][:3]:
+            print("gate: сканер сообщил об ошибке — %s" % e.get("message", e))
+        print("gate: проверка не отработала — вердикта нет")
+        return 2
+
+    order = ["INFO", "WARNING", "ERROR"]
+    floor = order.index(severity) if severity in order else order.index("ERROR")
+    findings = [f for f in report.get("results", [])
+                if order.index((f.get("extra") or {}).get("severity", "INFO"))
+                >= floor]
+
+    if baseline:
+        known = {key(f) for f in load(baseline).get("results", [])}
+        findings = [f for f in findings if key(f) not in known]
+
+    print("gate: находок %d, порог %d, режим %s%s"
+          % (len(findings), threshold, mode,
+             ", baseline %s" % baseline if baseline else ""))
+    if len(findings) <= threshold:
+        print("gate: зелёный")
+        return 0
+    for f in findings[:5]:
+        print("  %s  %s:%s" % (f.get("check_id"), f.get("path"),
+                               (f.get("start") or {}).get("line")))
+    if mode == "warn":
+        print("gate: порог превышен, режим информационный — сборка идёт дальше")
+        return 0
+    print("gate: порог превышен — сборка остановлена")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

@@ -1,0 +1,13 @@
+stages: [greet, build]
+
+greet:
+  stage: greet
+  script:
+    - echo "Спасибо за запрос: $CI_MERGE_REQUEST_TITLE"
+    - printf 'Здравствуйте, %s\n' "$CI_MERGE_REQUEST_TITLE"
+
+build:
+  stage: build
+  script:
+    - bash ci/build.sh
+    - echo "токен для выкладки взят из хранилища, длина ${#DEPLOY_TOKEN}"

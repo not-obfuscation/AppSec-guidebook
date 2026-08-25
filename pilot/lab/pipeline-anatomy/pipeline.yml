@@ -1,0 +1,25 @@
+stages: [build, test, release]
+
+- name: build
+  stage: build
+  cache: pip
+  run:
+    - mkdir -p out
+    - python3 -c "import sys; sys.path.insert(0,'src'); import app; open('out/app.txt','w').write(app.render())"
+    - echo "собрано, байт $(wc -c < out/app.txt)"
+  artifacts: [out/app.txt]
+
+- name: test
+  stage: test
+  needs: build
+  uses: []
+  run:
+    - python3 src/test_app.py
+
+- name: release
+  stage: release
+  needs: test
+  uses: [out/app.txt]
+  run:
+    - test -f out/app.txt
+    - echo "выпуск $(cat out/app.txt)"

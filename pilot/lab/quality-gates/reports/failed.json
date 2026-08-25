@@ -1,0 +1,13 @@
+{
+ "errors": [
+  {
+   "code": 2,
+   "level": "error",
+   "type": "Syntax error",
+   "message": "Syntax error at line app/report.py:22",
+   "path": "app/report.py"
+  }
+ ],
+ "results": [],
+ "paths": {"scanned": []}
+}

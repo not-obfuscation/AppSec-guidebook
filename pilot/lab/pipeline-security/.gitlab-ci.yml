@@ -1,0 +1,16 @@
+stages: [greet, build]
+
+variables:
+  DEPLOY_TOKEN: "glpat-STATIC-TOKEN-IN-REPO"
+
+greet:
+  stage: greet
+  script:
+    - echo "Спасибо за запрос: $CI_MERGE_REQUEST_TITLE"
+    - eval "echo Здравствуйте, $CI_MERGE_REQUEST_TITLE"
+
+build:
+  stage: build
+  script:
+    - bash ci/build.sh
+    - echo "токен для выкладки=$DEPLOY_TOKEN"
