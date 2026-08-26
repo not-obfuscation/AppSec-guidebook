@@ -5,7 +5,6 @@
 pilot/.venv/
 tools/bin/
 tools/node/node_modules/
-tools/node/pnpm-lock.yaml
 
 # Артефакты сборки: сайт, кэш схем, файл для телефона.
 site/

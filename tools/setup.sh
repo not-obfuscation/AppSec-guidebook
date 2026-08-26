@@ -108,7 +108,13 @@ fi
 # --- пакеты node ------------------------------------------------------------
 step "пакеты node — markdownlint-cli2 и mermaid-cli"
 if [ ! -d tools/node/node_modules ] && [ "$CHECK_ONLY" = 0 ]; then
-    ( cd tools/node && pnpm install --silent ) || bad "pnpm install не прошёл"
+    # `--frozen-lockfile`: версии берутся из `pnpm-lock.yaml`, а не разрешаются
+    # заново по `^`-диапазонам из `package.json`. Иначе чужой минорный релиз
+    # markdownlint или mermaid-cli менял бы поведение проверок, не меняя в
+    # репозитории ни строчки. Правка `package.json` теперь падает здесь с
+    # внятной ошибкой — обновить лок надо явно, отдельной работой.
+    ( cd tools/node && pnpm install --frozen-lockfile --silent ) \
+        || bad "pnpm install не прошёл (разошлись package.json и pnpm-lock.yaml? обновите лок явно)"
 fi
 if [ -x tools/node/node_modules/.bin/markdownlint-cli2 ]; then
     ok "markdownlint-cli2 $(tools/node/node_modules/.bin/markdownlint-cli2 --version 2>&1 | head -1)"

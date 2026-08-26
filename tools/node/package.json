@@ -1,6 +1,7 @@
 {
 	"dependencies": {
+		"@mermaid-js/mermaid-cli": "^11.16.0",
 		"markdownlint-cli2": "^0.23.2",
-		"@mermaid-js/mermaid-cli": "^11.16.0"
+		"puppeteer": "25.8.0"
 	}
 }
