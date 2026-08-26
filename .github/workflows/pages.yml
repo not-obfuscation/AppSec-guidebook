@@ -108,12 +108,45 @@ jobs:
         run: tools/setup.sh --check
 
       # --- гейт ---------------------------------------------------------
+      # Вывод дублируется в файл, чтобы шаг ниже мог показать причину отказа.
+      # Логи прогона скачиваются только с правами админа репозитория, а
+      # аннотации читаются публично. Без этого красный CI видно, а почему —
+      # нет, и чинить приходится вслепую.
       - name: Проверки (гейт публикации)
-        run: make check
+        id: gate
+        run: |
+          set -o pipefail
+          make check 2>&1 | tee /tmp/check.log
 
       # --- сборка -------------------------------------------------------
       - name: Собрать сайт
-        run: make site
+        id: build
+        run: |
+          set -o pipefail
+          make site 2>&1 | tee /tmp/site.log
+
+      - name: Показать причину отказа
+        if: failure()
+        run: |
+          emit() {   # одна аннотация: переводы строк экранируются в %0A
+            out="$(tail -c 6000 "$2")"
+            out="${out//'%'/'%25'}"
+            out="${out//$'\n'/'%0A'}"
+            out="${out//$'\r'/'%0D'}"
+            echo "::error title=$1::$out"
+          }
+          {
+            echo "runner=$RUNNER_OS $(uname -srm)"
+            echo "locale: LANG=${LANG:-нет} LC_ALL=${LC_ALL:-нет} $(locale charmap 2>&1)"
+            echo "python: $(python3 -V 2>&1) / venv $(.venv-tools/bin/python -V 2>&1)"
+            echo "node: $(node -v 2>&1)   pnpm: $(pnpm -v 2>&1)"
+            echo "vale: $(tools/bin/vale --version 2>&1 | head -1)"
+            echo "mdl: $(tools/node/node_modules/.bin/markdownlint-cli2 --version 2>&1 | head -1)"
+          } > /tmp/env.log
+          emit "окружение" /tmp/env.log
+          [ -s /tmp/check.log ] && emit "make check" /tmp/check.log
+          [ -s /tmp/site.log ] && emit "make site" /tmp/site.log
+          exit 0
 
       # Страховка от «зелёно, но пусто»: артефакт без главной публиковать незачем.
       - name: Убедиться, что сайт непустой
