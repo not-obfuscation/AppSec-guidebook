@@ -23,11 +23,15 @@
   * в конец страницы вклеиваются определения аббревиатур из `glossary.yaml` —
     те, что на странице действительно встретились. Читатель видит раскрытие по
     наведению, а канон написания остаётся один (6.3);
+  * номера блоков пересчитываются подряд с единицы: в исходнике стоит номер
+    слота канона, и пропущенный слот оставлял на странице дыру («0, 1, 3»).
+    Вместе с заголовками переписываются ссылки на номер блока в прозе.
 
-Что сборщик генерирует сам: страницу входа, карту тем со схемой предпосылок,
-маппинг-индекс внешних каталогов (9.6 п. 24), глоссарий (из того же
-`glossary.yaml`, что и `GLOSSARY.md`), индекс тегов и страницу обслуживания
-со сроками ревизии.
+Что сборщик генерирует сам: страницу входа, карту тем, маппинг-индекс внешних
+каталогов (9.6 п. 24), глоссарий (из того же `glossary.yaml`, что и
+`GLOSSARY.md`) и индекс тегов. Сроки ревизии и состояние тем со страниц ушли
+решением оператора 2026-08-26: это журнал производства, а не материал читателя.
+Числа печатаются в отчёт сборки — тому, кто её запустил.
 
 Навигация выводится из `stage` и `order` (9.1 п. 7) и дописывается в
 `build/mkdocs.yml`, который наследует корневой `mkdocs.yml` механизмом `INHERIT`.
@@ -168,11 +172,56 @@ def front_block(page: vc.Page) -> str:
     return f"---\n{dumped}---\n"
 
 
+# ── сплошная нумерация блоков ────────────────────────────────────────────────
+#
+# В исходнике номер блока — номер слота канона (`SCHEMA.md` § 4): «Механика»
+# всегда 3, «Как ловится автоматикой» всегда 8, и по этому номеру проверки
+# `C-BLOCK-*` сравнивают блоки разных тем между собой. Тема, которой слот не
+# нужен, слот пропускает, и в исходнике темы L2 номера идут 0, 1, 3, 5, 6, 9.
+# Читателю такой номер не сообщает ничего, кроме дыры: куда делась двойка.
+# Решение оператора 2026-08-26: на странице номер считается из порядка блоков,
+# с единицы и подряд. Исходник при этом не меняется — как и всё остальное в
+# этой сборке, номер переписывается в копии.
+#
+# Вместе с заголовками переписываются ссылки на номер блока в прозе («правило
+# SAST из блока 8»): без этого перенумерация уводила бы их на соседний блок.
+# Ссылки ищутся по `prose_spans`, где ограждённые блоки забиты пробелами, —
+# «блок 1: 2175 обращений к оракулу» в листинге `padding-oracle` относится к
+# блоку шифра, а не к блоку скелета, и переписывать его нельзя.
+
+BLOCK_HEAD_RE = re.compile(r"^##[ \t]+(\d+)\.[ \t]", re.M)
+BLOCK_REF_RE = re.compile(r"блок\w*[ \t]+(\d+(?:[ \t]*(?:,|и|—)[ \t]*\d+)*)")
+REF_NUM_RE = re.compile(r"\d+")
+
+
+def renumber_blocks(page: vc.Page) -> list[tuple[int, int, str]]:
+    """Правки, от которых номера блоков идут подряд: заголовки и ссылки на них."""
+    spans = page.doc.prose_spans
+    order: dict[int, int] = {}
+    for m in BLOCK_HEAD_RE.finditer(spans):
+        order.setdefault(int(m.group(1)), len(order) + 1)
+
+    out: list[tuple[int, int, str]] = []
+    for m in BLOCK_HEAD_RE.finditer(spans):
+        was = int(m.group(1))
+        if order[was] != was:
+            out.append((m.start(1), m.end(1), str(order[was])))
+    for m in BLOCK_REF_RE.finditer(spans):
+        for num in REF_NUM_RE.finditer(m.group(1)):
+            was = int(num.group(0))
+            if order.get(was, was) == was:
+                continue
+            at = m.start(1) + num.start()
+            out.append((at, at + len(num.group(0)), str(order[was])))
+    return out
+
+
 def transform(page: vc.Page, page_rel: str, index: dict[str, str],
               abbr: dict[str, str], report: dict) -> str:
     """Тема как страница сайта. Исходник не меняется — меняется копия."""
     raw = page.doc.raw
     edits: list[tuple[int, int, str]] = [(0, page.doc.front_end, front_block(page))]
+    edits += renumber_blocks(page)
 
     for m in mdtext.FENCE_RE.finditer(raw):
         if m.group("info").strip().lower() != "mermaid":
@@ -291,14 +340,12 @@ description: Учебник по прикладной безопасности �
 ## Что где лежит
 
 - [Карта тем]({link_to('index.md', 'map.md')}) — все темы с уровнем, временем и
-  схемой предпосылок; там же видно, каких тем ещё нет.
+  предпосылками; там же видно, каких тем ещё нет.
 - [Маппинг-индекс]({link_to('index.md', 'mapping.md')}) — обратный ход: номер
   CWE, ASVS, WSTG или Top 10 — темы, которые его разбирают.
 - [Глоссарий]({link_to('index.md', 'glossary.md')}) — термины и одно написание
   на весь сайт.
 - [Теги]({link_to('index.md', 'tags.md')}) — фасеты: тема попадает в несколько.
-- [Обслуживание]({link_to('index.md', 'maintenance.md')}) — сроки ревизии и
-  состояние тем.
 
 Сайт собран {today.isoformat()} и открывается с диска: ни одна страница не ходит
 в сеть, поиск тоже работает офлайн.
@@ -309,7 +356,7 @@ def page_map(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
              report: dict) -> str:
     out = [f"""---
 title: Карта тем
-description: Все темы гайдбука с уровнем, временем и связями предпосылок.
+description: Все темы гайдбука с уровнем, временем и предпосылками.
 ---
 
 {GENERATED}
@@ -319,24 +366,12 @@ description: Все темы гайдбука с уровнем, времене�
 Порядок внутри этапа тот же, что в оглавлении: тема стоит после тех, на которых
 держится. Уровень задаёт подробность, а не самодостаточность: на любом уровне
 механизм объяснён своими словами и со своим примером.
+
+Столбец «Требует» и есть карта связей: он называет темы, без которых эта не
+читается. Схема тех же связей со страницы убрана решением оператора
+2026-08-26 — на 139 темах она давала клубок, по которому ничего не найти, а
+7.4 разрешает схему только там, где она объясняет то, чего не объясняет текст.
 """]
-
-    graph = prereq_graph(pages)
-    if graph:
-        try:
-            svg = render_diagrams.render(graph)
-            out.append(f"""## Связи предпосылок
-
-![Схема (описание — в абзаце под ней)]({link_to('map.md', f'assets/diagrams/{svg.name}')}){{ .diagram }}
-
-**Описание схемы.** Стрелка ведёт от темы-предпосылки к теме, которая её
-требует. Тема без входящих стрелок читается с нуля; тема с несколькими входящими
-требует их все, а не любую из них.
-""")
-            report["diagrams"] += 1
-            report["diagram_files"].add(svg.name)
-        except render_diagrams.Unavailable as exc:
-            report["diagrams_failed"].append(f"map: {exc}")
 
     by_stage: dict[str, list[vc.Page]] = {}
     for p in pages:
@@ -373,21 +408,6 @@ description: Все темы гайдбука с уровнем, времене�
                 out.append(f"- {one_line(meta['title'])}")
             out.append("")
     return "\n".join(out)
-
-
-def prereq_graph(pages: list[vc.Page]) -> str:
-    """Схема предпосылок на языке mermaid. Рисуется тем же кодом, что схемы тем."""
-    known = {p.id for p in pages}
-    lines = ["flowchart LR"]
-    for p in pages:
-        lines.append(f'    {p.id.replace("-", "_")}["{short_title(p.front.get("title") or p.id)}"]')
-    edges = 0
-    for p in pages:
-        for q in (p.front.get("prerequisites") or []):
-            if q in known:
-                lines.append(f'    {q.replace("-", "_")} --> {p.id.replace("-", "_")}')
-                edges += 1
-    return "\n".join(lines) if edges else ""
 
 
 def page_glossary(glossary: dict, index: dict[str, str]) -> str:
@@ -516,87 +536,53 @@ description: Номер внешнего каталога — темы, кото
     return "\n".join(out)
 
 
-def page_maintenance(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
-                     today: date) -> str:
-    rows, overdue = [], 0
-    for p in sorted(pages, key=lambda q: str(q.front.get("reviewed") or "")):
+def author_notes(ctx: vc.Ctx, pages: list[vc.Page], today: date) -> list[str]:
+    """Авторская бухгалтерия: просрочка ревизии и перекос объёма.
+
+    До 2026-08-26 это была страница сайта «Обслуживание». Решением оператора она
+    убрана: сроки ревизии и состояние тем — журнал производства, а читателю на
+    них смотреть незачем (тем же решением 4.1 убрало статус из шапки темы).
+    Данные не потеряны — они лежат во frontmatter, и сборка печатает их тому,
+    кто её запустил.
+    """
+    overdue, on_time = [], 0
+    for p in pages:
         reviewed = p.front.get("reviewed")
         interval = int(p.front.get("review_interval") or 0)
         if not reviewed or not interval:
             continue
         seen = reviewed if isinstance(reviewed, date) else date.fromisoformat(str(reviewed))
-        due = seen + timedelta(weeks=interval)
-        late = (today - due).days
-        state = f"просрочена на {late} дн." if late > 0 else f"через {-late} дн."
-        overdue += late > 0
-        rows.append(f"| [{one_line(p.front.get('title'))}]"
-                    f"({link_to('maintenance.md', index[p.id])}) "
-                    f"| {seen.isoformat()} | {interval} нед. | {due.isoformat()} "
-                    f"| {state} |")
+        late = (today - (seen + timedelta(weeks=interval))).days
+        if late > 0:
+            overdue.append((late, p.id))
+        else:
+            on_time += 1
 
-    status_rows = []
-    for status in ctx.tax["statuses"]:
-        group = [p for p in pages if p.front.get("status") == status]
-        names = ", ".join(f"[`{p.id}`]({link_to('maintenance.md', index[p.id])})"
-                          for p in group) or "—"
-        status_rows.append(f"| {status} | {len(group)} | {names} |")
+    notes = []
+    if overdue:
+        overdue.sort(reverse=True)
+        notes.append(f"ревизия просрочена у {len(overdue)} тем из "
+                     f"{len(overdue) + on_time} с датой: " + head_tail(
+                         f"{tid} на {late} дн." for late, tid in overdue))
+    else:
+        notes.append(f"ревизия в срок у всех {on_time} тем с датой")
 
-    volume_rows = []
+    skew = []
     for p in pages:
-        body, prose, core = wordcount.counts(p.doc.raw)
+        _, _, core = wordcount.counts(p.doc.raw)
         lo, hi = ctx.tax["depths"][p.depth]["words"]
-        mark = "в норме" if lo <= core <= hi else ("ниже нормы" if core < lo else "выше нормы")
-        volume_rows.append(f"| [`{p.id}`]({link_to('maintenance.md', index[p.id])}) "
-                           f"| {p.depth} | {core} | {lo}–{hi} | {mark} |")
+        if not lo <= core <= hi:
+            skew.append(f"{p.id} {core} против {lo}\u2013{hi}")
+    notes.append(f"объём вне нормы уровня у {len(skew)} тем из {len(pages)}"
+                 + (": " + head_tail(skew) if skew else ""))
+    return notes
 
-    # Свод 9.6 п. 23 держит `/maintenance/` вне поискового индекса: страница
-    # служебная, и читатель не должен попадать на неё из поиска по теме.
-    # До 2026-08-24 требование стояло неисполненным.
-    return f"""---
-title: Обслуживание
-description: Сроки ревизии тем, статусы и объём против нормы уровня.
-search:
-  exclude: true
----
 
-{GENERATED}
-
-# Обслуживание
-
-Страница отвечает на один вопрос: что в гайдбуке требует работы. Данные —
-frontmatter тем, ничего не введено руками. Сборка от {today.isoformat()}.
-
-## Сроки ревизии
-
-Срок считается от поля `reviewed` плюс `review_interval` недель. Просрочка — не
-ошибка сборки: она означает, что тему пора перечитать, а не что она сломана.
-Просрочено тем: {overdue} из {len(rows)}.
-
-| Тема | Проверена | Интервал | Следующая | Состояние |
-|---|---|---|---|---|
-{chr(10).join(rows)}
-
-## Статусы
-
-Заглушка (`stub`) публикуется с плашкой в оглавлении и не считается написанной
-темой. `draft` — тема написана, но не прошла приёмку по чеклисту части 13;
-`published` — прошла.
-
-| Статус | Тем | Какие |
-|---|---|---|
-{chr(10).join(status_rows)}
-
-## Объём против нормы уровня
-
-Считается «текст»: тело темы без листингов, ответов под раскрытием, блока
-«Источники» и служебного аппарата. Норма — из таблицы уровней 3.1. Метода
-подсчёта свод не задаёт, поэтому колонка справочная: она показывает перекос, а
-не выносит вердикт.
-
-| Тема | Уровень | Слов | Норма | |
-|---|---|---|---|---|
-{chr(10).join(volume_rows)}
-"""
+def head_tail(items, keep: int = 5) -> str:
+    """Первые `keep` штук через запятую; остальные — числом, чтобы влезло в строку."""
+    items = list(items)
+    shown = ", ".join(items[:keep])
+    return shown if len(items) <= keep else f"{shown} и ещё {len(items) - keep}"
 
 
 EXTRA_CSS = """/* Собрано `tools/build_site.py`; правки — в сборщик, не сюда. */
@@ -618,7 +604,7 @@ EXTRA_CSS = """/* Собрано `tools/build_site.py`; правки — в сб
   color: var(--md-default-fg-color--light);
 }
 
-/* Таблицы карты и обслуживания длинные: заголовок остаётся видимым. */
+/* Таблицы карты тем длинные: заголовок остаётся видимым. */
 .md-typeset table:not([class]) th {
   position: sticky;
   top: 0;
@@ -640,8 +626,8 @@ def nav_for(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str]) -> list:
             continue
         nav.append({f"Этап {stage['num']}. {stage['title']}":
                     [index[p.id] for p in group]})
-    nav.append({"Справочное": ["map.md", "mapping.md", "tags.md", "glossary.md",
-                               "maintenance.md"]})
+    nav.append({"Справочное": ["map.md", "mapping.md", "tags.md",
+                               "glossary.md"]})
     return nav
 
 
@@ -667,7 +653,8 @@ def stage_tree(today: date) -> dict:
              for p in pages}
     abbr = abbreviations(glossary)
     report = {"pages": 0, "links": 0, "abbr": 0, "diagrams": 0,
-              "diagrams_failed": [], "generated": 0, "diagram_files": set()}
+              "diagrams_failed": [], "generated": 0, "diagram_files": set(),
+              "notes": author_notes(ctx, pages, today)}
 
     if SRC.exists():
         shutil.rmtree(SRC)
@@ -686,7 +673,6 @@ def stage_tree(today: date) -> dict:
         "glossary.md": page_glossary(glossary, index),
         "tags.md": page_tags(ctx),
         "mapping.md": page_mapping(ctx, pages, index),
-        "maintenance.md": page_maintenance(ctx, pages, index, today),
     }
     for name, text in generated.items():
         (SRC / name).write_text(text.rstrip("\n") + "\n", encoding="utf-8")
@@ -770,6 +756,8 @@ def main() -> int:
           f"аббревиатур, {report['diagrams']} схем", file=sys.stderr)
     for line in report["diagrams_failed"]:
         print(f"  схема не нарисована — {line}", file=sys.stderr)
+    for line in report["notes"]:
+        print(f"  автору: {line}", file=sys.stderr)
     print(f"конфиг: {CONFIG_OUT.relative_to(ROOT)} (наследует "
           f"{CONFIG_IN.name})", file=sys.stderr)
 
