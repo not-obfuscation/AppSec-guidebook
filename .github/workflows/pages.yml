@@ -52,7 +52,10 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 10
+          # Ровно та версия, которой написан `tools/node/pnpm-lock.yaml`.
+          # Ставим пакеты с `--frozen-lockfile`, а чужой мажор pnpm на том же
+          # локе может разойтись в мелочах и уронить установку на пустом месте.
+          version: 11.3.0
 
       - uses: actions/setup-node@v4
         with:
