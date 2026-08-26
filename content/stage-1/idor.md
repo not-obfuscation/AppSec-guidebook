@@ -62,14 +62,14 @@ review_interval: 24
 
 ```text
 read_invoice(user="anna", invoice_id=1001)
-→ {"id": 1001, "org": "acme", "total": 12000, "email": "anna@acme.test"}
+→ {"id":1001,"org":"acme","total":12000,"email":"anna@acme.test"}
 ```
 
 **Соседний номер**
 
 ```text
 read_invoice(user="anna", invoice_id=1002)
-→ {"id": 1002, "org": "globex", "total": 90000, "email": "boris@globex.test"}
+→ {"id":1002,"org":"globex","total":90000,"email":"boris@globex.test"}
 ```
 
 Подбора здесь нет: номер `1002` не угадан, он получен прибавлением единицы.
