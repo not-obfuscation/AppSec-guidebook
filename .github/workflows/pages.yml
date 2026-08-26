@@ -1,0 +1,137 @@
+# Публикация сайта гайдбука на GitHub Pages.
+#
+# Что здесь происходит и почему именно так:
+#
+# * Окружение восстанавливается тем же `tools/setup.sh`, которым оно
+#   восстанавливается на машине. Пины версий (Vale, mkdocs-material, пакеты node)
+#   живут в скрипте — здесь их копий нет, чтобы им было негде разойтись.
+# * Гейт публикации — `make check`. Не прошло проверки — не публикуется.
+#   `make links` в гейт НЕ входит: это единственная проверка, ходящая в сеть, она
+#   флапает по чужим адресам и остановила бы публикацию из-за чужого сервера.
+#   Для неё есть отдельный `links.yml` по расписанию, который ничего не блокирует.
+# * Наружу уезжает только собранный `site/`. Исходники видны в самом репозитории,
+#   но на страницу не выкладываются.
+# * Механизм официальный: артефакт кладётся `upload-pages-artifact`, публикует
+#   `deploy-pages` в отдельной job с окружением `github-pages`. Ветки `gh-pages`
+#   нет и заводить её не надо.
+#
+# ВАЖНО, разово и руками: Settings -> Pages -> Source = GitHub Actions.
+# Без этого переключателя `deploy-pages` падает с «Pages site not found».
+
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Прав ровно столько, сколько нужно официальному механизму Pages.
+# Ни PAT, ни deploy-key, ни новых секретов репозитория здесь нет.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Публикация одна в единицу времени. Начатый деплой не отменяем: оборванный
+# деплой оставляет страницу в непонятном состоянии.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Проверки и сборка
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Версии — те же, на которых собирается локально.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # --- кэши ---------------------------------------------------------
+      # Все ключи — по содержимому того, что кэш описывает. Изменился пин или
+      # список пакетов — ключ другой, кэш пересобирается сам.
+
+      - name: Кэш pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('tools/setup.sh') }}
+
+      - name: Кэш Vale
+        uses: actions/cache@v4
+        with:
+          path: tools/bin
+          key: vale-${{ runner.os }}-${{ hashFiles('tools/setup.sh') }}
+
+      - name: Кэш пакетов node
+        uses: actions/cache@v4
+        with:
+          path: tools/node/node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('tools/node/package.json') }}
+
+      # chrome-headless-shell — им mermaid-cli рисует схемы. Качается долго,
+      # поэтому кэшируется отдельно от пакетов node.
+      - name: Кэш браузера
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('tools/node/package.json') }}
+
+      # Схемы кэшируются по содержимому исходников: не изменились тексты —
+      # mermaid-cli не запускается вовсе.
+      - name: Кэш готовых схем
+        uses: actions/cache@v4
+        with:
+          path: build/diagrams
+          key: diagrams-${{ runner.os }}-${{ hashFiles('content/**/*.md', 'tools/render_diagrams.py') }}
+          restore-keys: diagrams-${{ runner.os }}-
+
+      # --- окружение ----------------------------------------------------
+      - name: Восстановить окружение
+        run: tools/setup.sh
+
+      - name: Показать версии окружения
+        run: tools/setup.sh --check
+
+      # --- гейт ---------------------------------------------------------
+      - name: Проверки (гейт публикации)
+        run: make check
+
+      # --- сборка -------------------------------------------------------
+      - name: Собрать сайт
+        run: make site
+
+      # Страховка от «зелёно, но пусто»: артефакт без главной публиковать незачем.
+      - name: Убедиться, что сайт непустой
+        run: |
+          test -s site/index.html || { echo "нет site/index.html"; exit 1; }
+          test -s site/search/search_index.json || { echo "нет индекса поиска"; exit 1; }
+          echo "страниц: $(find site -name '*.html' | wc -l), объём: $(du -sh site | cut -f1)"
+
+      - name: Упаковать site/ в артефакт Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    name: Публикация
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Развернуть на Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

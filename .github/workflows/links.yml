@@ -1,0 +1,70 @@
+# Проверка ссылок, включая внешние адреса. Вынесена из публикации намеренно.
+#
+# `make links` — единственная проверка проекта, ходящая в сеть. Она зависит от
+# чужих серверов и поэтому флапает: сайт OWASP полежал минуту — проверка красная,
+# хотя в гайдбуке не изменилось ничего. В гейте публикации такой проверке не
+# место, иначе чужой сбой останавливает публикацию своего.
+#
+# Здесь она живёт отдельно: по расписанию и по кнопке. Красный результат — это
+# повод посмотреть отчёт, а не остановка публикации: workflow `pages.yml` про
+# этот не знает и на него не смотрит.
+
+name: Ссылки
+
+on:
+  schedule:
+    # Раз в неделю, ночь с воскресенья на понедельник по UTC.
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    name: Внешние адреса
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Кэш pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('tools/setup.sh') }}
+
+      - name: Кэш Vale
+        uses: actions/cache@v4
+        with:
+          path: tools/bin
+          key: vale-${{ runner.os }}-${{ hashFiles('tools/setup.sh') }}
+
+      - name: Кэш пакетов node
+        uses: actions/cache@v4
+        with:
+          path: tools/node/node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('tools/node/package.json') }}
+
+      - name: Кэш браузера
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('tools/node/package.json') }}
+
+      - name: Восстановить окружение
+        run: tools/setup.sh
+
+      - name: Ссылки
+        run: make links
