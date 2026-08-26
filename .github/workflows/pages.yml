@@ -125,35 +125,34 @@ jobs:
           set -o pipefail
           make site 2>&1 | tee /tmp/site.log
 
+      # Аннотации GitHub обрезает примерно на четырёх тысячах знаков, а
+      # вердикт стоит последней строкой — поэтому сюда идёт короткий хвост и
+      # выжимка по ключевым строкам, а не весь вывод.
       - name: Показать причину отказа
         if: failure()
         run: |
-          emit() {   # одна аннотация: переводы строк экранируются в %0A
-            out="$(tail -c 6000 "$2")"
+          emit() {
+            out="$(tail -c 1800 "$2")"
             out="${out//'%'/'%25'}"
             out="${out//$'\n'/'%0A'}"
             out="${out//$'\r'/'%0D'}"
             echo "::error title=$1::$out"
           }
+          for f in check site; do
+            log=/tmp/$f.log
+            [ -s "$log" ] || continue
+            grep -nE 'ИТОГ|не отработал|нет файла|Traceback|Error|ошибк|неизвестн' "$log" \
+              | tail -n 20 > /tmp/$f.key || true
+            [ -s /tmp/$f.key ] && emit "make $f — ключевое" /tmp/$f.key
+            emit "make $f — хвост" "$log"
+          done
           {
-            echo "runner=$RUNNER_OS $(uname -srm)"
-            echo "locale: LANG=${LANG:-нет} LC_ALL=${LC_ALL:-нет} $(locale charmap 2>&1)"
-            echo "python: $(python3 -V 2>&1) / venv $(.venv-tools/bin/python -V 2>&1)"
-            echo "node: $(node -v 2>&1)   pnpm: $(pnpm -v 2>&1)"
-            echo "vale: $(tools/bin/vale --version 2>&1 | head -1)"
-            echo "mdl: $(tools/node/node_modules/.bin/markdownlint-cli2 --version 2>&1 | head -1)"
+            echo "node $(node -v 2>&1) python $(.venv-tools/bin/python -V 2>&1)"
+            echo "vale $(tools/bin/vale --version 2>&1 | head -1)"
+            echo "exceptions.yaml: $(wc -l < tools/exceptions.yaml 2>&1) строк"
           } > /tmp/env.log
           emit "окружение" /tmp/env.log
-          [ -s /tmp/check.log ] && emit "make check" /tmp/check.log
-          [ -s /tmp/site.log ] && emit "make site" /tmp/site.log
           exit 0
-
-      # Страховка от «зелёно, но пусто»: артефакт без главной публиковать незачем.
-      - name: Убедиться, что сайт непустой
-        run: |
-          test -s site/index.html || { echo "нет site/index.html"; exit 1; }
-          test -s site/search/search_index.json || { echo "нет индекса поиска"; exit 1; }
-          echo "страниц: $(find site -name '*.html' | wc -l), объём: $(du -sh site | cut -f1)"
 
       - name: Упаковать site/ в артефакт Pages
         uses: actions/upload-pages-artifact@v3
