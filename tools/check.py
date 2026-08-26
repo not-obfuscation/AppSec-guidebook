@@ -54,6 +54,11 @@ MDL = TOOLS / "node" / "node_modules" / ".bin" / "markdownlint-cli2"
 MDL_CFG = "tools/markdownlint.jsonc"
 EXCEPTIONS = TOOLS / "exceptions.yaml"
 
+# Совпадает с `tools/plan_parse.py`. Проверка, которой нечего было
+# проверять, помечает свой вывод этим словом, и тогда её «ok» видно
+# отдельно — и в списке реестра, и в итоговой строке.
+SKIP_MARK = "ПРОПУЩЕНО"
+
 SETUP_HINT = "нет инструмента — `make setup` (tools/setup.sh)"
 
 
@@ -473,8 +478,14 @@ def main() -> int:
     if reg:
         print("реестр")
         for r in reg:
-            mark = "ok" if r.ok else "НЕ ПРОШЛА"
+            # Проверка может пройти, потому что ей нечего было проверять.
+            # Такое «ok» обязано выглядеть иначе, чем полноценное: иначе
+            # выключенная проверка неотличима от выполненной.
+            skipped = [ln for ln in r.output.splitlines() if SKIP_MARK in ln]
+            mark = ("ok" if not skipped else "ok, но не вся") if r.ok else "НЕ ПРОШЛА"
             print(f"  {r.name:<14} {mark}")
+            for line in skipped:
+                print(f"      {line.strip()}")
             if not r.ok and r.output:
                 for line in r.output.splitlines()[:20]:
                     print(f"      {line}")
@@ -551,6 +562,9 @@ def main() -> int:
     for r in broken:
         print(f"линтер {r.name} не отработал: {r.note}")
 
+    skipped_reg = [r for r in results
+                   if r.kind == "registry" and r.ok and SKIP_MARK in r.output]
+
     bad = bool(errors or broken or red_registry)
     parts = [plural(len(errors), "ошибка", "ошибки", "ошибок"),
              plural(len(warnings), "предупреждение", "предупреждения", "предупреждений")]
@@ -561,6 +575,9 @@ def main() -> int:
     if broken:
         parts.append(plural(len(broken), "линтер не отработал",
                             "линтера не отработали", "линтеров не отработали"))
+    if skipped_reg:
+        parts.append(plural(len(skipped_reg), "проверка пропущена",
+                            "проверки пропущены", "проверок пропущено"))
     print("ИТОГ: " + ", ".join(parts) + (" — не пройдено" if bad else " — пройдено"))
     return 1 if bad else 0
 

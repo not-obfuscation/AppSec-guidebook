@@ -31,7 +31,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import yaml
 
-from plan_parse import parse_plan, topic_id
+from plan_parse import PLAN_NOTE, parse_plan, plan_available, topic_id
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCES_PATH = ROOT / "sources.yaml"
@@ -179,7 +179,17 @@ def check_sources(data: dict, rep: Report, today: dt.date) -> dict[str, dict]:
 # --- проверка карты тем ------------------------------------------------------
 
 def check_topics_match_plan(data: dict, rep: Report) -> None:
-    """Структура topics.yaml обязана совпадать с планом один в один."""
+    """Структура topics.yaml обязана совпадать с планом один в один.
+
+    Без плана проверка не выполняется и об этом печатается строка. Сверять
+    `topics.yaml` не с чем: он и есть проекция плана, и сравнение его с собой
+    ничего не значит. Отсутствие плана — не ошибка реестра, поэтому в `rep`
+    оно не попадает; но и молча пропасть проверка не имеет права.
+    """
+    if not plan_available():
+        print(f"ПЛАН — {PLAN_NOTE}")
+        return
+
     expected = []
     for stage in parse_plan():
         for sub in stage["subsections"]:
@@ -319,10 +329,16 @@ def main() -> int:
     for msg in rep.errors:
         print(f"ОШИБКА {msg}")
 
+    # Приписка в вердикте, чтобы «зелёный» без плана нельзя было спутать с
+    # «зелёный со всеми проверками».
+    tail = "" if plan_available() else ", проверка плана не выполнялась"
+
     if rep.errors:
-        print(f"\nВАЛИДАТОР: КРАСНЫЙ — {len(rep.errors)} ошибок, {len(rep.warnings)} предупреждений")
+        print(f"\nВАЛИДАТОР: КРАСНЫЙ — {len(rep.errors)} ошибок, "
+              f"{len(rep.warnings)} предупреждений{tail}")
         return 1
-    print(f"\nВАЛИДАТОР: ЗЕЛЁНЫЙ — 0 ошибок, {len(rep.warnings)} предупреждений")
+    print(f"\nВАЛИДАТОР: ЗЕЛЁНЫЙ — 0 ошибок, "
+          f"{len(rep.warnings)} предупреждений{tail}")
     return 0
 
 

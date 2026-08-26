@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import yaml
 
-from plan_parse import PLAN_PATH, parse_plan, topic_id
+from plan_parse import PLAN_NOTE, PLAN_PATH, parse_plan, plan_available, topic_id
 
 ROOT = Path(__file__).resolve().parent.parent
 TOPICS_PATH = ROOT / "topics.yaml"
@@ -96,6 +96,15 @@ def render(stages: list[dict], existing: dict[tuple[str, str], list[str]]) -> st
 
 def main() -> int:
     check = "--check" in sys.argv[1:]
+
+    # Без плана генерировать не из чего и сверять не с чем. Для `--check` это
+    # не отказ: `topics.yaml` — проекция плана, и сравнивать его с собой
+    # бессмысленно. А вот запись без плана — именно отказ, иначе `topics.yaml`
+    # молча перезапишется пустым.
+    if not plan_available():
+        print(f"topics.yaml — {PLAN_NOTE}")
+        return 0 if check else 1
+
     text = render(parse_plan(), load_existing())
     if check:
         current = TOPICS_PATH.read_text(encoding="utf-8") if TOPICS_PATH.exists() else ""
