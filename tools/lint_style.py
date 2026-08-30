@@ -256,6 +256,12 @@ def material(doc) -> int:
 
 
 BLOCK_START_RE = re.compile(r"^##\s", re.M)
+# Абзацы метаданных вводной зоны: шапка «Уровень **L2** · время 30 мин …» и
+# навигация «Что прочитать сначала: …». Они разделены точками-посередине,
+# предложения там нет, а слов набирается на пятьдесят — правило ловило бы
+# каждую тему за паспорт. Вся остальная вводная зона (введение темы, свод 4.3) —
+# проза для читателя и мерится наравне с телом.
+INTRO_META_RE = re.compile(r"(?:[Уу]ровень\s+\*\*L[123]\*\*|Что прочитать сначала:)")
 
 
 def skipped_lines(doc) -> set[int]:
@@ -264,31 +270,36 @@ def skipped_lines(doc) -> set[int]:
     Таблица — не абзац: разбор предложений склеил бы её в одно длинное. Заголовок
     точкой не заканчивается, и предложением его считать нельзя тоже.
 
-    Блоки 0 и 1 канона — заголовок темы и строка метаданных — тоже выпадают.
-    Метаданные разделены точками-посередине («**AG-PROTO-06** · уровень **L2** ·
-    время 30 мин … · проверено на: Fetch Standard …»), предложения там нет, а
-    слов набирается на пятьдесят, и правило ловило бы каждую тему за паспорт.
-
-    ИЗВЕСТНАЯ ДЫРА, оставлена сознательно. Исключение написано широко — «всё до
-    первого `## `», — а с 2026-08-26 там живёт введение темы (свод 4.3): проза
-    для читателя, которую мерить надо. Сузить исключение до самих абзацев
-    метаданных (шапка и «Что прочитать сначала») — усиление, и оно готово, но
-    даёт пять находок `S-SENT-LONG` в абзацах о границах темы у `jwt-attacks`,
-    `jwt-basics`, `password-storage` и `path-traversal`. Пилот эти темы трогать
-    не вправе, поэтому сужение идёт волной, которая их переписывает; пилотная
-    тема уже мерена по сужённому правилу и чиста. Подробности — `docs/reports/PILOT.md`.
+    Из вводной зоны (всё до первого `## `) выпадают только абзацы метаданных —
+    шапка и «Что прочитать сначала». До 2026-08-30 выпадала вся зона целиком:
+    исторически там стояла одна строка метаданных, а когда туда переехало
+    введение темы (свод 4.3), правила `S-SENT-LONG` и `S-PARA-LONG` его перестали
+    видеть. Дыра закрыта вместе с правкой пяти отложенных находок в
+    `jwt-attacks`, `jwt-basics`, `password-storage` и `path-traversal`
+    (`docs/reports/PILOT.md` § 4.3).
     """
     out = fence_line_set(doc)
-    first_block = BLOCK_START_RE.search(doc.raw)
-    if first_block:
-        for n in range(1, doc.pos(first_block.start())[0]):
-            out.add(n)
     for n, raw in enumerate(doc.raw.split("\n"), 1):
         stripped = raw.strip()
         if stripped.startswith(("|", "#")):
             out.add(n)
     if doc.front_end:
         for n in range(1, doc.pos(doc.front_end)[0]):
+            out.add(n)
+    first_block = BLOCK_START_RE.search(doc.raw)
+    intro_end = doc.pos(first_block.start())[0] if first_block else None
+    meta = False  # текущий абзац вводной зоны — метаданные, мерить нечего
+    fresh = True  # предыдущая строка пустая: эта открывает абзац
+    for n, raw in enumerate(doc.raw.split("\n"), 1):
+        if intro_end is not None and n >= intro_end:
+            break
+        if not raw.strip():
+            fresh = True
+            continue
+        if fresh:
+            meta = bool(INTRO_META_RE.match(raw.strip()))
+            fresh = False
+        if meta:
             out.add(n)
     return out
 

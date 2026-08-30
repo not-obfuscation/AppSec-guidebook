@@ -37,7 +37,7 @@ review_interval: 24
 
 Что прочитать сначала: `app-architecture`, `sessions-vs-tokens`.
 
-Учебный план держит тему в подразделе «Authentication Failures», а сам OWASP
+Учебный план держит тему в подразделе «Authentication Failures». Сам OWASP
 Top 10 относит слабое хранение паролей к A04:2025 и пишет об этом прямо в
 описании A07:2025.
 

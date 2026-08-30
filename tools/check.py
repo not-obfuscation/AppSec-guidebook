@@ -14,9 +14,10 @@
             (сгенерированное не разошлось с рукописным источником);
   линтеры — Vale, markdownlint, `glossary_lint.py`, `lint_style.py`,
             `lint_code.py`: замечание с адресом, правилом и уровнем;
-  отчёты  — `wordcount.py` и `stoplist.py`: цифры без вердикта. Стоп-лист
-            связок смотрится глазами, а таблица объёма нужна целиком —
-            вердиктная метрика рядом со справочными. Такие проверки
+  отчёты  — `wordcount.py`, `stoplist.py`, `clones.py`, `rhythm.py`: цифры без
+            вердикта. Стоп-лист связок смотрится глазами, таблица объёма нужна
+            целиком — вердиктная метрика рядом со справочными, а клоны и ритм
+            — радары волн фазы 3 плана `PLAN-VOICE.md`. Такие проверки
             печатаются и ничего не роняют.
 
 `wordcount.py` стоит в двух местах: линтером `volume` он даёт вердикт по норме
@@ -355,6 +356,8 @@ REGISTRY = [
 REPORTS = [
     ("wordcount", ["tools/wordcount.py"]),
     ("stoplist", ["tools/stoplist.py"]),
+    ("clones", ["tools/clones.py"]),
+    ("rhythm", ["tools/rhythm.py"]),
 ]
 LINTERS = ["vale", "markdownlint", "glossary", "style", "code", "model",
            "links", "volume"]
