@@ -276,7 +276,7 @@ def skipped_lines(doc) -> set[int]:
     даёт пять находок `S-SENT-LONG` в абзацах о границах темы у `jwt-attacks`,
     `jwt-basics`, `password-storage` и `path-traversal`. Пилот эти темы трогать
     не вправе, поэтому сужение идёт волной, которая их переписывает; пилотная
-    тема уже мерена по сужённому правилу и чиста. Подробности — `PILOT.md`.
+    тема уже мерена по сужённому правилу и чиста. Подробности — `docs/reports/PILOT.md`.
     """
     out = fence_line_set(doc)
     first_block = BLOCK_START_RE.search(doc.raw)

@@ -468,7 +468,7 @@ def page_mapping(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str]) -> st
     вслед за чужой нумерацией. Соответствие держится здесь, и держится машинно:
     страница собрана из полей `cwe`, `asvs`, `wstg` и `owasp` во frontmatter,
     поэтому разойтись с темами не может. До этой страницы требование висело
-    неисполненным (`WRITE-REVIEW-2.md` § 8 п. 12, находка Ф-32).
+    неисполненным (`journal/WRITE-REVIEW-2.md` § 8 п. 12, находка Ф-32).
     """
     order = {p.id: (str(p.front.get("stage")), int(p.front.get("order") or 0))
              for p in pages}

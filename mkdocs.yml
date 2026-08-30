@@ -9,7 +9,7 @@
 # выводятся. Собирать надо всегда через `make site`; прямой вызов
 # `mkdocs build` без сборщика соберёт пустое дерево.
 #
-# Движок и почему он — в `INFRA.md`.
+# Движок и почему он — в `docs/reports/INFRA.md`.
 
 site_name: AppSec-гайдбук
 site_description: >
