@@ -552,6 +552,30 @@ terms:
     see_also: [csrf-token, cookie-prefix, csrf]
     source: OWASP Cross-Site Request Forgery Prevention Cheat Sheet
 
+  - id: oauth
+    term: OAuth
+    group: state
+    definition: >
+      Инфраструктура делегирования доступа: приложение получает от сервера
+      авторизации токен на ограниченные действия с чужим ресурсом, не видя
+      пароля владельца. Об аутентификации сам по себе не говорит — этот слой
+      добавляет OIDC.
+    defines: [oauth-basics]
+    see_also: [oidc, token, authorization]
+    source: RFC 6749
+
+  - id: oidc
+    term: OIDC
+    en: OpenID Connect
+    group: state
+    definition: >
+      Тонкая надстройка над OAuth, добавляющая то, чего голому OAuth не
+      хватает, — аутентификацию: клиент получает подписанное утверждение о том,
+      кто вошёл и как.
+    defines: [oidc]
+    see_also: [oauth, jwt, authentication]
+    source: OpenID Connect Core 1.0
+
   # --- headers --------------------------------------------------------------
 
   - id: csp
@@ -811,6 +835,30 @@ terms:
     defines: [app-architecture]
     see_also: [endpoint, rest, graphql]
 
+  - id: waf
+    term: WAF
+    en: Web Application Firewall
+    group: transport
+    definition: >
+      Посредник перед приложением, отклоняющий запросы по признакам атаки.
+      Слой, а не починка: сигнатуру обходят переформулировкой запроса, поэтому
+      параметры и экранирование за ним обязательны.
+    defines: [filter-and-waf-bypass]
+    see_also: [reverse-proxy, trust-boundary]
+
+  - id: imds
+    term: IMDS
+    en: Instance Metadata Service
+    group: transport
+    definition: >
+      Служба метаданных облачной виртуальной машины на link-local адресе
+      `169.254.169.254`: отдаёт сведения об экземпляре, включая временные
+      учётные данные его роли. Главная цель SSRF в облаке; вторая версия,
+      IMDSv2, оформляет обращение как сессию и этим мешает типичному SSRF.
+    defines: [cloud-metadata-ssrf]
+    see_also: [trust-boundary]
+    source: AWS EC2 User Guide, Instance Metadata Service
+
   # --- api ------------------------------------------------------------------
 
   - id: rest
@@ -958,6 +1006,41 @@ terms:
       тем, что один пароль пробуют на многих учётках.
     defines: [credential-stuffing]
     see_also: [credential-stuffing, rate-limiting]
+
+  - id: idor
+    term: IDOR
+    en: Insecure Direct Object Reference
+    group: api
+    definition: >
+      Доступ к объекту по присланному идентификатору без проверки права на этот
+      объект: подмена номера в адресе возвращает чужую запись. В API то же
+      свойство называется BOLA.
+    defines: [access-control-models]
+    see_also: [bola, authorization]
+
+  - id: bola
+    term: BOLA
+    en: Broken Object Level Authorization
+    group: api
+    definition: >
+      Отсутствие проверки авторизации на уровне объекта: вошедший пользователь
+      читает или меняет чужие объекты, подменяя идентификатор. Отличие от BFLA
+      — подменяется объект, а не функция.
+    defines: [access-control-models]
+    see_also: [idor, bfla, authorization]
+    source: OWASP API Security Top 10:2023, API1
+
+  - id: bfla
+    term: BFLA
+    en: Broken Function Level Authorization
+    group: api
+    definition: >
+      Отсутствие проверки авторизации на уровне функции: вошедший пользователь
+      вызывает операцию, на которую прав не имеет. Отличие от BOLA —
+      подменяется действие, а не объект.
+    defines: [bola, bfla]
+    see_also: [bola, authorization]
+    source: OWASP API Security Top 10:2023, API5
 
   # --- crypto ---------------------------------------------------------------
 
@@ -1233,3 +1316,124 @@ terms:
       переживает правку.
     defines: [password-storage]
     see_also: [exploit]
+
+  - id: sast
+    term: SAST
+    en: Static Application Security Testing
+    group: craft
+    definition: >
+      Проверка по исходному тексту без запуска: анализатор строит представление
+      программы и ищет в нём образцы дефектов. Ловит дефект рано, но не видит
+      того, что проявляется только в исполнении, — зеркало DAST.
+    defines: [privilege-escalation-vertical, sast-principles]
+    see_also: [dast, sink, trust-boundary]
+
+  - id: dast
+    term: DAST
+    en: Dynamic Application Security Testing
+    group: craft
+    definition: >
+      Проверка работающего приложения снаружи: сканер посылает запросы и судит
+      по ответам. Внутреннего пути данных не видит, поэтому дополняет, а не
+      заменяет SAST.
+    defines: [zap-scanning]
+    see_also: [sast]
+
+  # --- standards ------------------------------------------------------------
+
+  - id: asvs
+    term: ASVS
+    en: Application Security Verification Standard
+    group: standards
+    definition: >
+      Стандарт OWASP, перечисляющий требования к приложению с нумерацией:
+      `v5.0-4.1.4` — глава 4, раздел 1, требование 4. В темах выступает нормой
+      «что должно быть реализовано»; как это проверить, говорит WSTG.
+    defines: [http-basics]
+    see_also: [wstg, cwe]
+    source: OWASP Application Security Verification Standard 5.0.0
+
+  - id: wstg
+    term: WSTG
+    en: Web Security Testing Guide
+    group: standards
+    definition: >
+      Сборник сценариев тестирования OWASP с устойчивыми идентификаторами вида
+      `WSTG-v42-CONF-06`. Отвечает на вопрос «как это проверить» там, где ASVS
+      говорит, что должно быть реализовано.
+    defines: [http-basics]
+    see_also: [asvs]
+    source: OWASP Web Security Testing Guide v4.2
+
+  - id: cwe
+    term: CWE
+    en: Common Weakness Enumeration
+    group: standards
+    definition: >
+      Каталог MITRE типов дефектов: номер называет класс слабости, а не
+      конкретную уязвимость продукта — CWE-89 это «внедрение SQL» вообще.
+      Конкретную находку в конкретном продукте называет запись CVE.
+    defines: [http-basics]
+    see_also: [cve, cvss]
+    source: Common Weakness Enumeration (MITRE)
+
+  - id: cve
+    term: CVE
+    en: Common Vulnerabilities and Exposures
+    group: standards
+    definition: >
+      Реестр записей о конкретных уязвимостях: `CVE-2021-44228` называет одну
+      уязвимость одного продукта, а не класс дефекта. Сам номер о тяжести не
+      говорит ничего: оценку дают CVSS, EPSS и KEV.
+    defines: [url-and-encoding]
+    see_also: [cwe, cvss, epss, kev]
+    source: CVE Program
+
+  - id: cvss
+    term: CVSS
+    en: Common Vulnerability Scoring System
+    group: standards
+    definition: >
+      Шкала оценки тяжести уязвимости: вектор метрик сворачивается в балл от
+      0 до 10. Балл измеряет свойства самой уязвимости и не знает, интересна ли
+      уязвимость атакующим на практике, — это измеряют EPSS и KEV.
+    defines: [cve-cvss]
+    see_also: [cve, epss, kev]
+    source: CVSS v4.0 Specification Document
+
+  - id: epss
+    term: EPSS
+    en: Exploit Prediction Scoring System
+    group: standards
+    definition: >
+      Оценка вероятности эксплуатации уязвимости в ближайшие 30 дней: доля от 0
+      до 1, перевычисляемая ежедневно. Дополняет CVSS ровно в том, чего балл не
+      измеряет, — насколько уязвимость интересна атакующим сейчас.
+    defines: [cve-cvss]
+    see_also: [cve, cvss, kev]
+    source: FIRST, Exploit Prediction Scoring System
+
+  - id: kev
+    term: KEV
+    en: Known Exploited Vulnerabilities
+    group: standards
+    definition: >
+      Каталог CISA уязвимостей, чья эксплуатация подтверждена фактом. В отличие
+      от балла CVSS и прогноза EPSS, попадание в KEV — наблюдение, а не оценка,
+      и сигнал чинить немедленно.
+    defines: [cve-cvss]
+    see_also: [cve, cvss, epss]
+    source: CISA, Known Exploited Vulnerabilities Catalog
+
+  - id: sbom
+    term: SBOM
+    en: Software Bill of Materials
+    aliases: [ведомость состава]
+    group: standards
+    definition: >
+      Ведомость компонентов сборки: из чего состоит артефакт, каких версий и
+      откуда они взялись. Форматов два — CycloneDX и SPDX; ведомость, которой
+      верят на слово, бесполезна: ценность даёт генерация из самой сборки.
+    defines: [sbom, supply-chain-threats]
+    see_also: [cve]
+    source: CycloneDX Specification, SPDX

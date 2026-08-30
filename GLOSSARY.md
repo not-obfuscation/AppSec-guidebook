@@ -270,6 +270,20 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [sessions-vs-tokens](content/stage-0/sessions-vs-tokens.md); рядом: [самодостаточный токен](#self-contained-token), [base64url](#base64url), [токен](#token); источник: RFC 7519 § 3.*
 
+### OAuth { #oauth }
+
+Инфраструктура делегирования доступа: приложение получает от сервера авторизации токен на ограниченные действия с чужим ресурсом, не видя пароля владельца. Об аутентификации сам по себе не говорит — этот слой добавляет OIDC.
+
+*вводится в [oauth-basics](content/stage-1/oauth-basics.md); рядом: [OIDC](#oidc), [токен](#token), [авторизация](#authorization); источник: RFC 6749.*
+
+### OIDC { #oidc }
+
+*англ. OpenID Connect*
+
+Тонкая надстройка над OAuth, добавляющая то, чего голому OAuth не хватает, — аутентификацию: клиент получает подписанное утверждение о том, кто вошёл и как.
+
+*вводится в [oidc](content/stage-1/oidc.md); рядом: [OAuth](#oauth), [JWT](#jwt), [аутентификация](#authentication); источник: OpenID Connect Core 1.0.*
+
 ### SameSite { #samesite }
 
 Атрибут cookie, ограничивающий её отправку запросами того же сайта. Серверных защит не отменяет: same-site-запросы исполняются в связке с XSS или злоупотреблением редиректами.
@@ -496,6 +510,14 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [tls-and-proxy](content/stage-0/tls-and-proxy.md); рядом: [цепочка сертификатов](#certificate-chain), [TLS](#tls), [самоподписанный сертификат](#self-signed); источник: RFC 5280 § 6.1.*
 
+### IMDS { #imds }
+
+*англ. Instance Metadata Service*
+
+Служба метаданных облачной виртуальной машины на link-local адресе `169.254.169.254`: отдаёт сведения об экземпляре, включая временные учётные данные его роли. Главная цель SSRF в облаке; вторая версия, IMDSv2, оформляет обращение как сессию и этим мешает типичному SSRF.
+
+*вводится в [cloud-metadata-ssrf](content/stage-1/cloud-metadata-ssrf.md); рядом: [граница доверия](#trust-boundary); источник: AWS EC2 User Guide, Instance Metadata Service.*
+
 ### MITM { #mitm }
 
 *англ. man in the middle*
@@ -519,6 +541,14 @@ Origin из четырёх полей: схема, хост, порт и дом�
 Протокол защиты канала: подтверждает, с кем установлено соединение, и закрывает содержимое от посредника. Аутентификацию узла даёт проверка сертификата, и без неё остальное не имеет силы.
 
 *вводится в [tls-and-proxy](content/stage-0/tls-and-proxy.md); рядом: [цепочка сертификатов](#certificate-chain), [якорь доверия](#trust-anchor), [MITM](#mitm), [HSTS](#hsts); источник: RFC 9846.*
+
+### WAF { #waf }
+
+*англ. Web Application Firewall*
+
+Посредник перед приложением, отклоняющий запросы по признакам атаки. Слой, а не починка: сигнатуру обходят переформулировкой запроса, поэтому параметры и экранирование за ним обязательны.
+
+*вводится в [filter-and-waf-bypass](content/stage-1/filter-and-waf-bypass.md); рядом: [обратный прокси](#reverse-proxy), [граница доверия](#trust-boundary).*
 
 ### X-Forwarded-For { #x-forwarded-for }
 
@@ -584,6 +614,22 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [rest-and-graphql](content/stage-0/rest-and-graphql.md); рядом: [REST](#rest), [GraphQL](#graphql), [резолвер](#resolver), [OpenAPI](#openapi).*
 
+### BFLA { #bfla }
+
+*англ. Broken Function Level Authorization*
+
+Отсутствие проверки авторизации на уровне функции: вошедший пользователь вызывает операцию, на которую прав не имеет. Отличие от BOLA — подменяется действие, а не объект.
+
+*вводится в [bola](content/stage-1/bola.md), [bfla](content/stage-1/bfla.md); рядом: [BOLA](#bola), [авторизация](#authorization); источник: OWASP API Security Top 10:2023, API5.*
+
+### BOLA { #bola }
+
+*англ. Broken Object Level Authorization*
+
+Отсутствие проверки авторизации на уровне объекта: вошедший пользователь читает или меняет чужие объекты, подменяя идентификатор. Отличие от BFLA — подменяется объект, а не функция.
+
+*вводится в [access-control-models](content/stage-1/access-control-models.md); рядом: [IDOR](#idor), [BFLA](#bfla), [авторизация](#authorization); источник: OWASP API Security Top 10:2023, API1.*
+
 ### credential stuffing { #credential-stuffing }
 
 *англ. credential stuffing · то же: «подстановка учётных данных»*
@@ -597,6 +643,14 @@ Origin из четырёх полей: схема, хост, порт и дом�
 Язык запросов к схеме, у которого адрес один, а точками входа служат поля схемы: их сотни, и каждое исполняется своим резолвером. Правило на прокси, разрешающее один этот адрес, разрешает всё, что можно выразить схемой.
 
 *вводится в [rest-and-graphql](content/stage-0/rest-and-graphql.md); рядом: [REST](#rest), [резолвер](#resolver), [интроспекция](#introspection), [псевдоним](#alias), [эндпоинт](#endpoint).*
+
+### IDOR { #idor }
+
+*англ. Insecure Direct Object Reference*
+
+Доступ к объекту по присланному идентификатору без проверки права на этот объект: подмена номера в адресе возвращает чужую запись. В API то же свойство называется BOLA.
+
+*вводится в [access-control-models](content/stage-1/access-control-models.md); рядом: [BOLA](#bola), [авторизация](#authorization).*
 
 ### MFA { #mfa }
 
@@ -764,8 +818,90 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [password-storage](content/stage-1/password-storage.md); рядом: [тест на регресс](#regression-test), [стенд](#stand).*
 
+### DAST { #dast }
+
+*англ. Dynamic Application Security Testing*
+
+Проверка работающего приложения снаружи: сканер посылает запросы и судит по ответам. Внутреннего пути данных не видит, поэтому дополняет, а не заменяет SAST.
+
+*вводится в [zap-scanning](content/stage-2/zap-scanning.md); рядом: [SAST](#sast).*
+
+### SAST { #sast }
+
+*англ. Static Application Security Testing*
+
+Проверка по исходному тексту без запуска: анализатор строит представление программы и ищет в нём образцы дефектов. Ловит дефект рано, но не видит того, что проявляется только в исполнении, — зеркало DAST.
+
+*вводится в [privilege-escalation-vertical](content/stage-1/privilege-escalation-vertical.md), [sast-principles](content/stage-2/sast-principles.md); рядом: [DAST](#dast), [sink](#sink), [граница доверия](#trust-boundary).*
+
 ### sink { #sink }
 
 Место, где данные достигают действия с последствиями: запрос к базе, вывод в разметку, строка в таблице учётных записей. Второй конец пары «источник — sink», вокруг которой строится разбор дефекта.
 
 *вводится в [password-storage](content/stage-1/password-storage.md); рядом: [граница доверия](#trust-boundary), [модель угроз](#threat-model).*
+
+## Стандарты и каталоги
+
+### ASVS { #asvs }
+
+*англ. Application Security Verification Standard*
+
+Стандарт OWASP, перечисляющий требования к приложению с нумерацией: `v5.0-4.1.4` — глава 4, раздел 1, требование 4. В темах выступает нормой «что должно быть реализовано»; как это проверить, говорит WSTG.
+
+*вводится в [http-basics](content/stage-0/http-basics.md); рядом: [WSTG](#wstg), [CWE](#cwe); источник: OWASP Application Security Verification Standard 5.0.0.*
+
+### CVE { #cve }
+
+*англ. Common Vulnerabilities and Exposures*
+
+Реестр записей о конкретных уязвимостях: `CVE-2021-44228` называет одну уязвимость одного продукта, а не класс дефекта. Сам номер о тяжести не говорит ничего: оценку дают CVSS, EPSS и KEV.
+
+*вводится в [url-and-encoding](content/stage-0/url-and-encoding.md); рядом: [CWE](#cwe), [CVSS](#cvss), [EPSS](#epss), [KEV](#kev); источник: CVE Program.*
+
+### CVSS { #cvss }
+
+*англ. Common Vulnerability Scoring System*
+
+Шкала оценки тяжести уязвимости: вектор метрик сворачивается в балл от 0 до 10. Балл измеряет свойства самой уязвимости и не знает, интересна ли уязвимость атакующим на практике, — это измеряют EPSS и KEV.
+
+*вводится в [cve-cvss](content/stage-2/cve-cvss.md); рядом: [CVE](#cve), [EPSS](#epss), [KEV](#kev); источник: CVSS v4.0 Specification Document.*
+
+### CWE { #cwe }
+
+*англ. Common Weakness Enumeration*
+
+Каталог MITRE типов дефектов: номер называет класс слабости, а не конкретную уязвимость продукта — CWE-89 это «внедрение SQL» вообще. Конкретную находку в конкретном продукте называет запись CVE.
+
+*вводится в [http-basics](content/stage-0/http-basics.md); рядом: [CVE](#cve), [CVSS](#cvss); источник: Common Weakness Enumeration (MITRE).*
+
+### EPSS { #epss }
+
+*англ. Exploit Prediction Scoring System*
+
+Оценка вероятности эксплуатации уязвимости в ближайшие 30 дней: доля от 0 до 1, перевычисляемая ежедневно. Дополняет CVSS ровно в том, чего балл не измеряет, — насколько уязвимость интересна атакующим сейчас.
+
+*вводится в [cve-cvss](content/stage-2/cve-cvss.md); рядом: [CVE](#cve), [CVSS](#cvss), [KEV](#kev); источник: FIRST, Exploit Prediction Scoring System.*
+
+### KEV { #kev }
+
+*англ. Known Exploited Vulnerabilities*
+
+Каталог CISA уязвимостей, чья эксплуатация подтверждена фактом. В отличие от балла CVSS и прогноза EPSS, попадание в KEV — наблюдение, а не оценка, и сигнал чинить немедленно.
+
+*вводится в [cve-cvss](content/stage-2/cve-cvss.md); рядом: [CVE](#cve), [CVSS](#cvss), [EPSS](#epss); источник: CISA, Known Exploited Vulnerabilities Catalog.*
+
+### SBOM { #sbom }
+
+*англ. Software Bill of Materials · то же: «ведомость состава»*
+
+Ведомость компонентов сборки: из чего состоит артефакт, каких версий и откуда они взялись. Форматов два — CycloneDX и SPDX; ведомость, которой верят на слово, бесполезна: ценность даёт генерация из самой сборки.
+
+*вводится в [sbom](content/stage-2/sbom.md), [supply-chain-threats](content/stage-2/supply-chain-threats.md); рядом: [CVE](#cve); источник: CycloneDX Specification, SPDX.*
+
+### WSTG { #wstg }
+
+*англ. Web Security Testing Guide*
+
+Сборник сценариев тестирования OWASP с устойчивыми идентификаторами вида `WSTG-v42-CONF-06`. Отвечает на вопрос «как это проверить» там, где ASVS говорит, что должно быть реализовано.
+
+*вводится в [http-basics](content/stage-0/http-basics.md); рядом: [ASVS](#asvs); источник: OWASP Web Security Testing Guide v4.2.*
