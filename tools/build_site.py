@@ -443,7 +443,7 @@ description: Фасеты каталога: тема попадает в нес�
 
 def cwe_release() -> str:
     """Выпуск каталога CWE из записи `cwe-taxonomy` реестра источников."""
-    for src in (vc.load_yaml(vc.SOURCES).get("sources") or []):
+    for src in (vc.load_yaml(vc.SOURCES_YAML).get("sources") or []):
         if isinstance(src, dict) and src.get("id") == "cwe-taxonomy":
             return str(src.get("version_or_date") or "").replace("Version ", "")
     return ""
