@@ -24,9 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import yaml
 
 from plan_parse import PLAN_NOTE, PLAN_PATH, parse_plan, plan_available, topic_id
-
-ROOT = Path(__file__).resolve().parent.parent
-TOPICS_PATH = ROOT / "topics.yaml"
+from paths import TOPICS_YAML
 
 HEADER = """\
 # Карта тем гайдбука: этап → подраздел → тема → sources.
@@ -60,9 +58,9 @@ def load_existing() -> dict[tuple[str, str], list[str]]:
     Ключи уровня этапа и подраздела хранятся как (номер, "") и ("", номер),
     чтобы не пересечься с темами.
     """
-    if not TOPICS_PATH.exists():
+    if not TOPICS_YAML.exists():
         return {}
-    data = yaml.safe_load(TOPICS_PATH.read_text(encoding="utf-8")) or {}
+    data = yaml.safe_load(TOPICS_YAML.read_text(encoding="utf-8")) or {}
     out: dict[tuple[str, str], list[str]] = {}
     for stage in data.get("stages") or []:
         out[(str(stage.get("num")), "")] = list(stage.get("sources") or [])
@@ -107,13 +105,13 @@ def main() -> int:
 
     text = render(parse_plan(), load_existing())
     if check:
-        current = TOPICS_PATH.read_text(encoding="utf-8") if TOPICS_PATH.exists() else ""
+        current = TOPICS_YAML.read_text(encoding="utf-8") if TOPICS_YAML.exists() else ""
         if current != text:
             print("topics.yaml разошёлся с планом — прогоните: python tools/gen_topics.py")
             return 1
         print("topics.yaml соответствует плану")
         return 0
-    TOPICS_PATH.write_text(text, encoding="utf-8")
+    TOPICS_YAML.write_text(text, encoding="utf-8")
     n = sum(len(s["topics"]) for st in parse_plan() for s in st["subsections"])
     print(f"topics.yaml записан: {n} тем")
     return 0

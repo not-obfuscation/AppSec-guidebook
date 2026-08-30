@@ -50,10 +50,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import yaml
 
 import mdtext
+from paths import ROOT, SOURCES_YAML
 
 ERROR, WARNING = "error", "warning"
 
-SOURCES = Path("sources.yaml")
 # Два блока опознаются по заголовку, а не по номеру: скелетов в своде 4.2 два,
 # и в скелете инструмента «Источники» — тринадцатый блок, а не четырнадцатый.
 # Заголовок у обоих скелетов общий, поэтому он и есть признак.
@@ -185,9 +185,9 @@ def load_ids(paths: list[Path]) -> dict[str, Path]:
 
 
 def load_source_urls() -> dict[str, str]:
-    if not SOURCES.exists():
+    if not SOURCES_YAML.exists():
         return {}
-    data = yaml.safe_load(SOURCES.read_text(encoding="utf-8")) or {}
+    data = yaml.safe_load(SOURCES_YAML.read_text(encoding="utf-8")) or {}
     out = {}
     for rec in data.get("sources", []):
         if isinstance(rec, dict) and rec.get("id"):
@@ -334,7 +334,12 @@ def check_md_links(path, doc, ids) -> list[Finding]:
         file_part, _, anchor = target.partition("#")
         target_doc = doc
         if file_part:
-            resolved = (Path(path).parent / file_part).resolve()
+            # Путь темы — от корня репозитория (так их отдаёт `mdtext.topics`),
+            # а не от текущего каталога: разрешать ссылку надо от него же.
+            base = Path(path)
+            if not base.is_absolute():
+                base = ROOT / base
+            resolved = (base.parent / file_part).resolve()
             if not resolved.exists():
                 as_id = file_part.removesuffix(".md")
                 hint = (f". Тема `{as_id}` существует — ссылка на неё ставится "

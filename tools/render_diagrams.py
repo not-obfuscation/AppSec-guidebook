@@ -109,7 +109,7 @@ def render(source: str, out_dir: Path = OUT) -> Path:
 
 def diagrams_in(path: Path) -> list[str]:
     """Источники всех схем темы, в порядке появления."""
-    raw = path.read_text(encoding="utf-8")
+    raw = mdtext.load(path).raw
     return [m.group("body") for m in FENCE_RE.finditer(raw)
             if m.group("info").strip().lower() == "mermaid"]
 

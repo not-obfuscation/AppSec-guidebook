@@ -32,10 +32,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import yaml
 
 from plan_parse import PLAN_NOTE, parse_plan, plan_available, topic_id
-
-ROOT = Path(__file__).resolve().parent.parent
-SOURCES_PATH = ROOT / "sources.yaml"
-TOPICS_PATH = ROOT / "topics.yaml"
+from paths import SOURCES_YAML, TOPICS_YAML
 
 # --- словари схемы -----------------------------------------------------------
 
@@ -307,8 +304,8 @@ def main() -> int:
     rep = Report()
     today = dt.date.today()
 
-    sources_data = load_yaml(SOURCES_PATH, rep)
-    topics_data = load_yaml(TOPICS_PATH, rep)
+    sources_data = load_yaml(SOURCES_YAML, rep)
+    topics_data = load_yaml(TOPICS_YAML, rep)
     by_id = check_sources(sources_data, rep, today)
     check_topics_match_plan(topics_data, rep)
     topics = collect(topics_data, by_id, rep)

@@ -15,8 +15,13 @@
 from __future__ import annotations
 
 import re
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from paths import CONTENT_DIR, ROOT
 
 FRONT_RE = re.compile(r"\A---\n(.*?)\n---\n", re.S)
 FENCE_RE = re.compile(r"^(?P<indent>[ \t]*)(?P<fence>```+|~~~+)(?P<info>[^\n]*)\n"
@@ -74,7 +79,10 @@ class Doc:
 
 def load(path: str | Path) -> Doc:
     path = Path(path)
-    raw = path.read_text(encoding="utf-8")
+    # Относительный путь — от корня репозитория, а не от текущего каталога:
+    # скрипт обязан работать при запуске из любого места. В `doc.path` путь
+    # сохраняется как передан — таким его печатают проверки.
+    raw = (path if path.is_absolute() else ROOT / path).read_text(encoding="utf-8")
     doc = Doc(path=path, raw=raw)
     doc._starts = [0] + [m.end() for m in re.finditer("\n", raw)]
 
@@ -127,7 +135,9 @@ def load(path: str | Path) -> Doc:
 
 
 def topics() -> list[Path]:
-    return sorted(Path("content").rglob("*.md"))
+    """Все темы корпуса, путями от корня репозитория: так их печатают проверки,
+    а `load()` сам разрешит их независимо от текущего каталога."""
+    return sorted(p.relative_to(ROOT) for p in CONTENT_DIR.rglob("*.md"))
 
 
 # --- предложения -----------------------------------------------------------

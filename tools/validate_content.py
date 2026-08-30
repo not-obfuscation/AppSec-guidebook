@@ -42,12 +42,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import yaml
 
 import mdtext
-
-ROOT = Path(__file__).resolve().parent.parent
-TAXONOMY = ROOT / "taxonomy.yaml"
-TOPICS = ROOT / "topics.yaml"
-SOURCES = ROOT / "sources.yaml"
-LABS = ROOT / "labs.yaml"
+from paths import LABS_YAML, SOURCES_YAML, TAXONOMY_YAML, TOPICS_YAML
 
 ERROR, WARNING = "error", "warning"
 
@@ -338,7 +333,7 @@ def flat(text: str) -> str:
 
 def load_plan():
     """Индекс плана: темы и подразделы по номерам, как их пишет тело темы."""
-    data = load_yaml(TOPICS)
+    data = load_yaml(TOPICS_YAML)
     topics, subsections = {}, set()
     for stage in data.get("stages") or []:
         snum = int(stage["num"])
@@ -355,18 +350,18 @@ def load_plan():
 
 
 def load_sources() -> set[str]:
-    data = load_yaml(SOURCES)
+    data = load_yaml(SOURCES_YAML)
     return {s["id"] for s in (data.get("sources") or []) if isinstance(s, dict)}
 
 
 def load_labs():
-    data = load_yaml(LABS)
+    data = load_yaml(LABS_YAML)
     return {lab["id"]: lab for lab in (data.get("labs") or [])}
 
 
 class Ctx:
     def __init__(self):
-        self.tax = load_yaml(TAXONOMY)
+        self.tax = load_yaml(TAXONOMY_YAML)
         self.stages = {s["slug"]: s for s in self.tax["stages"]}
         self.tags = set(self.tax["tags"])
         self.modes = set(self.tax["modes"])
@@ -799,8 +794,8 @@ BODY_KEYS = {"goals", "mechanics", "checklist", "selfcheck", "next", "sources"}
 def check_skeletons(ctx: Ctx) -> list[Finding]:
     """`C-TAX-SKELETON`: словарь скелетов против проверок, которые его читают."""
     out: list[Finding] = []
-    where = TAXONOMY.name
-    raw = TAXONOMY.read_text(encoding="utf-8").split("\n")
+    where = TAXONOMY_YAML.name
+    raw = TAXONOMY_YAML.read_text(encoding="utf-8").split("\n")
 
     def at(name: str) -> int:
         for n, line in enumerate(raw, 1):
@@ -843,8 +838,8 @@ def check_skeletons(ctx: Ctx) -> list[Finding]:
 
 def check_taxonomy(pages: list[Page], ctx: Ctx) -> list[Finding]:
     out: list[Finding] = []
-    where = TAXONOMY.name
-    raw = TAXONOMY.read_text(encoding="utf-8").split("\n")
+    where = TAXONOMY_YAML.name
+    raw = TAXONOMY_YAML.read_text(encoding="utf-8").split("\n")
 
     def at(cat: str) -> int:
         for n, line in enumerate(raw, 1):

@@ -14,7 +14,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import yaml
 
-ROOT = Path(__file__).resolve().parent.parent
+from paths import ROOT
+
 OUT_DIR = ROOT / "sources"
 
 LEVEL_NAME = {

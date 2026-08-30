@@ -20,9 +20,7 @@ from pathlib import Path
 
 import yaml
 
-ROOT = Path(__file__).resolve().parent.parent
-GLOSSARY_YAML = ROOT / "glossary.yaml"
-GLOSSARY_MD = ROOT / "GLOSSARY.md"
+from paths import CONTENT_DIR, GLOSSARY_MD, GLOSSARY_YAML, ROOT
 
 HEADER = """<!-- Собрано `tools/gen_glossary.py` из `glossary.yaml`. Не правьте этот файл:
      правки вносятся в `glossary.yaml`, затем `make glossary`. -->
@@ -46,7 +44,7 @@ def topic_paths() -> dict[str, str]:
     а сборка сайта переписывает ссылки под свою раскладку сама.
     """
     out = {}
-    for path in sorted((ROOT / "content").rglob("*.md")):
+    for path in sorted(CONTENT_DIR.rglob("*.md")):
         m = re.match(r"\A---\n(.*?)\n---\n", path.read_text(encoding="utf-8"), re.S)
         if not m:
             continue

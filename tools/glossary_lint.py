@@ -36,9 +36,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import yaml
 
 import mdtext
-
-ROOT = Path(__file__).resolve().parent.parent
-GLOSSARY = ROOT / "glossary.yaml"
+from paths import GLOSSARY_YAML
 
 ERROR, WARNING = "error", "warning"
 
@@ -99,13 +97,13 @@ def norm(s: str) -> str:
 # --- загрузка ---------------------------------------------------------------
 
 def load_glossary():
-    data = yaml.safe_load(GLOSSARY.read_text(encoding="utf-8"))
+    data = yaml.safe_load(GLOSSARY_YAML.read_text(encoding="utf-8"))
     terms = data["terms"]
     # Группы объявлены списком записей: порядок списка — порядок разделов в
     # собранном `GLOSSARY.md`, поэтому это не словарь.
     groups = {g["id"]: g["title"] for g in data["groups"]}
     lines = {}
-    for i, raw in enumerate(GLOSSARY.read_text(encoding="utf-8").splitlines(), 1):
+    for i, raw in enumerate(GLOSSARY_YAML.read_text(encoding="utf-8").splitlines(), 1):
         m = re.match(r"\s*-\s+id:\s*(\S+)", raw)
         if m:
             lines.setdefault(m.group(1), i)

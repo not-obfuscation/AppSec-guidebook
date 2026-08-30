@@ -42,6 +42,7 @@ import mdtext
 import linkcheck as lc
 import validate_content as vc
 import wordcount as wcnt
+from paths import CONTENT_DIR, ROOT, TEMPLATES_DIR
 
 CATCH, SILENT = "ловит", "молчит"
 ANY = "*"
@@ -396,7 +397,7 @@ def data_cases() -> list[tuple[str, str, str, list]]:
 # берётся живая тема L1 со полным скелетом: мутация одного места на настоящем
 # тексте проверяет и правило, и то, что оно молчит на всём остальном.
 
-BASE_PAGE = Path("content/stage-1/password-storage.md")
+BASE_PAGE = CONTENT_DIR / "stage-1" / "password-storage.md"
 
 
 class Nothing:
@@ -494,7 +495,9 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
             if page.id != page_id:
                 continue
             target_page = home / f"{page_id}.md"
-            text = Path(page.path).read_text(encoding="utf-8")
+            # `page.path` — путь от корня репозитория (так их отдаёт
+            # `mdtext.topics`): читать надо от корня, а не от текущего каталога.
+            text = (ROOT / page.path).read_text(encoding="utf-8")
             if old_text not in text:
                 return [Nothing()]
             target_page.write_text(text.replace(old_text, new_text),
@@ -793,7 +796,7 @@ def volume_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
 # идентификатором, и ссылка номером плана, а в блоке 14 — две сноски с
 # автоссылками, то есть все проверяемые формы сразу.
 
-BASE_LINK_PAGE = Path("content/stage-0/cookies.md")
+BASE_LINK_PAGE = CONTENT_DIR / "stage-0" / "cookies.md"
 
 
 def link_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
@@ -937,7 +940,7 @@ def template_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
              for depth in sorted(ctx.depths)]
     for skeleton, depth in pairs:
         pattern = TEMPLATE_NAME.get(skeleton, "{depth}.md")
-        src = Path("templates") / pattern.format(depth=depth)
+        src = TEMPLATES_DIR / pattern.format(depth=depth)
         name = f"шаблон {skeleton} {depth}"
         if not src.exists():
             out.append((f"{name} существует", ANY, SILENT, [NoTemplate()]))
@@ -977,9 +980,9 @@ def template_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
 # ещё нет, а шаблон прогоняется теми же функциями и в `template_cases` уже
 # объявлен зелёным.
 
-TOOL_BASE = Path("templates/tool-L1.md")
-TOOL_RECIPE = Path("templates/tool-L2.md")
-VULN_BASE = Path("templates/L1.md")
+TOOL_BASE = TEMPLATES_DIR / "tool-L1.md"
+TOOL_RECIPE = TEMPLATES_DIR / "tool-L2.md"
+VULN_BASE = TEMPLATES_DIR / "L1.md"
 
 
 def skeleton_cases(tmp: Path) -> list[tuple[str, str, str, list]]:

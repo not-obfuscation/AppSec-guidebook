@@ -61,13 +61,11 @@ import mdtext  # noqa: E402
 import render_diagrams  # noqa: E402
 import validate_content as vc  # noqa: E402
 import wordcount  # noqa: E402
+from paths import BUILD_DIR, GLOSSARY_YAML, ROOT, SITE_DIR  # noqa: E402
 
-ROOT = Path(__file__).resolve().parent.parent
-BUILD = ROOT / "build"
-SRC = BUILD / "site-src"
+SRC = BUILD_DIR / "site-src"
 CONFIG_IN = ROOT / "mkdocs.yml"
-CONFIG_OUT = BUILD / "mkdocs.yml"
-SITE = ROOT / "site"
+CONFIG_OUT = BUILD_DIR / "mkdocs.yml"
 MKDOCS = ROOT / ".venv-site" / "bin" / "mkdocs"
 SHIM_SRC = ROOT / "tools" / "vendor" / "iframe-worker-shim.js"
 SHIM_REL = "assets/iframe-worker-shim.js"
@@ -647,7 +645,7 @@ def stage_tree(today: date) -> dict:
     pages = vc.load_pages()
     if not pages:
         raise SystemExit("в `content/` нет ни одной темы: собирать нечего")
-    glossary = yaml.safe_load((ROOT / "glossary.yaml").read_text(encoding="utf-8"))
+    glossary = yaml.safe_load(GLOSSARY_YAML.read_text(encoding="utf-8"))
 
     index = {p.id: f"{ctx.stages[str(p.front.get('stage'))]['dir']}/{p.id}.md"
              for p in pages}
@@ -701,11 +699,11 @@ def localize_shim() -> int:
     проверку офлайновости надо повторить руками.
     """
     changed = 0
-    for html in sorted(SITE.rglob("*.html")):
+    for html in sorted(SITE_DIR.rglob("*.html")):
         text = html.read_text(encoding="utf-8")
         if SHIM_URL not in text:
             continue
-        rel = os.path.relpath(SITE / SHIM_REL, html.parent).replace(os.sep, "/")
+        rel = os.path.relpath(SITE_DIR / SHIM_REL, html.parent).replace(os.sep, "/")
         html.write_text(text.replace(SHIM_URL, rel), encoding="utf-8")
         changed += 1
     return changed
@@ -726,7 +724,7 @@ def drop_sitemap() -> list[str]:
     """
     gone = []
     for name in ("sitemap.xml", "sitemap.xml.gz"):
-        path = SITE / name
+        path = SITE_DIR / name
         if path.exists():
             path.unlink()
             gone.append(name)
@@ -773,7 +771,7 @@ def main() -> int:
         print(f"карта сайта не собирается: {', '.join(gone) or 'нечего сносить'} "
               f"(адрес публикации не задан, пустой urlset — не карта)",
               file=sys.stderr)
-        print(f"сайт: {SITE.relative_to(ROOT)}/index.html", file=sys.stderr)
+        print(f"сайт: {SITE_DIR.relative_to(ROOT)}/index.html", file=sys.stderr)
     return code
 
 

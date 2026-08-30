@@ -45,14 +45,14 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-TOOLS = ROOT / "tools"
+from paths import EXCEPTIONS_YAML, ROOT, TOOLS_DIR
+
 PY = sys.executable
-VALE = TOOLS / "bin" / "vale"
-VALE_INI = "tools/vale/.vale.ini"
-MDL = TOOLS / "node" / "node_modules" / ".bin" / "markdownlint-cli2"
-MDL_CFG = "tools/markdownlint.jsonc"
-EXCEPTIONS = TOOLS / "exceptions.yaml"
+VALE = TOOLS_DIR / "bin" / "vale"
+VALE_INI = str(TOOLS_DIR / "vale" / ".vale.ini")
+MDL = TOOLS_DIR / "node" / "node_modules" / ".bin" / "markdownlint-cli2"
+MDL_CFG = str(TOOLS_DIR / "markdownlint.jsonc")
+EXCEPTIONS = EXCEPTIONS_YAML
 
 # Совпадает с `tools/plan_parse.py`. Проверка, которой нечего было
 # проверять, помечает свой вывод этим словом, и тогда её «ok» видно
