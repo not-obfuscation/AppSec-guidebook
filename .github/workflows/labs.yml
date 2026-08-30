@@ -1,0 +1,81 @@
+# Прогон лаб и сверка semgrep-правил. Вынесен из публикации намеренно.
+#
+# `make labs` гоняет все 29 лаб (включая браузерные на chrome-headless-shell
+# и серверные со стендами на петле) и сверку 19 semgrep-правил. Это долго и
+# никак не зависит от текстов гайдбука: лаба ломается от правки самой лабы,
+# а не от запятой в теме. В гейте публикации такому прогону не место — как и
+# `make links`, которому отдельный `links.yml`.
+#
+# Здесь он живёт отдельно: по расписанию и по кнопке. Прогон офлайновый и
+# детерминированный: сеть нужна только шагам установки окружения, самим лабам
+# — нет (браузерные режут разрешение имён флагом, реестр supply-chain —
+# файловый, стенды слушают только 127.0.0.1 и гасятся за собой).
+#
+# Внешнего плана Obsidian на раннере нет — проверки, которым он нужен, честно
+# уходят в ПРОПУЩЕНО, но `make labs` планом и не пользуется.
+
+name: Лабы
+
+on:
+  schedule:
+    # Раз в неделю, ночь с понедельника на вторник по UTC (ссылки — сутками
+    # раньше, чтобы два прогона не вставали в одну ночь).
+    - cron: '41 3 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  labs:
+    name: Лабы и semgrep-правила
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          # Ровно та версия, которой написан `tools/node/pnpm-lock.yaml`.
+          # Ставим пакеты с `--frozen-lockfile`, а чужой мажор pnpm на том же
+          # локе может разойтись в мелочах и уронить установку на пустом месте.
+          version: 11.3.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Кэш pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('tools/setup.sh') }}
+
+      - name: Кэш Vale
+        uses: actions/cache@v4
+        with:
+          path: tools/bin
+          key: vale-${{ runner.os }}-${{ hashFiles('tools/setup.sh') }}
+
+      - name: Кэш пакетов node
+        uses: actions/cache@v4
+        with:
+          path: tools/node/node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('tools/node/package.json') }}
+
+      # chrome-headless-shell — им браузерные лабы гоняют эксплойты. Качается
+      # долго, поэтому кэшируется отдельно от пакетов node.
+      - name: Кэш браузера
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('tools/node/package.json') }}
+
+      - name: Восстановить окружение
+        run: tools/setup.sh
+
+      - name: Лабы и сверка semgrep-правил
+        run: make labs

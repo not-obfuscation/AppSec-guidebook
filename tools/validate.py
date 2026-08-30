@@ -73,6 +73,15 @@ EXPECTED_LEVEL = {
 # Домены, которые источником не считаются (раздел «Критерий авторитетности»).
 BANNED_HOSTS = ("hacktricks.", "medium.com", "howtoharden.com")
 
+# Пороги свежести поля `checked` по volatility, в днях. Политика перепроверки —
+# 30/180/365 (journal/AUDIT-2026.md, слой 4); пороги выше неё с запасом, чтобы
+# правило будило по факту просрочки, а не дёргало автора заранее.
+FRESHNESS_DAYS = {"fast": 45, "medium": 200, "stable": 400}
+
+# needs_manual_check — не конечный статус, а очередь на ручную проверку:
+# запись, висящая в ней дольше месяца, ждёт решения.
+MANUAL_CHECK_DAYS = 30
+
 
 class Report:
     def __init__(self) -> None:
@@ -167,6 +176,20 @@ def check_sources(data: dict, rep: Report, today: dt.date) -> dict[str, dict]:
             if isinstance(checked, dt.date):
                 if checked > today:
                     rep.error("СХЕМА", f"{sid}: дата проверки {checked} в будущем")
+                else:
+                    age = (today - checked).days
+                    if vol in FRESHNESS_DAYS and age > FRESHNESS_DAYS[vol]:
+                        rep.warn(
+                            "СВЕЖЕСТЬ",
+                            f"{sid}: volatility `{vol}`, а checked {checked} — {age} дн. назад; "
+                            "источник пора перепроверить",
+                        )
+                    if status == "needs_manual_check" and age > MANUAL_CHECK_DAYS:
+                        rep.warn(
+                            "ПРОВЕРКА",
+                            f"{sid}: needs_manual_check висит {age} дн. (checked {checked}) — "
+                            "статус ждёт решения: подтвердить источник или снять",
+                        )
             else:
                 rep.error("СХЕМА", f"{sid}: `checked` должна быть датой YYYY-MM-DD, а не `{checked}`")
 

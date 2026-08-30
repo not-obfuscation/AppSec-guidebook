@@ -4,9 +4,11 @@
 # версии, которыми они проверены.
 #
 # Скрипт идемпотентен и ничего не удаляет. Отдельно про `.venv-tools`: он НЕ
-# пересоздаётся, даже если выглядит неполным. В нём стоит semgrep, поставленный
-# другой миссией, и его переустановка — это полчаса и полгигабайта; недостающие
-# пакеты доставляются в существующее окружение.
+# пересоздаётся, даже если выглядит неполным; недостающие пакеты доставляются в
+# существующее окружение. Semgrep, PyJWT и cryptography нужны цели `make labs`
+# (сверка правил и три лабы этапа 1): ставятся, только если их нет, — локально
+# semgrep поставлен отдельной миссией, и его переустановка — это полчаса и
+# полгигабайта.
 #
 # Что нужно на машине заранее: python3 (venv), pnpm, node, curl, tar. Ни один из
 # них скрипт не ставит: это дело системного пакетного менеджера.
@@ -26,6 +28,10 @@ VALE_VERSION="3.18.0"
 MATERIAL_VERSION="9.7.7"
 PYYAML_VERSION="6.0.3"
 JSONSCHEMA_VERSION="4.25.1"
+# Для `make labs`: сверка правил и лабы jwt-basics/jwt-attacks/crypto-misuse.
+SEMGREP_VERSION="1.174.0"
+PYJWT_VERSION="2.13.0"
+CRYPTOGRAPHY_VERSION="50.0.0"
 
 CHECK_ONLY=0
 [ "${1:-}" = "--check" ] && CHECK_ONLY=1
@@ -62,6 +68,24 @@ if [ -x .venv-tools/bin/python ]; then
     .venv-tools/bin/python -c 'import yaml, jsonschema' 2>/dev/null \
         && ok "python $(.venv-tools/bin/python -V 2>&1 | cut -d' ' -f2), yaml и jsonschema на месте" \
         || bad "в .venv-tools не импортируются yaml/jsonschema"
+fi
+
+# --- .venv-tools: лабы и сверка правил (make labs) ---------------------------
+step ".venv-tools — лабы (semgrep $SEMGREP_VERSION, PyJWT, cryptography)"
+if [ -x .venv-tools/bin/python ] && [ "$CHECK_ONLY" = 0 ]; then
+    if [ ! -x .venv-tools/bin/semgrep ] \
+       || ! .venv-tools/bin/python -c 'import jwt, cryptography' 2>/dev/null; then
+        .venv-tools/bin/python -m pip install --quiet --disable-pip-version-check \
+            "semgrep==$SEMGREP_VERSION" "PyJWT==$PYJWT_VERSION" \
+            "cryptography==$CRYPTOGRAPHY_VERSION" \
+            || bad "pip не поставил semgrep/PyJWT/cryptography"
+    fi
+fi
+if [ -x .venv-tools/bin/semgrep ] \
+   && .venv-tools/bin/python -c 'import jwt, cryptography' 2>/dev/null; then
+    ok "semgrep $(.venv-tools/bin/semgrep --version 2>&1 | head -1), PyJWT и cryptography на месте"
+else
+    bad "в .venv-tools нет semgrep/PyJWT/cryptography — без них `make labs` не пройдёт"
 fi
 
 # --- .venv-site: сборка сайта ----------------------------------------------

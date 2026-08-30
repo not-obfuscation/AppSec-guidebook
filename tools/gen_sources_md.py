@@ -1,12 +1,17 @@
 """Генерация человекочитаемых файлов по этапам из sources.yaml + topics.yaml.
 
-    python tools/gen_sources_md.py
+    python tools/gen_sources_md.py [--check]
 
 Пишет `sources/этап-N.md` для каждого невыключенного этапа и `sources/README.md`
 со сводкой. ЭТИ ФАЙЛЫ НЕ ПРАВЯТСЯ РУКАМИ: источник истины — YAML, любая правка
 markdown будет затёрта следующей генерацией.
+
+Флаг `--check` ничего не пишет, а сверяет сгенерированное с лежащим на диске:
+при расхождении печатает diff и выходит с кодом 1. Этим `make check` ловит
+правку сгенерированных файлов и отставание их от реестров.
 """
 
+import difflib
 import sys
 from pathlib import Path
 
@@ -93,16 +98,16 @@ TABLE_HEAD = (
 )
 
 
-def main() -> int:
+def build() -> dict[str, str]:
+    """Карта «имя файла в sources/ → текст» для всех производных файлов."""
     sources = {e["id"]: e for e in (load("sources.yaml").get("sources") or [])}
     topics = load("topics.yaml")
-    OUT_DIR.mkdir(exist_ok=True)
 
+    out: dict[str, str] = {}
     summary = [BANNER, "\n# Источники по этапам\n\n",
                "Сгенерировано из `sources.yaml` и `topics.yaml`.\n\n",
                "| Этап | Тем | С источником | Файл |\n|---|---|---|---|\n"]
 
-    written = 0
     for stage in topics.get("stages") or []:
         if stage.get("excluded"):
             summary.append(f"| {stage['num']}. {stage['title']} | — | исключён из гайдбука | — |\n")
@@ -116,14 +121,49 @@ def main() -> int:
                 eff = sub_ids + list(topic.get("sources") or [])
                 if any(sources.get(s, {}).get("status") == "ok" for s in eff):
                     covered += 1
-        path = OUT_DIR / f"этап-{stage['num']}.md"
-        path.write_text(render_stage(stage, sources), encoding="utf-8")
-        written += 1
+        name = f"этап-{stage['num']}.md"
+        out[name] = render_stage(stage, sources)
         summary.append(f"| {stage['num']}. {stage['title']} | {total} | {covered} | "
-                       f"[{path.name}]({path.name}) |\n")
+                       f"[{name}]({name}) |\n")
 
-    (OUT_DIR / "README.md").write_text("".join(summary), encoding="utf-8")
-    print(f"sources/: записано {written} файлов по этапам + README.md")
+    out["README.md"] = "".join(summary)
+    return out
+
+
+def check(files: dict[str, str]) -> int:
+    """Сверка сгенерированного с диском: расхождение печатается diff'ом."""
+    bad = 0
+    for name, text in files.items():
+        path = OUT_DIR / name
+        have = path.read_text(encoding="utf-8") if path.exists() else ""
+        if have == text:
+            continue
+        bad += 1
+        print(f"{path.relative_to(ROOT)}: расходится с sources.yaml/topics.yaml, "
+              f"нужен `python tools/gen_sources_md.py`", file=sys.stderr)
+        diff = difflib.unified_diff(have.splitlines(keepends=True),
+                                    text.splitlines(keepends=True),
+                                    fromfile=f"{path.relative_to(ROOT)} (на диске)",
+                                    tofile=f"{path.relative_to(ROOT)} (сгенерировано)")
+        sys.stderr.writelines(diff)
+    if bad:
+        print(f"sources/: {bad} файлов разошлись с реестрами", file=sys.stderr)
+        return 1
+    print(f"sources/: {len(files)} файлов совпадают с sources.yaml/topics.yaml",
+          file=sys.stderr)
+    return 0
+
+
+def main() -> int:
+    files = build()
+
+    if "--check" in sys.argv[1:]:
+        return check(files)
+
+    OUT_DIR.mkdir(exist_ok=True)
+    for name, text in files.items():
+        (OUT_DIR / name).write_text(text, encoding="utf-8")
+    print(f"sources/: записано {len(files) - 1} файлов по этапам + README.md")
     return 0
 
 

@@ -9,7 +9,8 @@
 Внутри три вида проверок, и они дают разное.
 
   реестр  — команда либо зелёная, либо нет: `validate.py` (реестр источников и
-            покрытие тем), `gen_topics.py --check` и `gen_glossary.py --check`
+            покрытие тем), `gen_topics.py --check`, `gen_glossary.py --check`
+            и `gen_sources_md.py --check`
             (сгенерированное не разошлось с рукописным источником);
   линтеры — Vale, markdownlint, `glossary_lint.py`, `lint_style.py`: замечание
             с адресом, правилом и уровнем;
@@ -349,6 +350,7 @@ REGISTRY = [
     ("validate", ["tools/validate.py", "--quiet"]),
     ("topics", ["tools/gen_topics.py", "--check"]),
     ("glossary-gen", ["tools/gen_glossary.py", "--check"]),
+    ("sources-gen", ["tools/gen_sources_md.py", "--check"]),
 ]
 REPORTS = [
     ("wordcount", ["tools/wordcount.py"]),
