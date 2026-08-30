@@ -15,9 +15,9 @@ PY_SITE := .venv-site/bin/python
 CHECK   := $(PY) tools/check.py
 
 .DEFAULT_GOAL := help
-.PHONY: help check check-lang check-md check-model check-glossary lint-selftest \
-        links site serve diagrams glossary topics report setup clean check-site \
-        phone check-phone labs
+.PHONY: help check check-lang check-md check-model check-glossary check-code \
+        lint-selftest links site serve diagrams glossary topics report setup \
+        clean check-site phone check-phone labs
 
 help:                     ## показать этот список
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -37,6 +37,9 @@ check-model:              ## только контентная модель: fro
 
 check-glossary:           ## только глоссарий: канон написания, аббревиатуры
 	@$(CHECK) --only glossary
+
+check-code:               ## только синтаксис листингов: python, javascript, bash, yaml
+	@$(CHECK) --only code
 
 links:                    ## ссылки, включая внешние адреса: единственная проверка с сетью
 	@$(CHECK) --only links --external

@@ -383,7 +383,7 @@ export function WidgetHost(): void {
 трёх встречается в живом коде.
 
 ```javascript
-// Фрагмент, упрощено для примера
+// ФРАГМЕНТ — срез, упрощён для примера, самостоятельно не компилируется
 if (event.source !== frames[0]) return;              // (1)
 if (!event.origin.startsWith(TRUSTED)) return;       // (2)
 if (typeof event.data !== 'string') return;          // (3)

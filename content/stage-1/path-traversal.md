@@ -316,6 +316,7 @@ def read_document(name):
 вызовов:
 
 ```javascript
+// ФРАГМЕНТ — срез, самостоятельно не компилируется
 // УЯЗВИМО — демонстрация, не для продакшена.
 const p = path.join(BASE, req.query.name);
 if (!p.startsWith(BASE)) throw new Error("вне каталога");

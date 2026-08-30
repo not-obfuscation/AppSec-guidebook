@@ -155,6 +155,7 @@ semgrep --config=rules/sql.yaml --metrics=off --no-git-ignore .
 комментарии:
 
 ```python
+# ФРАГМЕНТ — срез, самостоятельно не компилируется
     # nosemgrep: sql-string-built -- имя таблицы сверено с TABLES выше
     return conn.execute(f"SELECT count(*) FROM {table}").fetchone()[0]
 ```

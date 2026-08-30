@@ -248,6 +248,7 @@ def preview(request):
 Список разрешённого выглядит лучше и ломается тоньше.
 
 ```python
+# ФРАГМЕНТ — срез, самостоятельно не компилируется
 # УЯЗВИМО — демонстрация, не для продакшена.
 if not urlsplit(url).hostname.endswith("partner.example"):  # (3)
     raise Denied("хост не разрешён")
@@ -268,6 +269,7 @@ return requests.get(url, timeout=5)                         # (4)
 которую прислали.
 
 ```python
+# ФРАГМЕНТ — срез, самостоятельно не компилируется
 scheme, host, port, path = split(url)             # (1)
 if scheme not in ("http", "https"):
     raise Denied("схема не разрешена")

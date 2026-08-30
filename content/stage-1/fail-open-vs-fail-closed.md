@@ -167,6 +167,7 @@ def is_allowed(user, action):
 Второй признак — вызов зависимости без ограничения по времени.
 
 ```python
+# ФРАГМЕНТ — срез, самостоятельно не компилируется
 # УЯЗВИМО — демонстрация, не для продакшена.
 resp = requests.get(POLICY_URL, params={"u": user})   # (3)
 return resp.json().get("allow", True)                 # (4)

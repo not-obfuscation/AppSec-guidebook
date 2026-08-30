@@ -343,6 +343,7 @@ def change_email(request):
 формулирует это требованием v5.0-3.5.1.
 
 ```javascript
+// ФРАГМЕНТ — срез, самостоятельно не компилируется
 // Исправлено.
 if (req.url.pathname === '/email/change') {
   if (req.method !== 'POST') {                             // (1)

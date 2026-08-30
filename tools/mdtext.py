@@ -9,7 +9,8 @@
 позицию находки не приходится пересчитывать, а регулярные выражения не
 склеивают куски, стоявшие по разные стороны листинга.
 
-Пользователи: `glossary_lint.py`, `lint_style.py`, `linkcheck.py`.
+Пользователи: `glossary_lint.py`, `lint_style.py`, `lint_code.py`,
+`linkcheck.py`.
 """
 
 from __future__ import annotations

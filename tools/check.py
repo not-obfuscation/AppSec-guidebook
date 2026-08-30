@@ -12,8 +12,8 @@
             покрытие тем), `gen_topics.py --check`, `gen_glossary.py --check`
             и `gen_sources_md.py --check`
             (сгенерированное не разошлось с рукописным источником);
-  линтеры — Vale, markdownlint, `glossary_lint.py`, `lint_style.py`: замечание
-            с адресом, правилом и уровнем;
+  линтеры — Vale, markdownlint, `glossary_lint.py`, `lint_style.py`,
+            `lint_code.py`: замечание с адресом, правилом и уровнем;
   отчёты  — `wordcount.py` и `stoplist.py`: цифры без вердикта. Стоп-лист
             связок смотрится глазами, а таблица объёма нужна целиком —
             вердиктная метрика рядом со справочными. Такие проверки
@@ -356,14 +356,16 @@ REPORTS = [
     ("wordcount", ["tools/wordcount.py"]),
     ("stoplist", ["tools/stoplist.py"]),
 ]
-LINTERS = ["vale", "markdownlint", "glossary", "style", "model", "links", "volume"]
+LINTERS = ["vale", "markdownlint", "glossary", "style", "code", "model",
+           "links", "volume"]
 # Кто чьи правила печатает. Нужно ровно для одного: не объявлять исключение
 # мёртвым, когда его линтер в этом прогоне не запускался. Префикса тут не
 # хватает: `S-` делят между собой `lint_style.py` и `linkcheck.py`, поэтому
 # правила ссылок перечислены поимённо, а остальное разбирается по началу имени.
 LINK_RULES = {"S-EXT-IN-BODY", "S-LINK-BARE", "S-LINK-TOPIC", "S-LINK-MD",
               "S-LINK-SOURCE-URL", "S-LINK-EXT"}
-RULE_PREFIX = [("C-VOL-", "volume"), ("C-", "model"), ("G-", "glossary"),
+RULE_PREFIX = [("C-VOL-", "volume"), ("C-CODE-", "code"), ("C-", "model"),
+               ("G-", "glossary"),
                ("L-", "vale"), ("AppSec.", "vale"), ("MD", "markdownlint"),
                ("S-", "style")]
 
@@ -436,6 +438,9 @@ def main() -> int:
         results.append(own("glossary", "glossary_lint.py", paths, whole=True))
     if picked("style"):
         results.append(own("style", "lint_style.py", paths))
+    # Синтаксис листингов: правило уровня страницы, целиком локальное.
+    if picked("code"):
+        results.append(own("code", "lint_code.py", paths))
     # Контентная модель смотрит на корпус целиком: цикл в графе предпосылок и
     # занятый `order` — свойства набора тем, а не одной страницы. Поэтому
     # whole=True, и отбор по путям делает уже сам `own`.

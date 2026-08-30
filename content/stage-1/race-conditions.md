@@ -283,6 +283,7 @@ def withdraw(amount):
 **Тот же дефект на другом стеке.** В Node на любой ORM он выглядит так же:
 
 ```javascript
+// ФРАГМЕНТ — срез, самостоятельно не компилируется
 // УЯЗВИМО — демонстрация, не для продакшена.
 const acct = await Account.findByPk(1);
 if (acct.balance < amount) return "недостаточно средств";

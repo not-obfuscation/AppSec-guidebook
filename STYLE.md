@@ -52,7 +52,7 @@
 | `MD*` | markdownlint-cli2 — разметка | `tools/markdownlint.jsonc` |
 | `S-*` | свои проверки свода — то, чего нет ни в Vale, ни в markdownlint | `tools/lint_style.py`, `tools/linkcheck.py` |
 | `G-*` | глоссарий | `tools/glossary_lint.py`, `glossary.yaml` |
-| `C-*` | контентная модель и frontmatter | `tools/validate_content.py`, `tools/wordcount.py` (объём), `SCHEMA.md` |
+| `C-*` | контентная модель и frontmatter | `tools/validate_content.py`, `tools/wordcount.py` (объём), `tools/lint_code.py` (синтаксис листингов), `SCHEMA.md` |
 
 `MD*` — родные номера markdownlint, чтобы не заводить второе имя тому, у чего
 имя уже есть. Остальные три семейства именует этот свод.
@@ -568,6 +568,16 @@ Protocol` из `glossary.yaml` (расширение `abbr`), и браузер 
 
 **Цена:** «разбираемый пример» от «фрагмента» машина не отличает, поэтому норма
 25 применяется ко всем блокам. Отсюда и уровень: предупреждение, а не ошибка.
+
+### C-CODE-SYNTAX { #C-CODE-SYNTAX }
+
+Листинг кода обязан компилироваться целиком: читатель копирует его и
+запускает. Сознательный срез помечается первой строкой блока — комментарием на
+языке листинга со словом «ФРАГМЕНТ» (`# ФРАГМЕНТ — срез, самостоятельно не
+компилируется`); такой блок проверкой пропускается. Блок без маркера проверяется
+своим инструментом: python — `compile()`, javascript — `node --check`, bash —
+`bash -n`, yaml — `yaml.safe_load_all`, а похожее на правило semgrep — ещё и
+`semgrep --validate`. Проверяет `tools/lint_code.py`, уровень — error.
 
 ### Ссылки: S-EXT-IN-BODY и S-LINK-* { #links }
 

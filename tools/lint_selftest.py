@@ -37,6 +37,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import check
 import glossary_lint as gl
+import lint_code as lcd
 import lint_style as ls  # noqa: F401  — импорт держит зависимость явной
 import mdtext
 import linkcheck as lc
@@ -1101,6 +1102,45 @@ def skeleton_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
     ]
 
 
+# ── синтаксис листингов: правило C-CODE-SYNTAX ───────────────────────────────
+#
+# Договор STYLE.md § 6: блок, первая строка которого — комментарий со словом
+# «ФРАГМЕНТ», проверкой пропускается; блок без маркера обязан компилироваться.
+# Прогон прямой, как у `volume_cases`: фикстура пишется в файл и отдаётся
+# `lint_code.check_file` вместе с каталогом под временные файлы проверок.
+
+
+def code_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
+    """(имя, правило, режим, найденное) — маркер фрагмента и компиляция."""
+    home = tmp / "code"
+    home.mkdir(parents=True, exist_ok=True)
+    work = home / "work"
+    work.mkdir()
+    target = home / "fixture.md"
+
+    def one(text: str) -> list:
+        target.write_text(text, encoding="utf-8")
+        return lcd.check_file(target, work)
+
+    frag = "return 1  # срез из середины функции"
+    return [
+        ("return на верхнем уровне без маркера", "C-CODE-SYNTAX", CATCH,
+         one(fence([frag], "python")),
+         "голый ast.parse это место пропускает: ловит именно compile()"),
+        ("тот же срез с маркером", "C-CODE-SYNTAX", SILENT,
+         one(fence(["# ФРАГМЕНТ — срез, самостоятельно не компилируется",
+                    frag], "python")),
+         "первая строка — комментарий со словом «ФРАГМЕНТ», блок пропускается"),
+        ("самодостаточный листинг python", "C-CODE-SYNTAX", SILENT,
+         one(fence(["def pick():", "    return 1"], "python"))),
+        ("return на верхнем уровне в javascript", "C-CODE-SYNTAX", CATCH,
+         one(fence(["if (x) return 1;"], "javascript")),
+         "node --check в режиме модуля запрещает return вне функции"),
+        ("битый yaml", "C-CODE-SYNTAX", CATCH,
+         one(fence(["key: [1, 2", "other: }"], "yaml"))),
+    ]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--quiet", action="store_true", help="только провалы и итог")
@@ -1121,8 +1161,8 @@ def main() -> int:
             case = Case(name, rule, mode, "")
             rows.append((rule, mode, name, "", verdict(case, found), None))
         for row in (list(model_cases(tmp)) + list(volume_cases(tmp))
-                    + list(link_cases(tmp)) + list(template_cases(tmp))
-                    + list(skeleton_cases(tmp))):
+                    + list(link_cases(tmp)) + list(code_cases(tmp))
+                    + list(template_cases(tmp)) + list(skeleton_cases(tmp))):
             name, rule, mode, found = row[:4]
             why = row[4] if len(row) > 4 else ""
             case = Case(name, rule, mode, "")

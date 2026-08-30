@@ -161,6 +161,7 @@ bandit -r shop/ -b base.json
 примитив — `weak-algorithms`. Ложное срабатывание закрывается точечно:
 
 ```python
+# ФРАГМЕНТ — срез, самостоятельно не компилируется
     return hashlib.md5(raw).hexdigest()  # nosec B324
 ```
 

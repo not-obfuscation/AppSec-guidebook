@@ -177,6 +177,7 @@ ASVS v5.0-8.3.2 формулирует её как требование: изм�
 которая прочитала `profile` из введения, выглядит так.
 
 ```python
+# ФРАГМЕНТ — срез, самостоятельно не компилируется
 # УЯЗВИМО — демонстрация, не для продакшена.
 role = request.form.get("profile") or request.cookies.get("role")  # (1)
 if role == "SysAdmin":                                             # (2)
@@ -191,6 +192,7 @@ if role == "SysAdmin":                                             # (2)
 подпись создаёт впечатление закрытого вопроса:
 
 ```python
+# ФРАГМЕНТ — срез, самостоятельно не компилируется
 claims = jwt.decode(token, key, algorithms=["RS256"])   # подпись проверена
 if claims["role"] == "admin":                           # (3)
     return admin_console()
@@ -210,6 +212,7 @@ if claims["role"] == "admin":                           # (3)
 она.
 
 ```python
+# ФРАГМЕНТ — срез, самостоятельно не компилируется
 user = load_user(session_subject())   # личность — из состояния сессии
 if authz.can(user, "admin_console"):  # права — вычислены на сервере
     return admin_console()
