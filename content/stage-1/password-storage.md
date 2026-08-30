@@ -21,7 +21,7 @@ prerequisites: [app-architecture, sessions-vs-tokens]
 related: [sessions-vs-tokens, tls-and-proxy]
 tags: [auth, crypto]
 cwe: [CWE-916, CWE-759, CWE-760, CWE-328]
-asvs: ['v5.0-11.4.2', 'v5.0-6.2.8', 'v5.0-6.2.9', 'v5.0-6.5.2']
+asvs: ['v5.0-11.4.2', 'v5.0-6.2.1', 'v5.0-6.2.8', 'v5.0-6.2.9', 'v5.0-6.5.2', 'v5.0-7.2.3']
 wstg: ['WSTG-v42-CRYP-04']
 owasp: ['A07:2025', 'A04:2025']
 labs: [lab-password-storage]
@@ -301,7 +301,9 @@ const key = scryptSync(password, salt, 32);   // N=16384, r=8, p=1
 > **Примечание: ложные срабатывания.** Быстрый хеш от секрета — не всегда
 > дефект. ASVS v5.0-6.5.2 разрешает обычную хеш-функцию для значений с
 > энтропией от 112 бит: у случайного токена перебор невозможен независимо от
-> скорости функции. Контрольная сумма загруженного файла к теме тоже не
+> скорости функции. Идентификатору сессии тех же 112–127 бит мало: для него
+> действует планка в 128 бит (ASVS v5.0-7.2.3, тема `secure-random`).
+> Контрольная сумма загруженного файла к теме тоже не
 > относится. Смотрите на происхождение значения, а не на имя функции.
 
 ## 6. Как чинится
@@ -458,6 +460,10 @@ legacy-систем, требует фактор от 10 и ограничени
    Unicode, включая нулевой байт.
 5. Проверка укладывается в секунду.
 
+Снизу длину держит политика. ASVS v5.0-6.2.1 требует принимать пароли не
+короче восьми символов и настоятельно рекомендует пятнадцать; тот же минимум
+ставит и NIST SP 800-63b.
+
 Все пять входят в `tests.py` лабы и должны оставаться зелёными до фикса и
 после. Тест, который зеленеет только после починки, — это ретест, а не
 регресс; путать их не стоит.
@@ -473,17 +479,38 @@ rules:
   - id: password-fast-digest
     languages: [python]
     severity: ERROR
+    message: >-
+      Пароль хешируется быстрой функцией. Быстрый хеш даёт атакующему
+      миллионы догадок в секунду на одном ядре. Для хранения пароля
+      нужна функция с настраиваемой ценой и солью: hashlib.scrypt или
+      hashlib.pbkdf2_hmac, а лучше argon2id из внешней библиотеки.
+      Требование: ASVS v5.0-11.4.2.
+    metadata:
+      cwe:
+        - "CWE-916: Use of Password Hash With
+          Insufficient Computational Effort"
+      asvs: v5.0-11.4.2
+      references:
+        - "https://cheatsheetseries.owasp.org/cheatsheets/\
+          Password_Storage_Cheat_Sheet.html"
+      confidence: MEDIUM
     patterns:
       - pattern-either:
           - pattern: hashlib.$ALGO($ARG, ...)
           - pattern: hashlib.new("$ALGO", $ARG, ...)
+          - pattern: hashlib.new('$ALGO', $ARG, ...)
       - metavariable-regex:
           metavariable: $ALGO
-          regex: ^(md5|sha1|sha224|sha256|sha384|sha512|blake2b|blake2s)$
+          regex: "^(md5|sha1|sha224|sha256|sha384|sha512|blake2b|\
+            blake2s|sha3_256|sha3_512)$"
       - metavariable-regex:
           metavariable: $ARG
           regex: (?i).*(password|passwd|pwd|passphrase).*
 ```
+
+Листинг повторяет файл целиком; переносы строк в длинных значениях
+(`cwe`, ссылка, первый regex) — листинговые, в файле каждое из них
+записано одной строкой.
 
 Правило прогнано лично на Semgrep 1.174.0 по восьми размеченным случаям:
 четыре находки там, где они ожидались, ноль на четырёх чистых. На уязвимом
