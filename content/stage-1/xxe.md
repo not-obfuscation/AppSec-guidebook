@@ -227,7 +227,7 @@ tree = etree.fromstring(user_xml, parser)
 5. Возврат к теме `ssrf-basics`: чем SSRF через XXE отличается от обычного SSRF
    по инициатору запроса?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Документ объявляет сущность с ключевым словом `SYSTEM` и внешним ресурсом.

@@ -244,7 +244,7 @@ def redirect_next(request, response):
 5. Возврат к теме `http-basics`: какие части ответа разделяет CRLF и почему это
    даёт атакующему структуру ответа?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Заголовки разделяются `\r\n`, а пустая строка отделяет их от тела. Перевод

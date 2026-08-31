@@ -403,7 +403,7 @@ export function verify(login, password) {
 }
 ```
 
-<details>
+<details markdown="1">
 <summary>Разбор второго листинга</summary>
 
 Изменилось три вещи, и они те же, что в Python. `createHash('sha256')`
@@ -650,7 +650,7 @@ derivation» документации `hashlib`.
 7. Возврат к теме `app-architecture`: перечислите места, куда попадает копия
    таблицы учётных записей, кроме самой базы.
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Даёт три вещи: одна таблица кандидатов перестаёт подходить ко всей базе,

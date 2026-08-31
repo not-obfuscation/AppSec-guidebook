@@ -303,7 +303,7 @@ on_response(req, resp):
 разрешения больше не получает. Закройте разбор и назовите, почему `Vary`
 выставляется за пределами условия.
 
-<details>
+<details markdown="1">
 <summary>Разбор выносок</summary>
 
 1. Сравнение идёт с множеством целиком, а не по вхождению подстроки. Значение
@@ -392,7 +392,7 @@ on_response(req, resp):
 6. Возврат к теме `http-basics`: чем поле `Allow` в ответе `405` отличается по
    назначению от `Access-Control-Allow-Methods`?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Метод `OPTIONS` и поле `Access-Control-Request-Method`. Поле

@@ -538,7 +538,7 @@ Access Control Testing для ZAP.
 6. Возврат к теме `rest-and-graphql`: где искать ссылку на объект в запросе
    GraphQL, если в адресе её нет?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Объект, ссылка на него и отсутствующая проверка прав на объект. Чинится

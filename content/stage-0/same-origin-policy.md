@@ -675,7 +675,7 @@ chrome-headless-shell из `tools/node`; в сеть лаба не выходи�
 8. Возврат к теме `http-basics`: чем поле `Origin` в запросе отличается от
    `event.origin` в обработчике сообщения?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Схема, хост, порт и домен. Домен в сравнении `same origin` не участвует —

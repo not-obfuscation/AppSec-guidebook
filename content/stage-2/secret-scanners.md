@@ -344,7 +344,7 @@ ExtraData     account=935266858483   resource_type=Access key
 6. Возврат к теме `secrets-in-code`: почему находка сканера — это начало работы,
    а не её конец?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Правило — регулярное выражение плюс порог энтропии, ищет форму; детектор

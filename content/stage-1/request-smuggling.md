@@ -264,7 +264,7 @@ HTTP/1.1 для бэкенда, у сообщения снова появляю�
 6. Возврат к теме `app-architecture`: где в цепочке узлов надо искать
    расхождение разборщиков?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. `Content-Length` (длина в байтах) и `Transfer-Encoding: chunked` (тело из

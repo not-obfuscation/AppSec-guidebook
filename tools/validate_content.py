@@ -1120,7 +1120,7 @@ def check_body(page: Page, ctx: Ctx) -> list[Finding]:
     self_check, sc_num = named("selfcheck")
     if self_check:
         raw = page.lines[self_check.start:self_check.end]
-        split = next((i for i, line in enumerate(raw) if line.startswith("<details>")), None)
+        split = next((i for i, line in enumerate(raw) if line.startswith("<details")), None)
         if split is None:
             add("C-BODY-SELFCHECK", ERROR,
                 f"в блоке {sc_num} нет `<details>` с ответами: ответы под "

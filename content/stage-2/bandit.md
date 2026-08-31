@@ -264,7 +264,7 @@ bandit -r shop/ -b base.json
 6. Возврат к теме `sast-principles`: почему bandit не нашёл путь к файлу,
    собранный из параметра запроса?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Природу проверки: `B1xx` — разное, `B3xx` — чёрный список вызовов, `B4xx` —

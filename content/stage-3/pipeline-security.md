@@ -528,7 +528,7 @@ vuln.yml:24:35: "github.event.pull_request.body" is potentially untrusted…
 7. Возврат к теме `supply-chain-threats`: чем доверие чужому шагу конвейера
    отличается от доверия зависимости приложения?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Подстановка в текст меняет саму программу: кавычка внутри значения закрывает

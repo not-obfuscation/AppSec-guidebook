@@ -265,7 +265,7 @@ zap.sh -cmd -dir ./zaphome -autorun "$PWD/plan-active.yaml"
 6. Возврат к теме `dast-limits`: почему списки статического и динамического
    прогона не содержат друг друга?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Они привязываются к разным точкам одного пути: один к месту, где строка

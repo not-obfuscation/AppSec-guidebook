@@ -269,7 +269,7 @@ localStorage.setItem('profile', encrypted); // (4)
 6. Возврат к теме `tls-and-proxy`: почему установленное соединение TLS не
    защищает данные, записанные в журнал доступа веб-сервера?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Журнал доступа веб-сервера, история браузера, заголовок `Referer` при

@@ -284,7 +284,7 @@ function safeKeys(obj) {                        // (3)
 5. Возврат к теме `xss-dom`: чем стоки этой темы отличаются от стоков XSS в
    DOM?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Язык понимает `__proto__` как обращение к прототипу объекта, а не как имя

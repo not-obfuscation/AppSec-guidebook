@@ -293,7 +293,7 @@ if origin.endswith("example.com"):                       # (1)
 5. Возврат к теме `same-origin-policy`: что именно запрещает политика и какую
    из её частей CORS ослабляет?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. В ответе есть что читать; разрешение выдано origin атакующего; вместе с

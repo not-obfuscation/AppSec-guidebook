@@ -646,7 +646,7 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         ("пункт чеклиста не в залоге", "C-BODY-CHECKLIST", CATCH,
          sub("1. Verify that", "1. Убедитесь, что", 1)),
         ("нет ответов под раскрытием", "C-BODY-SELFCHECK", CATCH,
-         sub("<details>", "<detailz>")),
+         sub("<details", "<detailz")),
         ("пункт «дальше» без ссылки", "C-BODY-NEXT", CATCH,
          sub("## 13. Дальше\n\n-", "## 13. Дальше\n\n- просто текст\n-", 1)),
         ("сноска и sources расходятся", "C-BODY-SOURCES", CATCH,

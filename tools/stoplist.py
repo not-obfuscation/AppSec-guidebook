@@ -90,7 +90,7 @@ def mask_code(text: str) -> str:
 def prose_ngrams(text: str, n: int = 4) -> set[tuple[str, ...]]:
     t = body(text)
     t = re.sub(r"```.*?```", "", t, flags=re.S)
-    t = re.sub(r"<details>.*?</details>", "", t, flags=re.S)
+    t = re.sub(r"<details[^>]*>.*?</details>", "", t, flags=re.S)
     t = re.sub(r"^## 14\..*\Z", "", t, flags=re.M | re.S)
     for pat in SERVICE:
         t = re.sub(pat, "", t, flags=re.M | re.S)

@@ -249,7 +249,7 @@ route "/api/v1/checkout/confirm",
 Ответ на это стоит сформулировать до раскрытия: какая из четырёх строк
 осталась бы нужной, даже если бы все остальные три были на месте?
 
-<details>
+<details markdown="1">
 <summary>Разбор выносок</summary>
 
 1. Список методов задан явно; всё, что вне списка, получает `405`.
@@ -340,7 +340,7 @@ route "/api/v1/checkout/confirm",
 6. Возврат к теме `sessions-vs-tokens`: какие утверждения токена REST Cheat
    Sheet предписывает проверять принимающей стороне?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. `path`, `query`, `querystring`, `header`, `cookie`.

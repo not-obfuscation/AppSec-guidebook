@@ -49,7 +49,7 @@ NORM = {"L1": (2500, 3500), "L2": (800, 1700), "L3": (300, 500)}
 FRONT = re.compile(r"\A---\n(.*?\n)---\n", re.S)
 DEPTH = re.compile(r"^depth:\s*(\S+)", re.M)
 FENCE = re.compile(r"^```.*?^```", re.M | re.S)
-DETAILS = re.compile(r"<details>.*?</details>", re.S)
+DETAILS = re.compile(r"<details[^>]*>.*?</details>", re.S)
 # Блок «Источники» — по заголовку, а не по номеру: у скелета инструмента
 # (свод 4.2) он тринадцатый, а не четырнадцатый, и номер здесь был бы
 # сведением об одном скелете из двух.

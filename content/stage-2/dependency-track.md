@@ -225,7 +225,7 @@ CVE» и «опознано 0 зависимостей» — два разных
 6. Возврат к теме `sbom`: почему качество учёта в Dependency-Track упирается в
    качество поданных SBOM?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Dependency-Check — сканер, дающий разовый отчёт; Dependency-Track — сервер,

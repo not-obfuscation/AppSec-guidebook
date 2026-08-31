@@ -235,7 +235,7 @@ log4j-core CVE-2021-44228  CRITICAL   2.14.1    2.15.0
 6. Возврат к теме `transitive-dependencies`: почему Trivy находит уязвимости в
    пакетах, которых нет в манифесте?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Зависимости (`fs`), слои образа (`image`), конфигурации (`config`); каждый

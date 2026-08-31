@@ -253,7 +253,7 @@ app.use((req, res, next) => {
 Сначала ответьте себе: какие два поля исчезли и почему их отсутствие —
 исправление, а не пропуск.
 
-<details>
+<details markdown="1">
 <summary>Разбор выносок</summary>
 
 1. Год в секундах и распространение на поддомены — минимум ASVS v5.0-3.4.1
@@ -345,7 +345,7 @@ app.use((req, res, next) => {
 6. Возврат к теме `http-basics`: почему политику HSTS нельзя доставить
    разметкой через `http-equiv`?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Обязательна `max-age`; `includeSubDomains` необязательна и значения не

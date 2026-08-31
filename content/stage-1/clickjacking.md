@@ -307,7 +307,7 @@ app.get('/widget', (req, res) => {
 5. Возврат к теме `security-headers`: чем `frame-ancestors` лучше поля
    `X-Frame-Options`?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Она запрещает чужой странице читать содержимое кадра, а показывать его

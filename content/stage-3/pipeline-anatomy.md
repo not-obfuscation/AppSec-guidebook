@@ -465,7 +465,7 @@ python3 runner.py pipeline.yml
 6. Возврат к теме `app-architecture`: почему у каждого job свой чистый рабочий
    каталог, а не общий каталог сборки?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Событие — с какими правами и секретами идёт конвейер. Граф job — порядок

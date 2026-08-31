@@ -243,7 +243,7 @@ client = http_client(
 отключения проверки, если в обоих случаях самоподписанный сертификат
 принимается.
 
-<details>
+<details markdown="1">
 <summary>Разбор выносок</summary>
 
 1. Якорь добавлен явно, один, из известного файла. Область доверия расширена
@@ -327,7 +327,7 @@ client = http_client(
 6. Возврат к теме `security-headers`: как HSTS меняет поведение браузера при
    ошибке проверки сертификата?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Key Exchange, Server Parameters, Authentication. Всё, что после первой,

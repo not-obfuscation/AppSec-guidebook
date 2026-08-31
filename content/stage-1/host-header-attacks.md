@@ -230,7 +230,7 @@ def send_reset(request, user):
 6. Возврат к теме `http-basics`: зачем заголовок `Host` вообще обязателен в
    запросе?
 
-<details>
+<details markdown="1">
 <summary>Ответы</summary>
 
 1. Потому что его значение выбирает клиент и подставляет вместе с запросом, как

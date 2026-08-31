@@ -45,7 +45,7 @@ from lint_style import material, skipped_lines, words
 SHORT = 5  # предложение-удар: не длиннее пяти слов
 
 LIST_RE = re.compile(r"[ \t]*(?:[-*+]|\d+[.)])[ \t]+")
-DETAILS_RE = re.compile(r"<details>.*?</details>", re.S)
+DETAILS_RE = re.compile(r"<details[^>]*>.*?</details>", re.S)
 # Затравка абзаца целиком из жирного: «**Цена.**», «**Шаг 1.**». Содержание
 # абзаца за ней меряется как обычно — вычитается только сама метка.
 BOLD_LABEL_RE = re.compile(r"\A[*_`«„\"'(\[\s]*\*\*[^*\n]+\*\*[.:]?\**\s*\Z")
