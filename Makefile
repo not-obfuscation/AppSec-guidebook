@@ -17,7 +17,7 @@ CHECK   := $(PY) tools/check.py
 .DEFAULT_GOAL := help
 .PHONY: help check check-lang check-md check-model check-glossary check-code \
         lint-selftest links site serve diagrams glossary topics report setup \
-        clean check-site phone check-phone labs
+        clean check-site phone check-phone labs toc
 
 help:                     ## показать этот список
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -78,6 +78,9 @@ glossary:                 ## пересобрать GLOSSARY.md из glossary.ya
 
 topics:                   ## пересобрать topics.yaml из плана обучения
 	@$(PY) tools/gen_topics.py
+
+toc:                      ## сверка оглавления этапа 3 с планом и корпусом (нужен .smgr/)
+	@$(PY) tools/check_toc.py
 
 setup:                    ## восстановить окружение: venv, Vale, пакеты node, браузер
 	@tools/setup.sh

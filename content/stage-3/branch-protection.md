@@ -28,7 +28,7 @@ owasp: ['A08:2025']
 labs: []
 sources: [gh-protected-branches, gh-commit-signing]
 reviewed: 2026-08-25
-review_interval: 24
+review_interval: 12
 ---
 
 # Защита веток, обязательное ревью, подпись коммитов

@@ -24,6 +24,11 @@ AUDIT_YAML = ROOT / "audit.yaml"
 
 EXCEPTIONS_YAML = TOOLS_DIR / "exceptions.yaml"
 
+# Состояние миссий: в репозиторий не входит (`.smgr/` в `.gitignore`), на
+# чистой копии каталога нет. Проверки, которым оно нужно, обязаны сказать об
+# этом вслух (ПРОПУЩЕНО), а не падать.
+SMGR_DIR = ROOT / ".smgr"
+
 # Производное сборки: сносится `make clean`.
 BUILD_DIR = ROOT / "build"
 SITE_DIR = ROOT / "site"
