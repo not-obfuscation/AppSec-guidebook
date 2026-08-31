@@ -264,14 +264,7 @@ def login(user, password):
 
 </details>
 
-## 13. Дальше
-
-- `brute-force-defense` — как собранный список логинов ускоряет перебор.
-- `password-reset-flaws` — форма сброса как отдельный канал перечисления.
-- `credential-stuffing` — атака, которой список валидных логинов не нужен.
-- `http-basics` — код, длина и поля ответа, по которым различают исходы.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Authentication Cheat Sheet; реестр `owasp-cs-authentication`. Разделы:
    Authentication and Error Messages (Authentication Responses, Incorrect and

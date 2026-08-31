@@ -602,16 +602,7 @@ pattern-sinks:
 
 </details>
 
-## 13. Дальше
-
-- `blind-ssrf` — тот же механизм, когда ответ не возвращается.
-- `ssrf-filter-bypass` — почему список запрещённого обходится и что делают
-  расхождения разборщиков адреса.
-- `cloud-metadata-ssrf` — служебный интерфейс платформы как цель по умолчанию.
-- `ssrf-defense` — защита целиком: список разрешённого, перенаправления,
-  сегментация сети.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Server-side request forgery (SSRF)»;
    реестр `ps-ssrf`. Разделы: What is SSRF, Impact, SSRF attacks against the

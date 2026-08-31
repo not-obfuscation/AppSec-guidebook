@@ -275,15 +275,7 @@ Sheet добавляет: после сброса не входить автом
 
 </details>
 
-## 13. Дальше
-
-- `brute-force-defense` — ограничение перебора самого токена восстановления.
-- `session-fixation` — что должно происходить с идентификатором сессии при
-  смене уровня доверия.
-- `password-storage` — как токен восстановления хранится в базе.
-- `user-enumeration` — форма сброса как канал перечисления.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Forgot Password Cheat Sheet; реестр `owasp-cs-forgot-password`.
    Разделы: Forgot Password Request, User Resets Password, General Security

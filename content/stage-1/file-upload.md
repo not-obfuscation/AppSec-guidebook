@@ -18,7 +18,7 @@ teaches:
   - Назвать, почему проверка содержимого не закрывает файл-полиглот
   - Собрать защиту от места хранения, а не от перечня запрещённых расширений
 prerequisites: [path-traversal, app-architecture]
-related: [source-config-exposure, information-disclosure, xss-stored, os-command-injection]
+related: [source-config-exposure, information-disclosure, xss-stored, os-command-injection, insecure-deserialization]
 tags: [files, architecture]
 cwe: [CWE-434, CWE-73]
 asvs: ['v5.0-5.2.2', 'v5.0-5.3.1', 'v5.0-5.1.1', 'v5.0-5.2.3', 'v5.0-5.2.1', 'v5.0-5.4.3']
@@ -335,17 +335,7 @@ def upload(req):
 
 </details>
 
-## 13. Дальше
-
-- `source-config-exposure` — что лежит рядом с каталогом загрузок и тоже
-  отдаётся наружу.
-- `xss-stored` — загруженный файл разметки как способ выполнить скрипт в
-  origin приложения.
-- `insecure-deserialization` — принятый файл как вход разбора, восстанавливающего
-  объекты.
-- `path-traversal` — имя файла в пути и канонизация до сверки.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «File upload vulnerabilities»; реестр
    `ps-file-upload`. Разделы: обход проверки `Content-Type`, обход проверки

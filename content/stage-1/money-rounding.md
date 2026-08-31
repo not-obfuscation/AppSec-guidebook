@@ -348,16 +348,7 @@ def order_total(lines, vat_rate=Decimal("0.20")):
 
 </details>
 
-## 13. Дальше
-
-- `negative-values-overflow` — вторая половина разговора о числе: границы,
-  знак и разрядность.
-- `business-logic-flaws` — правило предметной области, к которому сводится
-  выбор режима округления.
-- `idempotency` — почему повторно применённая копейка тоже становится
-  расхождением в сверке.
-
-## 14. Источники
+## 13. Источники
 
 1. Документация Python, «Floating-Point Arithmetic: Issues and Limitations»;
    реестр `python-floating-point`. Разделы: двоичное представление

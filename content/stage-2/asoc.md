@@ -17,7 +17,7 @@ teaches:
   - Назвать место систем оркестрации в процессе и то, чего они не делают
   - Отличить агрегацию находок от запуска проверок
 prerequisites: [finding-deduplication]
-related: [finding-deduplication, sla-and-backlog, triage-false-positives]
+related: [finding-deduplication, sla-and-backlog, triage-false-positives, developer-communication]
 fixes_in: []
 tags: [triage, vuln-management, tooling]
 cwe: []
@@ -107,13 +107,7 @@ correlation. Система такого класса сама ничего не
 разворачивалась. Всё сказанное выше — по документации, и переносить это на
 поведение установленной системы без прогона не стоит.
 
-## 12. Дальше
-
-- `finding-deduplication` — какую именно задачу такая система решает и где у
-  неё границы.
-- `sla-and-backlog` — сроки и просрочка, ради учёта которых её и ставят.
-
-## 13. Источники
+## 12. Источники
 
 1. DefectDojo, «DefectDojo Documentation», версия 3.2.201; реестр
    `defectdojo-docs`. Разделы указателя: импорт данных из более чем пятисот

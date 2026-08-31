@@ -555,15 +555,7 @@ vuln.yml:24:35: "github.event.pull_request.body" is potentially untrusted…
 
 </details>
 
-## 13. Дальше
-
-- `ci-secrets` — что именно лежит рядом с командой шага и как это доставляется.
-- `branch-protection` — что мешает коммиту от имени сборки попасть в ветку.
-- `supply-chain-threats` — модель доверия чужому коду целиком.
-- `os-command-injection` — рамка инъекции, общая для всех интерпретаторов.
-- `semgrep-custom-rules` — как пишутся правила, которых нет в линтере описаний.
-
-## 14. Источники
+## 13. Источники
 
 1. GitHub, «Security hardening for GitHub Actions»; реестр
    `gha-security-hardening`. Разделы: скрипт-инъекция через выражения события с

@@ -340,13 +340,7 @@ POST с блога в кабинет приходит с cookie и выполн�
 
 </details>
 
-## 13. Дальше
-
-- `csrf-tokens` — серверная мера, которую атрибут не заменяет.
-- `csrf-bypass` — обходы поставленной защиты, включая подстановку cookie.
-- `cookies` — атрибуты, префиксы и область действия целиком.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Bypassing SameSite cookie restrictions»;
    реестр `ps-samesite`. Разделы: What is a site in the context of SameSite

@@ -376,15 +376,7 @@ app.use((req, res, next) => {
 
 </details>
 
-## 13. Дальше
-
-- `security-headers` — соседние поля ответа, часть которых политика заменяет.
-- `app-architecture` — где в цепочке узлов политика дописывается и может быть
-  переписана.
-- `tls-and-proxy` — почему `upgrade-insecure-requests` не заменяет HSTS.
-- `csp-bypass` — обходы политики.
-
-## 14. Источники
+## 13. Источники
 
 1. Content Security Policy Level 3, W3C Working Draft, 13 августа 2026;
    реестр `w3c-csp3`. Разделы: § 2.3.1 грамматика выражений источника,

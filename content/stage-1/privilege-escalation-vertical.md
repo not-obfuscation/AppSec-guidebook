@@ -597,15 +597,7 @@ HTTP не поднимается: запрос — словарь, маршру�
 
 </details>
 
-## 13. Дальше
-
-- `idor` — вторая половина задачи: права на объект, а не на функцию.
-- `deny-by-default` — то же правило как свойство всего приложения.
-- `access-control-bypass-headers` — третий путь из механики, разобранный
-  целиком.
-- `bfla` — как эта же нехватка выглядит в интерфейсе программы.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Access control vulnerabilities and
    privilege escalation»; реестр `ps-access-control`. Разделы: Vertical access

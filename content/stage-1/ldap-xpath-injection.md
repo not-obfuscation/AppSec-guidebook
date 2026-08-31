@@ -94,13 +94,7 @@ LDAP — экранировать ввод правильной функцией
 v5.0-1.2.6. Поверх — список разрешённых символов ввода, но как второй рубеж, а не
 основная защита.
 
-## 13. Дальше
-
-- `sqli-basics` — рамка инъекции, общая для всех интерпретаторов.
-- `parameterized-queries` — разделение кода и данных и его границы.
-- `nosql-injection` — та же причина в документных базах.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP LDAP Injection Prevention Cheat Sheet; реестр `owasp-cs-ldap-injection`.
    Разделы: special characters in search filters (RFC 4515) and in DN, Defense

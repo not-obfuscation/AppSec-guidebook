@@ -257,14 +257,7 @@ def check_remember(cookie):
 
 </details>
 
-## 13. Дальше
-
-- `session-fixation` — что делает токен, начиная обычную сессию.
-- `password-storage` — почему хеш без соли вскрывается словарём.
-- `brute-force-defense` — лимит на угадывание самого токена.
-- `cookies` — атрибуты и область действия постоянной cookie.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Vulnerabilities in other authentication
    mechanisms»; реестр `ps-auth-other-mechanisms`. Раздел Keeping users logged

@@ -531,15 +531,7 @@ Docker не нужен.
 
 </details>
 
-## 13. Дальше
-
-- `xss-contexts` — места вставки по одному и правильное экранирование каждого.
-- `xss-stored` — то же значение, отданное позже и другим пользователям.
-- `xss-dom` — тот же дефект целиком в браузере, без участия сервера.
-- `xss-filter-bypass` — почему чёрный список и самодельный санитайзер обходятся.
-- `csp-bypass` — что политика содержимого добавляет поверх и где её обходят.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Cross-site scripting»; реестр `ps-xss`.
    Разделы: What is XSS, How does XSS work, What are the types of XSS attacks,

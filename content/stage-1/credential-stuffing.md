@@ -270,14 +270,7 @@ def login(user, password, ctx):
 
 </details>
 
-## 13. Дальше
-
-- `mfa-bypass` — второй фактор как сильнейший слой и его типовые обходы.
-- `user-enumeration` — сбор валидных логинов, с которого начинают подстановку.
-- `brute-force-defense` — счётчик, ключ которого решает, какую атаку он видит.
-- `password-storage` — стойкое хранение как защита от кражи дампа.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Credential Stuffing Prevention Cheat Sheet; реестр
    `owasp-cs-credential-stuffing`. Разделы: типы атак, Multi-Factor

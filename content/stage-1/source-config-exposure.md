@@ -327,16 +327,7 @@ COPY static/ /srv/www/
 
 </details>
 
-## 13. Дальше
-
-- `path-traversal` — способ дотянуться до тех же файлов, когда они лежат вне
-  докрута.
-- `file-upload` — обратная задача: как в отдаваемый каталог попадает файл
-  снаружи.
-- `information-disclosure` — утечки, которые порождает рантайм, а не выкладка.
-- `secrets-in-code` — секреты в коде и артефактах сборки как отдельный класс.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Information disclosure vulnerabilities»;
    реестр `ps-information-disclosure`. Разделы: служебные файлы, история

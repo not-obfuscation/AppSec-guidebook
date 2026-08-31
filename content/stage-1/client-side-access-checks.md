@@ -276,15 +276,7 @@ def approve(order_id):
 
 </details>
 
-## 13. Дальше
-
-- `deny-by-default` — как серверная проверка становится общим механизмом.
-- `privilege-escalation-vertical` — что происходит, когда серверной пары нет ни
-  у одной функции раздела.
-- `access-control-bypass-headers` — обход проверки, которая на сервере есть, но
-  стоит не на том узле.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Top 10:2025, «A01:2025 Broken Access Control»; реестр
    `owasp-top10-2025-a01`. Разделы: Description, How to prevent, Example attack

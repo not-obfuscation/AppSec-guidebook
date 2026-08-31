@@ -414,17 +414,7 @@ on_response(req, resp):
 
 </details>
 
-## 13. Дальше
-
-- `csp` — второй механизм, который правит границы origin, но со стороны
-  страницы.
-- `rest-and-graphql` — где у API появляются те самые эндпоинты, которым
-  настраивают CORS.
-- `app-architecture` — почему настройка может лежать на обратном прокси, а не
-  в приложении.
-- `cors-misconfig-access` — эксплуатация мисконфигураций CORS.
-
-## 14. Источники
+## 13. Источники
 
 1. Fetch Standard, WHATWG, Living Standard (правка 20 августа 2026); реестр
    `whatwg-fetch`. Разделы: § 3.3 CORS protocol, § 3.3.2 HTTP requests,

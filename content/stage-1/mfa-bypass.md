@@ -286,14 +286,7 @@ FIDO/аппаратный ключ) вместо SMS там, где риск в�
 
 </details>
 
-## 13. Дальше
-
-- `password-reset-flaws` — восстановление MFA как самое слабое место схемы.
-- `credential-stuffing` — почему MFA снимает подстановку украденных паролей.
-- `user-enumeration` — второй шаг как ещё один канал разницы ответов.
-- `session-fixation` — смена идентификатора при подтверждении фактора.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Vulnerabilities in multi-factor
    authentication»; реестр `ps-mfa`. Разделы: Bypassing two-factor

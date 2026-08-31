@@ -365,14 +365,7 @@ build/script -> [..., {'echo "байт в артефакте': '$(wc -c < out/ap
 
 </details>
 
-## 12. Дальше
-
-- `github-actions` — то же дерево стадий на первой системе.
-- `pipeline-anatomy` — модель, которую обе системы записывают по-своему.
-- `pipeline-security` — инъекция в описание конвейера и права токена задания.
-- `quality-gates` — как код возврата шага превращается в решение об остановке.
-
-## 13. Источники
+## 12. Источники
 
 1. GitLab, «CI/CD YAML syntax reference»; реестр `gitlab-ci-yaml`. Разделы:
    `stages`, `needs`, `include`, `extends`, `artifacts`, `dependencies`,

@@ -346,13 +346,7 @@ Reachable». Отдельной строкой записано, сколько 
 
 </details>
 
-## 13. Дальше
-
-- `ssrf-defense` — список разрешённого и сетевое ограничение целиком.
-- `ssrf-filter-bypass` — как обходят фильтры, поставленные ради этой цели.
-- `ssrf-basics` — механизм, к которому эта тема добавляет одну цель.
-
-## 14. Источники
+## 13. Источники
 
 1. Amazon Web Services, «Use the Instance Metadata Service to access instance
    metadata»; реестр `aws-imds`. Разделы: How IMDSv2 works, требования к

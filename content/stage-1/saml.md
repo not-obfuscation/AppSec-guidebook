@@ -103,13 +103,7 @@ sheet перечисляет меры. Сверять документ по ст
 ответ выдаётся за свой. Именно этого поля не хватало в известной уязвимости
 единого входа Google, разобранной в cheat sheet.
 
-## 13. Дальше
-
-- `oidc` — надстройка над OAuth для той же задачи входа поверх JWT.
-- `oauth-basics` — делегирование доступа, с которым SAML часто сравнивают.
-- `jwt-attacks` — тот же класс дефекта подписи в другом формате токена.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP SAML Security Cheat Sheet; реестр `owasp-cs-saml`. Разделы:
    Introduction, Validate Message Confidentiality and Integrity, Validate

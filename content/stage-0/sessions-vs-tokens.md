@@ -358,16 +358,7 @@ if login_ok(user, password):
 
 </details>
 
-## 13. Дальше
-
-- `same-origin-policy` — что мешает чужой странице прочитать ответ, пришедший
-  по вашей cookie.
-- `tls-and-proxy` — почему `Secure` без TLS не значит ничего.
-- `app-architecture` — где в цепочке узлов проверяется токен.
-- `jwt-attacks` — атаки на JWT: подмена алгоритма, подстановка ключа, путаница
-  типов.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Session Management Cheat Sheet, реестр `owasp-cs-session-management`.
    Разделы: Session ID Properties, Session Management Implementation, Session

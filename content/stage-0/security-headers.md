@@ -367,16 +367,7 @@ app.use((req, res, next) => {
 
 </details>
 
-## 13. Дальше
-
-- `csp` — директивы, вытеснившие два поля из этой группы.
-- `tls-and-proxy` — что проверяет браузер, когда HSTS запрещает пропускать
-  ошибку сертификата.
-- `cookies` — атрибут `Secure`, который решает соседнюю задачу.
-- `same-origin-policy` — граница, которую достраивает
-  `Cross-Origin-Opener-Policy`.
-
-## 14. Источники
+## 13. Источники
 
 1. RFC 6797 «HTTP Strict Transport Security (HSTS)», IETF, Standards Track,
    ноябрь 2012; реестр `rfc6797-hsts`. Разделы: § 6.1.1 директива `max-age`,

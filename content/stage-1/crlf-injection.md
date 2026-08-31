@@ -261,13 +261,7 @@ def redirect_next(request, response):
 
 </details>
 
-## 13. Дальше
-
-- `http-basics` — структура запроса и ответа, которую ломает CRLF.
-- `filter-and-waf-bypass` — почему чистка чёрным списком ненадёжна и здесь.
-- `sqli-basics` — рамка инъекции, общая для всех интерпретаторов.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP WSTG-INPV-15 «Testing for HTTP Splitting/Smuggling», WSTG v4.2; реестр
    `wstg-v42-inpv-15-splitting`. Разделы: HTTP Splitting, пример инъекции в

@@ -366,14 +366,7 @@ app.post('/transfer', (req, res) => {
 
 </details>
 
-## 13. Дальше
-
-- `csrf-bypass` — что происходит, когда проверка токена написана неверно.
-- `samesite-cookies` — браузерная мера, которая ставится рядом с токеном.
-- `csrf-mechanics` — механика и три условия эксплуатации.
-- `sessions-vs-tokens` — где живёт сессия и почему у неё есть состояние.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Cross-Site Request Forgery Prevention Cheat Sheet; реестр
    `owasp-cs-csrf-prevention`. Разделы: Token-Based Mitigation, Synchronizer

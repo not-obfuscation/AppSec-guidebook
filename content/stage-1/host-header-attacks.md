@@ -253,15 +253,7 @@ def send_reset(request, user):
 
 </details>
 
-## 13. Дальше
-
-- `cache-poisoning` — `Host` и заголовки-перекрытия как неключевой ввод, который
-  отравляет общий кэш.
-- `ssrf-basics` — маршрутный вариант: запрос сервера по адресу, пришедшему из
-  `Host`.
-- `password-reset-flaws` — где ещё ломается поток сброса, помимо домена ссылки.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «HTTP Host header attacks»; реестр
    `ps-host-header`. Разделы: `Host` как управляемый клиентом ввод, отравление

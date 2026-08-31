@@ -313,13 +313,7 @@ queue.enqueue(ping, target)
 
 </details>
 
-## 13. Дальше
-
-- `ssrf-filter-bypass` — что делать, когда список запрещённого уже стоит.
-- `ssrf-defense` — защита целиком, включая ограничение исходящих соединений.
-- `xxe` — слепой случай возникает там по той же причине.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Blind SSRF vulnerabilities»; реестр
    `ps-blind-ssrf`. Разделы: What is blind SSRF, What is the impact of blind

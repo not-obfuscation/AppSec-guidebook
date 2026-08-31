@@ -245,13 +245,7 @@ tree = etree.fromstring(user_xml, parser)
 
 </details>
 
-## 13. Дальше
-
-- `ssrf-basics` — механизм SSRF, к которому XXE даёт ещё один ход.
-- `blind-ssrf` — внеполосное обнаружение, нужное для слепого XXE.
-- `sqli-basics` — рамка инъекции, общая для всех интерпретаторов.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «XML external entity (XXE) injection»;
    реестр `ps-xxe`. Разделы: How do XXE vulnerabilities arise, Exploiting XXE to

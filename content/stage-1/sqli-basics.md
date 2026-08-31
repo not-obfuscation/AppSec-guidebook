@@ -564,16 +564,7 @@ UNION в поиске (опыт 4) останется зелёным у атак
 
 </details>
 
-## 13. Дальше
-
-- `sqli-blind` — тот же механизм, когда выдачи и ошибки не видно.
-- `parameterized-queries` — починка целиком: параметры, ORM, границы
-  применимости.
-- `filter-and-waf-bypass` — почему чёрный список и экранирование обходятся.
-- `nosql-injection` — та же причина в документных базах: данные как оператор.
-- `crlf-injection` — та же причина в структуре ответа HTTP.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «SQL injection»; реестр `ps-sqli`.
    Разделы: Retrieving hidden data, Subverting application logic, SQL injection

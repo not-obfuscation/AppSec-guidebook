@@ -288,16 +288,7 @@ const client = new Analytics({
 
 </details>
 
-## 13. Дальше
-
-- `source-config-exposure` — второй конец задачи: что развёртывание оставляет
-  доступным снаружи.
-- `secure-random` — чем порождают новый секрет взамен отозванного.
-- `weak-algorithms` — какой длины и какого вида должен быть ключ, который
-  кладут в хранилище.
-- `information-disclosure` — как секрет попадает наружу помимо репозитория.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Secrets Management Cheat Sheet; реестр `owasp-cs-secrets-management`.
    Разделы: § 1 Introduction (перечень разрядов секретов и типичные места их

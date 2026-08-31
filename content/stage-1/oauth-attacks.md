@@ -288,14 +288,7 @@ OAuth; при входе исключительно через OAuth он не �
 
 </details>
 
-## 13. Дальше
-
-- `oauth-basics` — модель потока, поверх которой читаются эти дефекты.
-- `jwt-attacks` — что если сам токен доступа оформлен как JWT и его подпись слаба.
-- `ssrf-basics` — механизм, к которому сводится поле `jku` и часть обходов адреса.
-- `oidc` — надстройка, добавляющая `nonce` и `id_token` к этим же защитам.
-
-## 14. Источники
+## 13. Источники
 
 1. RFC 9700, «Best Current Practice for OAuth 2.0 Security»; реестр
    `rfc9700-oauth-bcp`. Разделы: 4.1 Insufficient Redirection URI Validation

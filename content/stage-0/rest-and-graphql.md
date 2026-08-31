@@ -359,14 +359,7 @@ route "/api/v1/checkout/confirm",
 
 </details>
 
-## 13. Дальше
-
-- `sessions-vs-tokens` — чем API отличает одного вызывающего от другого.
-- `cors` — кто может обратиться к этим точкам входа из браузера.
-- `app-architecture` — где эти точки входа стоят в цепочке узлов.
-- `graphql-vulns` — уязвимости GraphQL.
-
-## 14. Источники
+## 13. Источники
 
 1. OpenAPI Specification v3.2.0, OpenAPI Initiative, 19 сентября 2025; реестр
    `openapi-spec`. Разделы: § 4.12.1 места параметров, § 4.27 схемы

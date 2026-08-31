@@ -374,16 +374,7 @@ cookie с `Path=/qux`. Во-вторых, ограничение работае�
 
 </details>
 
-## 13. Дальше
-
-- `sessions-vs-tokens` — что кладут в cookie и чем это отличается от токена.
-- `same-origin-policy` — почему у cookie своя модель области, не совпадающая с
-  origin.
-- `samesite-cookies` — роль атрибута `SameSite` в защите от CSRF и её границы.
-- `session-fixation` — навязанный идентификатор сессии и её корректная
-  инвалидация.
-
-## 14. Источники
+## 13. Источники
 
 1. draft-ietf-httpbis-rfc6265bis-22 «Cookies: HTTP State Management
    Mechanism», IETF, 1 декабря 2025; реестр `rfc6265bis-cookies`. Разделы:

@@ -227,7 +227,7 @@ CASES = [
          why="прописная в начале предложения законна и за `**`"),
     Case("блок источников", "G-CANON", SILENT,
          "Разбор ниже.\n\n## 14. Источники\n\n- Session — про срок жизни.",
-         why="блок 14 — список чужих названий"),
+         why="блок «Источники» — список чужих названий"),
     Case("аббревиатура без расшифровки", "G-FIRST", CATCH,
          "Заголовок CSP ограничивает источники скриптов.", level="warning"),
     Case("аббревиатура с расшифровкой", "G-FIRST", SILENT,
@@ -253,9 +253,9 @@ CASES = [
     Case("раскрыто в предпосылке", "G-FIRST", SILENT,
          "Заголовок CSP ограничивает источники скриптов.", prereq=("csp",),
          why="условие 4: тема-предпосылка уже ввела термин"),
-    Case("ссылка вперёд в блоке 13", "G-FIRST", SILENT,
-         "Разбор ниже.\n\n## 13. Дальше\n\n- `security-headers` — HSTS и соседи.",
-         why="блок 13 говорит о других страницах, а не о материале этой"),
+    Case("термин в блоке источников", "G-FIRST", SILENT,
+         "Разбор ниже.\n\n## 13. Источники\n\n1. `security-headers` — HSTS и соседи.",
+         why="блок «Источники» говорит о чужих документах, а не о материале этой"),
 ]
 
 
@@ -647,8 +647,6 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
          sub("1. Verify that", "1. Убедитесь, что", 1)),
         ("нет ответов под раскрытием", "C-BODY-SELFCHECK", CATCH,
          sub("<details", "<detailz")),
-        ("пункт «дальше» без ссылки", "C-BODY-NEXT", CATCH,
-         sub("## 13. Дальше\n\n-", "## 13. Дальше\n\n- просто текст\n-", 1)),
         ("сноска и sources расходятся", "C-BODY-SOURCES", CATCH,
          sub("`python-hashlib`", "`mdn-csp`")),
         ("каркас этапа не в sources", "C-BODY-SOURCES", SILENT, clean,
@@ -701,12 +699,14 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
          taxonomy(lambda c: None),
          "у каждого написанного подраздела ровно одна категория"),
 
-        # Сирота делается из темы, на которую нет ссылок из блока 13: `corpus`
-        # правит только frontmatter, а входящей считается и ссылка «дальше».
-        # На `cookies` такие ссылки есть у трёх тем, и фикстура зеленела не
-        # своей мутацией, а настоящей сиротой корпуса — `password-storage`,
-        # у которой входящих не было вовсе. Как только сироту закрыли, обман
-        # вскрылся: правило молчало, а утверждение считалось выполненным.
+        # Сирота делается из темы, на которую входящих ссылок не остаётся после
+        # мутации: `corpus` правит только frontmatter. С 2026-08-31 входящие —
+        # только смысловые рёбра (`prerequisites`, `related`, `fixes_in`): ребра
+        # из блока «Дальше» ушли вместе с блоком, ссылку вперёд генерирует
+        # сборка. История фикстуры: она зеленела не своей мутацией, а настоящей
+        # сиротой корпуса — `password-storage`, у которой входящих не было
+        # вовсе. Как только сироту закрыли, обман вскрылся: правило молчало,
+        # а утверждение считалось выполненным.
         ("тема без входящих ссылок", "C-REF-ORPHAN", CATCH,
          corpus(lambda d: [p.front.__setitem__(
              "prerequisites", [x for x in p.front.get("prerequisites") or []
@@ -760,23 +760,23 @@ def volume_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
     here = wcnt.counts(base)[2]
     times = 2 + max(0, wcnt.NORM["L1"][1] - here) // len(wcnt.WORD.findall(para))
     grow = "\n\n".join([para] * times)
-    short = base[: base.find("## 3.")] + "## 14. Источники\n"
+    short = base[: base.find("## 3.")] + "## 13. Источники\n"
     return [
         ("живая тема L1 внутри нормы", "C-VOL-OVER", SILENT, one(base),
          f"{here} слов текста при норме 2500–3500"),
         ("живая тема L1 внутри нормы", "C-VOL-UNDER", SILENT, one(base)),
         ("уровень темы распознан", "C-VOL-DEPTH", SILENT, one(base)),
         ("тема выше нормы уровня", "C-VOL-OVER", CATCH,
-         sub("## 14.", grow + "\n\n## 14.", 1)),
+         sub("## 13.", grow + "\n\n## 13.", 1)),
         ("тема ниже нормы уровня", "C-VOL-UNDER", CATCH, one(short)),
         ("уровень не из словаря", "C-VOL-DEPTH", CATCH, sub("depth: L1", "depth: L9")),
         # Служебный аппарат: каждая его часть обязана выпасть из подсчёта.
         # Признак один и тот же — кусок дописан, а вердикт не сдвинулся.
-        ("блок 14 и всё за ним не считаются", "C-VOL-OVER", SILENT,
-         sub("## 14.", "## 14. Источники\n\n" + grow + "\n\n## 14.", 1),
-         f"приписка на {times * 36} слов за блоком 14 не сдвигает вердикт"),
+        ("блок «Источники» и всё за ним не считаются", "C-VOL-OVER", SILENT,
+         sub("## 13.", "## 13. Источники\n\n" + grow + "\n\n## 13.", 1),
+         f"приписка на {times * 36} слов за блоком «Источники» не сдвигает вердикт"),
         ("листинг не считается", "C-VOL-OVER", SILENT,
-         sub("## 13. Дальше", "```text\n" + grow + "\n```\n\n## 13. Дальше", 1),
+         sub("## 13. Источники", "```text\n" + grow + "\n```\n\n## 13. Источники", 1),
          "листинг того же объёма не сдвигает вердикт"),
         # Блок идентификации кончается первой пустой строкой, поэтому дописка в
         # него идёт одним абзацем: с пустой строкой внутри это была бы уже проза.
@@ -799,9 +799,9 @@ def volume_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
 # ── ссылки: правила S-LINK-* и S-EXT-IN-BODY ─────────────────────────────────
 #
 # Тот же приём, что у контентной модели: базой берётся живая тема, мутируется
-# одно место. База здесь другая — `cookies`: у неё в блоке 13 есть и ссылка
-# идентификатором, и ссылка номером плана, а в блоке 14 — две сноски с
-# автоссылками, то есть все проверяемые формы сразу.
+# одно место. База здесь другая — `cookies`: у неё есть и ссылка на тему в
+# прозе («Возврат к теме `http-basics`»), и две сноски с автоссылками в блоке
+# «Источники», то есть все проверяемые формы сразу.
 
 BASE_LINK_PAGE = CONTENT_DIR / "stage-0" / "cookies.md"
 
@@ -823,7 +823,7 @@ def link_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         marks = lc.blocks_of(doc)
         return (lc.check_external_placement(target, doc, marks)
                 + lc.check_source_urls(target, doc, marks, source_urls)
-                + lc.check_topic_refs(target, doc, marks, ids)
+                + lc.check_topic_refs(target, doc, ids)
                 + lc.check_md_links(target, doc, ids))
 
     def sub(old_text: str, new_text: str, count: int = -1) -> list:
@@ -840,7 +840,7 @@ def link_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
          after_head("Подробности — <https://example.org/spec>.")),
         ("адрес в шапке", "S-EXT-IN-BODY", CATCH,
          sub("Уровень **L2**", "<https://example.org/x> Уровень **L2**", 1)),
-        ("адрес в блоке 14", "S-EXT-IN-BODY", SILENT, one(base + "\n"),
+        ("адрес в блоке «Источники»", "S-EXT-IN-BODY", SILENT, one(base + "\n"),
          "автоссылки настоящей темы стоят там, где им можно"),
         ("адрес примером в коде", "S-EXT-IN-BODY", SILENT,
          after_head("Например, `https://evil.com/a` в поле."),
@@ -852,8 +852,6 @@ def link_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
          after_head("Пример: `https://evil.com/a`."),
          "в коде адрес ссылкой и не должен становиться"),
 
-        ("пункт блока 13 в никуда", "S-LINK-TOPIC", CATCH,
-         sub("- `sessions-vs-tokens` —", "- `net-takoy-temy` —", 1)),
         ("возврат к теме в никуда", "S-LINK-TOPIC", CATCH,
          sub("Возврат к теме `http-basics`", "Возврат к теме `net-takoy-temy`", 1)),
         ("«в этой теме `Set-Cookie`»", "S-LINK-TOPIC", SILENT,
@@ -1075,10 +1073,10 @@ def skeleton_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         # Ключ пропал — проверка не упала, а выключилась: `C-BODY-SOURCES`
         # промолчит на теме без единой сноски. Это и ловится.
         ("у скелета нет блока с ключом проверки", "C-TAX-SKELETON", CATCH,
-         skeletons(lambda c: c.skeletons["инструмент"][13].__setitem__(
+         skeletons(lambda c: c.skeletons["инструмент"][12].__setitem__(
              "key", "footnotes"))),
         ("ключ блока повторяется", "C-TAX-SKELETON", CATCH,
-         skeletons(lambda c: c.skeletons["инструмент"][12].__setitem__(
+         skeletons(lambda c: c.skeletons["инструмент"][11].__setitem__(
              "key", "sources"))),
         ("умолчание указывает на несуществующий скелет", "C-TAX-SKELETON", CATCH,
          skeletons(lambda c: setattr(c, "default_skeleton", "никакой"))),

@@ -530,17 +530,7 @@ base64url: её читает любой предъявитель без ключ
 
 </details>
 
-## 13. Дальше
-
-- `jwt-attacks` — что происходит, когда проверка подписи ослаблена или
-  управляется заголовком токена.
-- `token-lifetime-revocation` — сроки, refresh-токены и отзыв самодостаточного
-  токена.
-- `oauth-basics` — где JWT встречается как токен доступа в делегировании.
-- `hmac-vs-signature` — разница подписи, HMAC и шифрования на уровне
-  примитивов.
-
-## 14. Источники
+## 13. Источники
 
 1. RFC 7519, «JSON Web Token (JWT)»; реестр `rfc7519-jwt`. Разделы: 3 JWT
    Overview, 4.1 Registered Claim Names, 5 JOSE Header, 6 Unsecured JWTs, 7.2

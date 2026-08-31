@@ -680,16 +680,7 @@ derivation» документации `hashlib`.
 
 </details>
 
-## 13. Дальше
-
-- `credential-stuffing` — password spraying и credential stuffing: атака на
-  живой вход, а не на утёкший дамп.
-- `brute-force-defense` — брутфорс и защита от него: цена догадки со стороны
-  сети.
-- `weak-algorithms` — слабые криптоалгоритмы за пределами паролей.
-- `sessions-vs-tokens` — что происходит после успешного входа.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Password Storage Cheat Sheet; реестр `owasp-cs-password-storage`.
    Разделы: Introduction, Salting, Peppering, Using Work Factors, Argon2id,

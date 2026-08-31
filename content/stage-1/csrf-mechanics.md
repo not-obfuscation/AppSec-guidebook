@@ -622,14 +622,7 @@ GET. Починка, поставившая проверку только на P
 
 </details>
 
-## 13. Дальше
-
-- `csrf-bypass` — почему поставленная защита не срабатывает.
-- `samesite-cookies` — что именно ограничивает атрибут и где он бессилен.
-- `csrf-tokens` — устройство токена, привязка к сессии и вариант без хранения.
-- `clickjacking` — соседний дефект, где нужно нажатие пользователя.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Cross-site request forgery (CSRF)»;
    реестр `ps-csrf`. Разделы: What is CSRF, What is the impact of a CSRF

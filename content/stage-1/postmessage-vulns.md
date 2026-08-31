@@ -311,13 +311,7 @@ origin, который прошёл бы найденную проверку. Е
 
 </details>
 
-## 13. Дальше
-
-- `same-origin-policy` — механизм сообщений, лаба и правило SAST на обработчик.
-- `xss-dom` — стоки, в которые попадают данные сообщения.
-- `prototype-pollution` — сообщение как третий источник загрязнения прототипа.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Controlling the web message source»;
    реестр `ps-postmessage`. Разделы: What is the impact of DOM-based web

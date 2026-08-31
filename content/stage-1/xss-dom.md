@@ -529,15 +529,7 @@ pattern-sinks:
 
 </details>
 
-## 13. Дальше
-
-- `xss-contexts` — места вставки по одному и экранирование каждого.
-- `prototype-pollution` — та же рамка, где сток находится в чужой библиотеке.
-- `postmessage-vulns` — сообщение между окнами как ещё один источник.
-- `dom-clobbering` — подмена значения разметкой, без единой строки скрипта.
-- `xss-reflected` — серверная половина того же дефекта.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «DOM-based vulnerabilities»; реестр
    `ps-dom-based`. Разделы: What is the DOM, Taint-flow vulnerabilities,

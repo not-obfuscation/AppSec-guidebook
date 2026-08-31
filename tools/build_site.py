@@ -13,6 +13,14 @@
     (`title`, `description`, `status`, `tags`); остальные на страницу не
     выносятся вовсе — со шапки они убраны решением оператора 2026-08-24
     (свод 4.1);
+  * всё от заголовка «## N. Источники» до конца файла отрезается: сноски,
+    «Каркас этапа», «Скоропортящийся слой» и «Маркеры уверенности» пишутся
+    для аудита и читателю не показываются (решение оператора 2026-08-31);
+  * в конец страницы добавляется блок «Дальше» — одна ссылка на следующую
+    тему маршрута (этапы — в порядке `taxonomy.yaml`, темы внутри этапа —
+    по полю `order`; у последней темы маршрута блока нет). В исходниках
+    блока нет: руками ведённый список был второй записью того же маршрута
+    (решение оператора 2026-08-31);
   * `` `topic-id` `` в обратных кавычках становится ссылкой на страницу темы.
     В исходниках markdown-ссылок между темами нет и не будет: 9.1 п. 6 требует
     ссылаться идентификатором, а не путём, чтобы переименование каталога не
@@ -191,6 +199,12 @@ BLOCK_HEAD_RE = re.compile(r"^##[ \t]+(\d+)\.[ \t]", re.M)
 BLOCK_REF_RE = re.compile(r"блок\w*[ \t]+(\d+(?:[ \t]*(?:,|и|—)[ \t]*\d+)*)")
 REF_NUM_RE = re.compile(r"\d+")
 
+# Хвост темы для аудита: «Источники» и всё за ними («Каркас этапа»,
+# «Скоропортящийся слой», «Маркеры уверенности») на страницу не выносятся —
+# решение оператора 2026-08-31. Признак — заголовок, а не номер: у двух
+# скелетов он разный, а после перенумерации на странице — третий.
+SOURCES_HEAD_RE = re.compile(r"^##[ \t]+\d+\.[ \t]+Источники[ \t]*$", re.M)
+
 
 def renumber_blocks(page: vc.Page) -> list[tuple[int, int, str]]:
     """Правки, от которых номера блоков идут подряд: заголовки и ссылки на них."""
@@ -215,7 +229,8 @@ def renumber_blocks(page: vc.Page) -> list[tuple[int, int, str]]:
 
 
 def transform(page: vc.Page, page_rel: str, index: dict[str, str],
-              abbr: dict[str, str], report: dict) -> str:
+              abbr: dict[str, str], report: dict,
+              nxt: vc.Page | None = None) -> str:
     """Тема как страница сайта. Исходник не меняется — меняется копия."""
     raw = page.doc.raw
     edits: list[tuple[int, int, str]] = [(0, page.doc.front_end, front_block(page))]
@@ -248,8 +263,21 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
 
     body = apply_edits(raw, edits)
 
+    # Хвост с «Источников» и до конца — аппарат аудита, а не текст страницы.
+    cut = SOURCES_HEAD_RE.search(body)
+    if cut:
+        body = body[:cut.start()]
+
+    # «Дальше» — ссылка на следующую тему маршрута; генерируется здесь, а не
+    # пишется автором (решение оператора 2026-08-31). У последней темы нет.
+    if nxt is not None:
+        body = (body.rstrip("\n")
+                + "\n\n## Дальше\n\n"
+                + f"[{one_line(nxt.front.get('title') or nxt.id)}]"
+                  f"({link_to(page_rel, index[nxt.id])})\n")
+
     tail = [body.rstrip("\n"), ""]
-    here = used_abbr(page.doc.prose, abbr)
+    here = used_abbr(body, abbr)
     if here:
         report["abbr"] += len(here)
         tail.append("")
@@ -307,15 +335,15 @@ description: Учебник по прикладной безопасности �
 
 Учебник, который пишется, чтобы уметь: читать чужой код и видеть в нём дефект,
 объяснять механизм словами и проверять утверждения по первоисточнику. Каждая
-тема самодостаточна — механизм объяснён здесь, а не по ссылке на чужую статью;
-внешние адреса законны только в блоке «Источники».
+тема самодостаточна — механизм объяснён здесь, а не по ссылке на чужую статью.
 
 ## Как читать
 
 Тема идёт по одному и тому же скелету: «Коротко» → механизм → код → как чинится
-→ как проверить → чеклист ревью → «Проверь себя» → «Дальше» → «Источники».
-Порядок блоков не меняется; на коротких уровнях часть из них не пишется. Читать
-сплошь не нужно: «Коротко» и «Чеклист ревью» работают отдельно.
+→ как проверить → чеклист ревью → «Проверь себя», а в конце страницы — ссылка
+«Дальше» на следующую тему маршрута. Порядок блоков не меняется; на коротких
+уровнях часть из них не пишется. Читать сплошь не нужно: «Коротко» и «Чеклист
+ревью» работают отдельно.
 
 Уровень темы стоит в её шапке и говорит, до чего доводит чтение.
 
@@ -649,6 +677,13 @@ def stage_tree(today: date) -> dict:
 
     index = {p.id: f"{ctx.stages[str(p.front.get('stage'))]['dir']}/{p.id}.md"
              for p in pages}
+    # Маршрут читателя: этапы — в порядке словаря `taxonomy.yaml`, темы внутри
+    # этапа — по полю `order`. Ссылка «Дальше» на странице ведёт на следующую
+    # тему маршрута; у последней темы маршрута её нет (решение 2026-08-31).
+    stage_order = {s["slug"]: i for i, s in enumerate(ctx.tax["stages"])}
+    route = sorted(pages, key=lambda p: (stage_order[str(p.front.get("stage"))],
+                                         int(p.front.get("order") or 0)))
+    next_of = {p.id: q for p, q in zip(route, route[1:])}
     abbr = abbreviations(glossary)
     report = {"pages": 0, "links": 0, "abbr": 0, "diagrams": 0,
               "diagrams_failed": [], "generated": 0, "diagram_files": set(),
@@ -662,7 +697,8 @@ def stage_tree(today: date) -> dict:
         rel = index[p.id]
         target = SRC / rel
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(transform(p, rel, index, abbr, report), encoding="utf-8")
+        target.write_text(transform(p, rel, index, abbr, report,
+                                    next_of.get(p.id)), encoding="utf-8")
         report["pages"] += 1
 
     generated = {

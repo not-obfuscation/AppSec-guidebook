@@ -290,15 +290,7 @@ def edit_step3():
 
 </details>
 
-## 13. Дальше
-
-- `idor` — вопрос о правах на объект, к которому сводится долгий процесс с
-  собственным идентификатором.
-- `deny-by-default` — правило, при котором шаг без явного разрешения закрыт.
-- `business-logic-flaws` — дефекты логики и состояния, где тот же процесс
-  разбирается со стороны предметной области.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP WSTG-BUSL-06 «Testing for the Circumvention of Work Flows», WSTG v4.2;
    реестр `wstg-v42-busl-06-workflow-circumvention`. Разделы: Summary,

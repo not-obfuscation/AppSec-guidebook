@@ -344,17 +344,7 @@ def load_state(request):
 
 </details>
 
-## 13. Дальше
-
-- `file-upload` — принятый файл как ещё один вход разборщика.
-- `xxe` — разбор XML, который объектов не воссоздаёт, но ходит за внешними
-  сущностями.
-- `prototype-pollution` — та же идея управления объектом из данных на стороне
-  JavaScript.
-- Тема 7.1.01 — `pickle`, `eval` и небезопасный YAML на Python подробно.
-- Тема 7.4.02 — цепочки гаджетов в Java.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Insecure deserialization»; реестр
    `ps-deserialization`. Разделы: как выглядят сериализованные данные разных

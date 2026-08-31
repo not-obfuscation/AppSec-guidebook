@@ -295,16 +295,7 @@ localStorage.setItem('profile', encrypted); // (4)
 
 </details>
 
-## 13. Дальше
-
-- `weak-algorithms` — какие версии TLS и какие наборы шифров считаются
-  негодными и чем их заменяют.
-- `secrets-in-code` — куда деть ключ, которым зашифровано хранимое поле.
-- `information-disclosure` — что приложение отдаёт наружу помимо самих данных.
-- `secure-random` — откуда берутся значения, которые обязаны быть
-  непредсказуемыми.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Transport Layer Security Cheat Sheet; реестр `owasp-cs-tls`. Разделы:
    Only Support Strong Protocols, Use TLS For All Pages, Do Not Mix TLS and

@@ -17,7 +17,7 @@ teaches:
   - Найти в конфигурации проекта признак уязвимости к подмене источника и опечатке
   - Проверить, что установка берёт пакет из доверенного источника, а не наибольшую версию отовсюду
 prerequisites: [app-architecture]
-related: [transitive-dependencies, cve-cvss, artifact-signing]
+related: [transitive-dependencies, cve-cvss, artifact-signing, codescoring]
 tags: [supply-chain, sca, vuln-management]
 cwe: [CWE-1357, CWE-829]
 asvs: []
@@ -444,18 +444,7 @@ lock-файл — тема `transitive-dependencies`. Здесь важно др
 
 </details>
 
-## 13. Дальше
-
-- `transitive-dependencies` — как пиннинг и lock-файл закрывают не только прямые
-  имена, но и весь граф зависимостей.
-- `artifact-signing` — что доказывает подпись и provenance против захвата
-  мейнтейнера.
-- `trivy` — чем сканер состава ловит известные уязвимости зависимостей и чего
-  он про закладки не знает.
-- `codescoring` — российский инструмент композиционного анализа и его место в
-  этом процессе.
-
-## 14. Источники
+## 13. Источники
 
 1. SLSA, «Supply chain threats»; реестр `slsa-threats`. Разделы: каталог угроз
    по звеньям цепочки, отдельный разбор компрометации источника и мейнтейнера,

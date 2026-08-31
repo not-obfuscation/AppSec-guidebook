@@ -309,17 +309,7 @@ cookie без флагов                     да            нет
 
 </details>
 
-## 12. Дальше
-
-- `nuclei` — ещё один инструмент снаружи и то, что его слепая зона шире, а не
-  уже.
-- `authenticated-scanning`, `api-scanning-openapi` — как закрывается вторая
-  беда, пропуск по охвату.
-- `sast-false-positives` — та же работа с шумом на отчёте статического анализа.
-- `idor`, `privilege-escalation-vertical`, `business-logic-flaws` — как чинятся
-  `CWE-639`, `CWE-862` и `CWE-841`, которых прогон не находит.
-
-## 13. Источники
+## 12. Источники
 
 1. OWASP, «Web Security Testing Guide v4.2, Introduction: The Web Security
    Testing Framework»; реестр `wstg-v42-introduction`. Разделы: границы

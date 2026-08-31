@@ -324,13 +324,7 @@ app.get('/widget', (req, res) => {
 
 </details>
 
-## 13. Дальше
-
-- `csp-bypass` — та же политика с другой стороны: почему она не срабатывает.
-- `security-headers` — место `frame-ancestors` среди прочих полей ответа.
-- `same-origin-policy` — что политика запрещает и чего не запрещает.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Clickjacking (UI redressing)»; реестр
    `ps-clickjacking`. Разделы: What is clickjacking, How to construct a basic

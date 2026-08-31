@@ -255,13 +255,7 @@ def is_released(category):
 
 </details>
 
-## 13. Дальше
-
-- `sqli-oob` — случай, когда обратного канала в ответе нет вовсе.
-- `parameterized-queries` — починка целиком и её границы.
-- `sqli-basics` — механизм, приёмы среза и UNION.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Blind SQL injection»; реестр `ps-sqli`.
    Разделы: Exploiting blind SQL injection by triggering conditional responses,

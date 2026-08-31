@@ -348,15 +348,7 @@ client = http_client(
 
 </details>
 
-## 13. Дальше
-
-- `app-architecture` — кто ещё в цепочке терминирует TLS и почему приложение
-  об этом не знает.
-- `security-headers` — поле, которое запрещает браузеру принимать отказ от
-  защищённого канала.
-- `weak-algorithms` — слабые и устаревшие алгоритмы.
-
-## 14. Источники
+## 13. Источники
 
 1. RFC 9846 «The Transport Layer Security (TLS) Protocol Version 1.3», IETF,
    Standards Track, июль 2026; реестр `rfc9846-tls13`. Разделы: § 2 обзор

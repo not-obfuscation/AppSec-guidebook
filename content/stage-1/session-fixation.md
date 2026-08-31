@@ -273,14 +273,7 @@ Cheat Sheet требует ротации идентификатора при к
 
 </details>
 
-## 13. Дальше
-
-- `password-reset-flaws` — гашение сессий при смене пароля.
-- `mfa-bypass` — смена идентификатора при подтверждении второго фактора.
-- `persistent-login-tokens` — «запомнить меня» и срок жизни токена сеанса.
-- `cookies` — атрибуты и область действия cookie сессии.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Session Management Cheat Sheet; реестр `owasp-cs-session-management`.
    Разделы: Renew the Session ID After Any Privilege Level Change, Session

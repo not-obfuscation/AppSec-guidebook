@@ -266,16 +266,7 @@ Cheat sheet называет свои меры: запрет клиентски�
 
 </details>
 
-## 13. Дальше
-
-- `sqli-basics` — механизм инъекции в рамке источник — путь — сток.
-- `parameterized-queries` — разделение кода и данных и его границы.
-- `filter-and-waf-bypass` — почему список запрещённого не защита и здесь.
-- `ldap-xpath-injection` — та же причина в фильтре LDAP и запросе XPath.
-- `password-storage` — как устроено настоящее сравнение пароля, которое
-  инъекция здесь обходит целиком.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «NoSQL injection»; реестр `ps-nosqli`.
    Разделы: Types of NoSQL injection, NoSQL operator injection, Submitting

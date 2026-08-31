@@ -4,7 +4,8 @@
 Пункт DoD 17 «Битых ссылок нет» распадается на четыре разных вопроса, и
 инструмент отвечает на каждый отдельным правилом:
 
-* `S-EXT-IN-BODY`    (error)   внешний адрес вне блока 14 — `SCOPE.md` § 6;
+* `S-EXT-IN-BODY`    (error)   внешний адрес вне блока «Источники» —
+                               `SCOPE.md` § 6;
 * `S-LINK-BARE`      (error)   внешний адрес в прозе без `<…>`: python-markdown
                                сам ссылок не делает, и читатель получит текст;
 * `S-LINK-TOPIC`     (error)   ссылка на тему, которой нет, — 9.4;
@@ -54,11 +55,10 @@ from paths import ROOT, SOURCES_YAML
 
 ERROR, WARNING = "error", "warning"
 
-# Два блока опознаются по заголовку, а не по номеру: скелетов в своде 4.2 два,
-# и в скелете инструмента «Источники» — тринадцатый блок, а не четырнадцатый.
+# Блок опознаётся по заголовку, а не по номеру: скелетов в своде 4.2 два,
+# и в скелете инструмента «Источники» — двенадцатый блок, а не тринадцатый.
 # Заголовок у обоих скелетов общий, поэтому он и есть признак.
 SOURCES_BLOCK = "Источники"   # единственное место для внешних адресов
-NEXT_BLOCK = "Дальше"
 
 H2_RE = re.compile(r"^##\s*(\d+)\.\s*(.+?)\s*$", re.M)
 HEAD_RE = re.compile(r"^(#{1,6})[ \t]+(.+?)[ \t]*$", re.M)
@@ -66,8 +66,6 @@ ATTR_ID_RE = re.compile(r"\{\s*#([^}\s]+)\s*\}\s*$")
 TICK_RE = re.compile(r"`([^`]+)`")
 MD_LINK_RE = re.compile(r"!?\[(?P<text>[^\]]*)\]\((?P<target>[^)\s]*)"
                         r"(?:[ \t]+(?P<title>\"[^\"]*\"|'[^']*'))?\)")
-# Пункт блока 13, начинающийся с идентификатора темы: «- `cookies` — …».
-NEXT_ITEM_RE = re.compile(r"^[ \t]*[-*+][ \t]+`([^`]+)`", re.M)
 # Ссылка на тему в прозе: слово «тема» в любом падеже и сразу идентификатор.
 # Так написаны и «Возврат к теме `cookies`», и «см. тему `http-basics`».
 # Группа 1 — слово перед «темой», по нему отсекается указание на саму страницу.
@@ -81,7 +79,7 @@ SELF_REF = {"эта", "эту", "этой", "этом", "эти", "данной"
 # двенадцать. Отрицательная проверка, а не догадка: `Set-Cookie`, `HttpOnly` и
 # `SameSite` этой форме не отвечают и ссылкой на тему быть не могут.
 ID_SHAPE_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
-# Нумерованная сноска блока 14 начинается с «N. » в начале строки.
+# Нумерованная сноска блока «Источники» начинается с «N. » в начале строки.
 FOOTNOTE_RE = re.compile(r"^(\d+)\.[ \t]", re.M)
 
 # Версия в строке — не украшение: антибот-щиты отбивают устаревшие браузеры.
@@ -266,26 +264,20 @@ def check_source_urls(path, doc, marks, source_urls) -> list[Finding]:
 
 # --- внутренние ссылки ------------------------------------------------------
 
-def check_topic_refs(path, doc, marks, ids) -> list[Finding]:
-    """Ссылка на тему в прозе и в блоке 13 разрешается в написанную тему.
+def check_topic_refs(path, doc, ids) -> list[Finding]:
+    """Ссылка на тему в прозе разрешается в написанную тему.
 
     Шапка темы («пререквизиты: `a`, `b`») здесь не проверяется: её сверяют
     `C-HEAD-PREREQ` (совпадение с frontmatter) и `C-REF-TOPIC` (разрешение
     самого frontmatter). Два правила на одно и то же место дали бы два
-    сообщения об одном дефекте.
+    сообщения об одном дефекте. Блок «Дальше» не проверяется с 2026-08-31:
+    его больше нет в исходниках, ссылку вперёд генерирует сборка.
     """
     # Идентификатор темы стоит в обратных кавычках (6.4 требует ставить в код
     # всё машинное), поэтому здесь нужна маска, инлайновый код сохраняющая:
     # `linkable` затёрла бы ровно то, что проверяется.
     text = doc.prose_spans
     spots: list[tuple[int, str, str]] = []
-
-    start = next((s for s, title in marks if title == NEXT_BLOCK), None)
-    if start is not None:
-        end = next((s for s, _t in marks if s > start), len(doc.raw))
-        for m in NEXT_ITEM_RE.finditer(text[start:end]):
-            spots.append((start + m.start(1), m.group(1),
-                          f"пункт блока «{NEXT_BLOCK}»"))
 
     for m in THEME_REF_RE.finditer(text):
         before = (m.group(1) or "").lower()
@@ -476,7 +468,7 @@ def main() -> int:
         marks = blocks_of(doc)
         findings += check_external_placement(path, doc, marks)
         findings += check_source_urls(path, doc, marks, source_urls)
-        findings += check_topic_refs(path, doc, marks, ids)
+        findings += check_topic_refs(path, doc, ids)
         findings += check_md_links(path, doc, ids)
         for off, url, _auto in external_links(doc):
             line, col = doc.pos(off)

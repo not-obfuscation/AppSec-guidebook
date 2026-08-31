@@ -333,13 +333,7 @@ app.use((req, res, next) => {
 
 </details>
 
-## 13. Дальше
-
-- `xss-contexts` — починка дефекта, поверх которой политика и ставится.
-- `clickjacking` — другая директива той же политики и другой класс дефекта.
-- `xss-dom` — Trusted Types: ещё одна возможность политики, закрывающая стоки.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Content security policy»; реестр
    `ps-csp`. Разделы: What is CSP, Mitigating XSS attacks using CSP,

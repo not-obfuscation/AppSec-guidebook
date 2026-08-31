@@ -137,6 +137,9 @@ def article(page_html: str) -> str:
     if ARTICLE not in page_html:
         raise SystemExit("в странице сайта нет <article>: сайт собран другой версией")
     body = page_html.split(ARTICLE, 1)[1].split("</article>", 1)[0]
+    # Блок «Дальше» сборка сайта генерирует сама (решение оператора 2026-08-31),
+    # а в линейной книге следующая тема — просто следующий раздел файла.
+    body = re.sub(r'<h2 id="дальше">.*\Z', "", body, flags=re.S)
     body = re.sub(r'<nav class="md-tags".*?</nav>', "", body, flags=re.S)
     body = re.sub(r'<a class="headerlink".*?</a>', "", body, flags=re.S)
     return body.strip()

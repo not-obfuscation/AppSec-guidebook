@@ -544,14 +544,7 @@ ORM. Сырой фрагмент — `raw`, `extra`, `text`, нативный з
 
 </details>
 
-## 13. Дальше
-
-- `sqli-basics` — механизм, который параметр закрывает.
-- `filter-and-waf-bypass` — почему фильтр и экранирование не заменяют параметр.
-- `nosql-injection` — та же граница в документных базах.
-- `sqli-blind` — тот же дефект без видимой выдачи.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «SQL injection»; реестр `ps-sqli`.
    Разделы: How to prevent SQL injection, Parameterized queries.

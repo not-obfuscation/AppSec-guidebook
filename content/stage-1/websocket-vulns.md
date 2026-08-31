@@ -311,13 +311,7 @@ v5.0-4.4.1. Адрес канала задаётся постоянной стр
 
 </details>
 
-## 13. Дальше
-
-- `same-origin-policy` — что политика ограничивает и чего не ограничивает.
-- `xss-contexts` — выбор стока для сообщений, попадающих в разметку.
-- `postmessage-vulns` — тот же вопрос о происхождении в другом механизме.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Testing for WebSockets security
    vulnerabilities»; реестр `ps-websockets`. Разделы: WebSockets, WebSockets

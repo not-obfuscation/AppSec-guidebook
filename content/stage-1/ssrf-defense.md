@@ -343,13 +343,7 @@ ASVS v5.0-13.2.5). Этот слой закрывает то, что пропу�
 
 </details>
 
-## 13. Дальше
-
-- `ssrf-basics` — механизм, против которого собрана эта защита.
-- `ssrf-filter-bypass` — почему проверка в коде отказывает.
-- `cloud-metadata-ssrf` — цель, которую закрывает и платформа тоже.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Server-Side Request Forgery Prevention Cheat Sheet; реестр
    `owasp-cs-ssrf`. Разделы: Cases, Case 1 — Application layer (String, IP

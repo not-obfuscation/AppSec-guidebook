@@ -311,13 +311,7 @@ if origin.endswith("example.com"):                       # (1)
 
 </details>
 
-## 13. Дальше
-
-- `cors` — механизм целиком: заголовки, предварительный круг, канон настройки.
-- `idor` — что делать с идентификаторами, которые видны в прочитанном ответе.
-- `client-side-access-checks` — вторая сторона границы доверия браузера.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Cross-origin resource sharing (CORS)»;
    реестр `ps-cors`. Разделы: Server-generated ACAO header from client-specified

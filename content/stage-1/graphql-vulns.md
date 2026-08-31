@@ -269,16 +269,7 @@ def graphql_endpoint(request):
 
 </details>
 
-## 13. Дальше
-
-- `bola` — тот же дефект авторизации объекта; в GraphQL он живёт в резолвере, а
-  не в маршруте.
-- `information-disclosure` — интроспекция и подсказки об именах полей как
-  раскрытие внутреннего устройства API.
-- `csrf-mechanics` — GraphQL уязвим к подделке запроса, если принимает операции
-  не только JSON-кодированным `POST`.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «GraphQL API vulnerabilities»; реестр
    `ps-graphql`. Разделы: интроспекция и её обходы (спецсимвол после `__schema`,

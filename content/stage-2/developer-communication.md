@@ -468,15 +468,7 @@ GET  /order?id=201  ->  Заказ 201: самовар, 15400 ₽ (владел�
 
 </details>
 
-## 12. Дальше
-
-- `sla-and-backlog` — откуда берётся срок, который стоит в заявке.
-- `severity-assessment` — как получается балл, стоящий рядом с влиянием.
-- `triage-false-positives` — что делать со строкой, признанной не дефектом.
-- `xss-reflected`, `bola`, `error-message-leaks` — как чинятся `CWE-79`,
-  `CWE-639` и `CWE-209`, то есть три находки, разобранные в этой теме.
-
-## 13. Источники
+## 12. Источники
 
 1. Adkins, Beyer, Blankinship, Lewandowski, Oprea, Stubblefield, «Building
    Secure and Reliable Systems», Google и O'Reilly, издание 2020; реестр

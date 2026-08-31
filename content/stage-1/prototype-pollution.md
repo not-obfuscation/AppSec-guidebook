@@ -300,14 +300,7 @@ function safeKeys(obj) {                        // (3)
 
 </details>
 
-## 13. Дальше
-
-- `xss-dom` — стоки, которыми заканчивается цепочка.
-- `postmessage-vulns` — сообщение между окнами как третий источник.
-- `dom-clobbering` — другой способ подменить значение, которое код считает
-  своим.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Prototype pollution»; реестр
    `ps-prototype-pollution`. Разделы: What is prototype pollution, How do

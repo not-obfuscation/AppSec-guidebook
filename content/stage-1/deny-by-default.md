@@ -293,16 +293,7 @@ def guard():
 
 </details>
 
-## 13. Дальше
-
-- `bfla` — как то же правило выглядит в интерфейсе программы.
-- `idor` — вторая половина задачи: права на объект, а не на функцию.
-- `access-control-bypass-headers` — почему правило по строке пути расходится с
-  маршрутом.
-- `fail-open-vs-fail-closed` — отказ по умолчанию при аварии: что происходит
-  с проверкой, когда служба прав недоступна.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Authorization Cheat Sheet; реестр `owasp-cs-authorization`. Разделы:
    Deny by Default, Enforce Least Privileges, Validate the Permissions on Every

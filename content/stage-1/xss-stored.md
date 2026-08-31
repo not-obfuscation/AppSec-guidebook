@@ -286,13 +286,7 @@ def thread():
 
 </details>
 
-## 13. Дальше
-
-- `xss-contexts` — места вставки по одному и правильное экранирование каждого.
-- `xss-filter-bypass` — почему самодельная очистка разметки обходится.
-- `xss-dom` — тот же дефект без участия сервера.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Cross-site scripting»; реестр `ps-xss`.
    Разделы: Stored cross-site scripting, What can XSS be used for, Impact of

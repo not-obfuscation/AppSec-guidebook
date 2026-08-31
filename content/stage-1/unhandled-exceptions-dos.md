@@ -321,16 +321,7 @@ Exception` в теле цикла рабочего потока законен �
 
 </details>
 
-## 13. Дальше
-
-- `partial-state-recovery` — что делать с операцией, прерванной этим
-  исключением на середине.
-- `fail-open-vs-fail-closed` — тот же обработчик, но с решением о доступе.
-- `error-message-leaks` — что уходит наружу вместе с сообщением о сбое.
-- `race-conditions` — вторая причина, по которой удерживаемый ресурс становится
-  предметом атаки.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Cheat Sheet Series, «Denial of Service Cheat Sheet»; реестр
    `owasp-cs-dos`. Разделы: Application attacks (нагрузка на приложение без

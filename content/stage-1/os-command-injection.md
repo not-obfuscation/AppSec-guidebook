@@ -500,14 +500,7 @@ pattern-sinks:
 
 </details>
 
-## 13. Дальше
-
-- `ssti` — другой путь к выполнению кода, через шаблонизатор.
-- `parameterized-queries` — то же разделение кода и данных в базе.
-- `filter-and-waf-bypass` — почему чёрный список метасимволов не защита.
-- `sqli-basics` — рамка инъекции, общая для всех интерпретаторов.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «OS command injection»; реестр `ps-oscmd`.
    Разделы: Useful commands, Ways of injecting OS commands (command separators),

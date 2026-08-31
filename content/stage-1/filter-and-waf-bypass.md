@@ -252,13 +252,7 @@ def search(category):
 
 </details>
 
-## 13. Дальше
-
-- `parameterized-queries` — починка, которая делает фильтр ненужным.
-- `sqli-basics` — механизм и приёмы, которые фильтр пытается ловить.
-- `sqli-blind` — тот же дефект без видимой выдачи.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger, «SQL injection: bypassing common filters» и Web Security
    Academy, «SQL injection»; реестр `ps-sqli`. Разделы: case variation,

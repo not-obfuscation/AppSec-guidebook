@@ -16,7 +16,7 @@ teaches:
   - Отличить id_token OpenID Connect от токена доступа OAuth
   - Назвать роль nonce в защите от повторного проигрывания
 prerequisites: [oauth-basics]
-related: [oauth-basics, oauth-attacks, jwt-basics]
+related: [oauth-basics, oauth-attacks, jwt-basics, saml]
 tags: [oauth, auth, jwt]
 cwe: [CWE-287, CWE-345]
 asvs: ['v5.0-9.2.1']
@@ -95,14 +95,7 @@ Party), проверяет подпись и эти поля — и только
 запрашивается вовсе, а решение принято по одному токену доступа. Там пропущена
 ровно та проверка, ради которой надстройка и существует.
 
-## 13. Дальше
-
-- `oauth-basics` — поток, поверх которого стоит эта надстройка.
-- `oauth-attacks` — дефекты того же потока, включая роль `state` рядом с `nonce`.
-- `jwt-basics` — формат, в котором оформлен `id_token`, и проверка его подписи.
-- `saml` — старший способ единого входа на подписанном XML вместо `id_token`.
-
-## 14. Источники
+## 13. Источники
 
 1. OpenID Connect Core 1.0 (errata set 2); реестр `oidc-core`. Разделы:
    Introduction (расширение OAuth 2.0, область openid, ID Token), 2 ID Token

@@ -376,13 +376,7 @@ Cheat sheet допускает её как второй рубеж и для з�
 
 </details>
 
-## 13. Дальше
-
-- `csrf-tokens` — устройство токена и рекомендуемый вариант double-submit.
-- `samesite-cookies` — что ограничивает атрибут и где он бессилен.
-- `csrf-mechanics` — механика и три условия эксплуатации.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Cross-site request forgery (CSRF)» и
    её подстраницы «Bypassing CSRF token validation» и «Bypassing

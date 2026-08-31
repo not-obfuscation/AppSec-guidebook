@@ -528,14 +528,7 @@ Docker не нужен.
 
 </details>
 
-## 13. Дальше
-
-- `xss-filter-bypass` — что делают, когда экранирование ломает задачу.
-- `xss-dom` — те же контексты, когда подстановку делает браузер.
-- `csp-bypass` — что политика содержимого добавляет поверх экранирования.
-- `xss-reflected` — механизм, к которому эта тема даёт починку.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Cross-site scripting contexts»; реестр
    `ps-xss-contexts`. Разделы: XSS between HTML tags, XSS in HTML tag

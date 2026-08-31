@@ -255,14 +255,7 @@ Refresh сюда добавляет лишь то, что при следующ�
 
 </details>
 
-## 13. Дальше
-
-- `jwt-attacks` — что если подпись, на которой держится проверка, обходится.
-- `oauth-basics` — откуда берутся access- и refresh-токены в делегировании.
-- `persistent-login-tokens` — постоянный токен «запомнить меня» и его отзыв.
-- `session-fixation` — инвалидация сессии на другой её половине.
-
-## 14. Источники
+## 13. Источники
 
 1. RFC 9700, «Best Current Practice for OAuth 2.0 Security»; реестр
    `rfc9700-oauth-bcp`. Разделы: 2.2.2 Refresh Tokens, 4.14 Refresh Token

@@ -304,14 +304,7 @@ if authz.can(user, "admin_console"):  # права — вычислены на �
 
 </details>
 
-## 13. Дальше
-
-- `jwt-attacks` — атаки на JWT: подмена алгоритма, путаница ключей, разбор
-  подписи.
-- `privilege-escalation-vertical` — эскалация там, где проверки нет вовсе.
-- `client-side-access-checks` — почему признак прав вообще уезжает клиенту.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP WSTG-ATHZ-03 «Testing for Privilege Escalation», WSTG v4.2; реестр
    `wstg-v42-athz-03-privilege-escalation`. Разделы: Testing for Role/Privilege

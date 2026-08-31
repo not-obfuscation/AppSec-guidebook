@@ -7,7 +7,7 @@
 * `C-REF-*`   ссылки между записями: темы, источники, лабы, план, циклы, сироты;
 * `C-BLOCK-*` канонический скелет части 4: форма, порядок, состав по уровню;
 * `C-HEAD-*`  шапка темы против frontmatter;
-* `C-BODY-*`  служебный аппарат и наполнение блоков 1, 10, 12, 13, 14.
+* `C-BODY-*`  служебный аппарат и наполнение блоков 1, 10, 12, 13.
 
 Часть 9.1 плейбука: «Нарушение схемы **ломает сборку**, а не деградирует тихо».
 Поэтому почти всё здесь — error. Warning остаётся там, где нарушено не правило,
@@ -177,7 +177,6 @@ BANNED_HEAD = (
 H2_RE = re.compile(r"\A##\s+(.+?)\s*\Z")
 H2_NUM_RE = re.compile(r"\A(\d+)\.\s+(.+)\Z")
 LIST_NUM_RE = re.compile(r"\A(\d+)\.\s+(.+)\Z")
-LIST_DASH_RE = re.compile(r"\A-\s+(.+)\Z")
 
 WHY = "**Зачем это в работе AppSec-инженера.**"
 TRUST = "**Маркеры уверенности.**"
@@ -730,24 +729,20 @@ def check_refs(pages: list[Page], ctx: Ctx) -> list[Finding]:
                                    "цикл в графе предпосылок: " + " → ".join(cycle)))
                 break
 
-    # сироты: 9.4, предупреждение
+    # сироты: 9.4, предупреждение. Входящие — только смысловые рёбра: ссылка
+    # «Дальше» с 2026-08-31 генерируется сборкой из `stage` и `order`, и ребра
+    # из руками ведённого блока вместе с ним ушли (решение оператора).
     incoming = defaultdict(set)
     for page in pages:
         for field in ("prerequisites", "related", "fixes_in"):
             for ref in page.front.get(field) or []:
                 if ref in ids and ref != page.id:
                     incoming[ref].add(page.id)
-        num = ctx.num_of(ctx.skeleton_of(page), "next")
-        nxt = page.block(num) if num is not None else None
-        if nxt:
-            for span in TICK_RE.findall("\n".join(page.text_of(nxt))):
-                if span in ids and span != page.id:
-                    incoming[span].add(page.id)
     for page in pages:
         if not incoming[page.id]:
             out.append(Finding(page.path, page.at("id"), 1, "C-REF-ORPHAN", WARNING,
                                "на тему не ссылается ни одна другая тема: в каталоге "
-                               "она есть, в маршруте читателя её нет"))
+                               "она есть, а в смысловой сети ссылок её нет"))
 
     # ссылки на план в прозе
     for page in pages:
@@ -788,7 +783,7 @@ def check_refs(pages: list[Page], ctx: Ctx) -> list[Finding]:
 # нет, не роняет проверку — он её выключает: `named("sources")` вернёт None, и
 # `C-BODY-SOURCES` промолчит на теме без единой сноски. Правило, которое молчит,
 # снаружи неотличимо от сломанного, поэтому состав ключей сверяется со словарём.
-BODY_KEYS = {"goals", "mechanics", "checklist", "selfcheck", "next", "sources"}
+BODY_KEYS = {"goals", "mechanics", "checklist", "selfcheck", "sources"}
 
 
 def check_skeletons(ctx: Ctx) -> list[Finding]:
@@ -1031,16 +1026,15 @@ def norm(text: str) -> str:
     return text.strip(" .;:")
 
 
-def items(page: Page, block: Block, dash: bool = False) -> list[tuple[int, str]]:
-    """Пункты списка блока: (строка, текст с подклеенными продолжениями)."""
+def items(page: Page, block: Block) -> list[tuple[int, str]]:
+    """Пункты нумерованного списка блока: (строка, текст с продолжениями)."""
     out: list[tuple[int, str]] = []
-    rx = LIST_DASH_RE if dash else LIST_NUM_RE
     for i in range(block.start, block.end):
         line = page.plines[i] if i < len(page.plines) else ""
         raw = page.lines[i]
-        m = rx.match(line)
+        m = LIST_NUM_RE.match(line)
         if m:
-            out.append((i + 1, raw.split(". ", 1)[-1] if not dash else raw[2:]))
+            out.append((i + 1, raw.split(". ", 1)[-1]))
         elif out and raw.startswith("   ") and raw.strip():
             out[-1] = (out[-1][0], out[-1][1] + " " + raw.strip())
     return out
@@ -1142,22 +1136,6 @@ def check_body(page: Page, ctx: Ctx) -> list[Finding]:
                     f"вопросов на возврат к прошлым темам {len(back)} при норме 1–2 "
                     "(часть 4). Возврат опускается только у темы без предпосылок",
                     self_check.line)
-
-    # навигация вперёд
-    nxt, nxt_num = named("next")
-    if nxt:
-        listed = items(page, nxt, dash=True)
-        if not 1 <= len(listed) <= 5:
-            add("C-BODY-NEXT", ERROR,
-                f"в блоке {nxt_num} пунктов {len(listed)} при норме 1–5 "
-                "(9.5 п. 8)", nxt.line)
-        for line_no, text in listed:
-            has_id = any(span for span in TICK_RE.findall(text))
-            has_plan = PLAN_TOPIC_RE.search(text) or PLAN_SUB_RE.search(text)
-            if not has_id and not has_plan:
-                add("C-BODY-NEXT", ERROR,
-                    f"пункт блока {nxt_num} не называет ни темы (`id`), ни "
-                    f"номера плана: {flat(text)[:60]}", line_no)
 
     # источники
     src, src_num = named("sources")

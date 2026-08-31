@@ -331,16 +331,7 @@ with transaction.atomic():
 
 </details>
 
-## 13. Дальше
-
-- `idempotency` — устройство ключа и протокол безопасного повтора.
-- `multistep-flow-checks` — проверка порядка шагов, когда пользователь
-  прерывает процесс намеренно.
-- `unhandled-exceptions-dos` — исключение, которое и обрывает операцию на
-  середине.
-- `money-rounding` — вторая причина, по которой суммы перестают сходиться.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Web Security Testing Guide v4.2, WSTG-BUSL-06 «Testing for the
    Circumvention of Work Flows»; реестр

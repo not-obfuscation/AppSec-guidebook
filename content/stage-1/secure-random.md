@@ -273,16 +273,7 @@ const csrf = Date.now() + '-' + userId;           // (4)
 
 </details>
 
-## 13. Дальше
-
-- `crypto-misuse` — одно из мест, где стойкий генератор обязателен: свежее
-  одноразовое значение на каждое шифрование.
-- `password-reset-flaws` — что ещё ломается в потоке восстановления, помимо
-  предсказуемого токена.
-- `csrf-tokens` — токен против межсайтовых запросов и требования к нему.
-- `sessions-vs-tokens` — требования к самому идентификатору сессии.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Web Security Testing Guide v4.2, WSTG-SESS-01 «Testing for Session
    Management Schema»; реестр `wstg-v42-sess-01-session-schema`. Разделы:

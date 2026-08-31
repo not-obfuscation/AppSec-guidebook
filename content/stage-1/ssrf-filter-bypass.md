@@ -380,13 +380,7 @@ return net.get(f"{scheme}://{host}:{port}{path}",
 
 </details>
 
-## 13. Дальше
-
-- `ssrf-defense` — защита, которая не сводится к фильтру.
-- `cloud-metadata-ssrf` — цель, ради которой фильтры чаще всего и обходят.
-- `url-and-encoding` — разбор адреса и кодирование целиком.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Server-side request forgery (SSRF)»;
    реестр `ps-ssrf`. Разделы: SSRF with blacklist-based input filters, SSRF

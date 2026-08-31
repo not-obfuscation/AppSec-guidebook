@@ -109,14 +109,7 @@ Cheat sheet OWASP подчёркивает главное: такие свойс
 Третья — не хранить глобальные значения на `document` и в глобальной области.
 Того же требует ASVS v5.0-3.2.3.
 
-## 13. Дальше
-
-- `xss-dom` — рамка источника и стока, в которой это подстановка значения.
-- `xss-filter-bypass` — почему очистка разметки такое пропускает.
-- `prototype-pollution` — другой способ подменить значение, которое код
-  считает своим.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «DOM clobbering»; реестр
    `ps-dom-clobbering`. Разделы: What is DOM clobbering, How to exploit

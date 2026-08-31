@@ -257,13 +257,7 @@ $name])` вместо `$twig->render("Здравствуйте, " . $name)`. И�
 
 </details>
 
-## 13. Дальше
-
-- `os-command-injection` — другой путь к выполнению кода на сервере.
-- `sqli-basics` — рамка инъекции, общая для всех интерпретаторов.
-- `parameterized-queries` — то же разделение кода и данных в базе.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Server-side template injection»; реестр
    `ps-ssti`. Разделы: What is SSTI, Constructing an attack, Detect (plaintext

@@ -306,15 +306,7 @@ def admin_user(uid):
 
 </details>
 
-## 13. Дальше
-
-- `deny-by-default` — правило, при котором зазор между слоями перестаёт давать
-  доступ.
-- `privilege-escalation-vertical` — случай, когда правила нет ни на одном слое.
-- `client-side-access-checks` — тот же вопрос о слое, но с другой стороны
-  границы доверия.
-
-## 14. Источники
+## 13. Источники
 
 1. PortSwigger Web Security Academy, «Access control vulnerabilities and
    privilege escalation»; реестр `ps-access-control`. Разделы: Broken access

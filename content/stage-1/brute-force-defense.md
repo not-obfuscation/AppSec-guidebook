@@ -289,15 +289,7 @@ CAPTCHA Cheat Sheet называет мерой в глубину, а не за�
 
 </details>
 
-## 13. Дальше
-
-- `user-enumeration` — как перебор сокращают, сначала выяснив список логинов.
-- `credential-stuffing` — атака, где каждый логин пробуют один раз и счётчик
-  по учётке молчит.
-- `mfa-bypass` — второй фактор как слой, который счётчик не заменяет.
-- `sessions-vs-tokens` — что выдаётся после успешного входа.
-
-## 14. Источники
+## 13. Источники
 
 1. OWASP Authentication Cheat Sheet; реестр `owasp-cs-authentication`. Разделы:
    Protect Against Automated Attacks (Login Throttling, Account Lockout,
