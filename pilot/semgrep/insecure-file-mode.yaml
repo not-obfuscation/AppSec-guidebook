@@ -1,0 +1,26 @@
+rules:
+  - id: insecure-file-mode
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Файл создаётся или переменяется с правами, открытыми всем
+      (0666 или 0777). Итоговый режим задаёт ещё и umask процесса,
+      поэтому такой вызов отдаёт права на откуп окружению. Для файла
+      с секретами режим запрашивается явно и не шире 0600; смысл битов
+      режима — inode(7), срезание бит маской — umask(2).
+    metadata:
+      cwe:
+        - "CWE-732: Incorrect Permission Assignment for Critical
+          Resource"
+      references:
+        - https://man7.org/linux/man-pages/man7/inode.7.html
+        - https://man7.org/linux/man-pages/man2/umask.2.html
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+          - pattern: os.open($PATH, $FLAGS, 0o666, ...)
+          - pattern: os.open($PATH, $FLAGS, 0o777, ...)
+          - pattern: os.chmod($PATH, 0o666, ...)
+          - pattern: os.chmod($PATH, 0o777, ...)
+          - pattern: $PATH.chmod(0o666, ...)
+          - pattern: $PATH.chmod(0o777, ...)

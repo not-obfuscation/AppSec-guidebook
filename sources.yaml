@@ -5244,6 +5244,24 @@ sources:
       что именно меняется при запуске setuid-программы и почему сброс
       привилегий делается в определённом порядке.
 
+  - id: man-ld-so
+    url: https://man7.org/linux/man-pages/man8/ld.so.8.html
+    title: ld.so(8) — dynamic linker/loader
+    type: official-docs
+    level: 1
+    publisher: Linux man-pages project
+    version_or_date: Linux man-pages 6.18
+    volatility: stable
+    license: смешанные лицензии постранично (обычно GPL или BSD-подобные)
+    checked: 2026-09-01
+    status: ok
+    notes: >
+      Режим secure-execution у динамического загрузчика: когда реальный
+      и эффективный uid различаются (случай setuid), ядро ставит
+      AT_SECURE, и загрузчик игнорирует LD_PRELOAD, LD_LIBRARY_PATH и
+      другие переменные из списка. Объясняет, почему атака через
+      LD_PRELOAD на setuid-бинарник не проходит, а через PATH — проходит.
+
   - id: man-capabilities
     url: https://man7.org/linux/man-pages/man7/capabilities.7.html
     title: capabilities(7) — overview of Linux capabilities
@@ -5261,6 +5279,23 @@ sources:
       ambient. Ключ ко всему этапу: --cap-drop у Docker и securityContext в
       Kubernetes оперируют именно этими именами. Отдельно — почему
       CAP_SYS_ADMIN фактически равна root.
+
+  - id: man-capsh
+    url: https://man7.org/linux/man-pages/man1/capsh.1.html
+    title: capsh(1) — capability shell wrapper
+    type: official-docs
+    level: 1
+    publisher: Linux man-pages project
+    version_or_date: Linux man-pages 6.18
+    volatility: stable
+    license: смешанные лицензии постранично (обычно GPL или BSD-подобные)
+    checked: 2026-09-01
+    status: ok
+    notes: >
+      Практический инструмент темы о capabilities: --print показывает наборы
+      текущего процесса, --decode разворачивает маски CapEff/CapBnd из
+      /proc/<pid>/status в имена, --drop снимает capability из bounding set.
+      Сюда же родственные getcap(8)/setcap(8) для файловых capabilities.
 
   - id: man-namespaces
     url: https://man7.org/linux/man-pages/man7/namespaces.7.html

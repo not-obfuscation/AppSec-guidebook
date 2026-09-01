@@ -29,6 +29,13 @@ SUITES = {
         "fixed": "pilot/lab/password-storage/solution.py",
         "note": "одно подавление # nosemgrep стоит на сверке старого формата",
     },
+    "file-mode": {
+        "rule": "pilot/semgrep/insecure-file-mode.yaml",
+        "cases": ["pilot/semgrep/insecure-file-mode.py"],
+        "vulnerable": "pilot/lab/linux-file-permissions/code.py",
+        "fixed": "pilot/lab/linux-file-permissions/solution.py",
+        "note": "режим задан литералом 0666, решение просит 0600",
+    },
     "admin-route": {
         "rule": "pilot/semgrep/admin-route-no-authz.yaml",
         "cases": ["pilot/semgrep/admin-route-no-authz.py"],
