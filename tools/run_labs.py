@@ -76,13 +76,13 @@ FIX_JS = {
 SPECIAL = [
     "cve-cvss", "sast-principles", "zap-scanning", "supply-chain-threats",
     "pipeline-anatomy", "pipeline-security", "quality-gates",
-    "developer-communication", "semgrep-rules",
+    "developer-communication", "semgrep-rules", "vault",
 ]
 
 # Порты, которые лабы поднимают на петле. После прогона все обязаны быть
 # свободны: оставшийся процесс — это бомба замедленного действия для следующего
 # прогона и для читателя, повторяющего лабу руками.
-PORTS = [8081, 8082, 8083, 8121, 8122, 8123, 8124, 8125, 8126]
+PORTS = [8081, 8082, 8083, 8121, 8122, 8123, 8124, 8125, 8126, 8200, 5432]
 
 FAILURES: list[str] = []
 
@@ -275,6 +275,31 @@ def lab_semgrep_rules() -> None:
            LABS / "semgrep-rules", 0)
 
 
+def lab_vault() -> None:
+    # Эталон — solution/app-*.{hcl,sql} поверх бланков; стенд: postgres в
+    # контейнере и dev-сервер vault на петле, гасятся в finally. Путь к
+    # бинарнику vault приходит из VAULT_BIN, иначе ищется в PATH.
+    tmp, lab = temp_lab("vault")
+    env = os.environ.copy()
+    if "VAULT_BIN" not in env and shutil.which("vault") is None:
+        FAILURES.append("vault: нет бинарника (VAULT_BIN не задан, "
+                        "в PATH пусто)")
+        return
+    try:
+        shutil.copy(lab / "solution/app-policy.hcl", lab / "app-policy.hcl")
+        shutil.copy(lab / "solution/app-role.sql", lab / "app-role.sql")
+        expect("vault: stand start", ["sh", "stand.sh", "start"], lab, 0,
+               env=env, timeout=180)
+        expect("vault: stand reset", ["sh", "stand.sh", "reset"], lab, 0,
+               env=env, timeout=120)
+        expect("vault: check.py на эталоне", [PY, "check.py"], lab, 0,
+               env=env, timeout=300)
+    finally:
+        subprocess.run(["sh", "stand.sh", "stop"], cwd=lab, env=env,
+                       capture_output=True, text=True, timeout=60)
+        tmp.cleanup()
+
+
 SPECIAL_FUNCS = {
     "cve-cvss": lab_cve_cvss,
     "sast-principles": lab_sast_principles,
@@ -285,6 +310,7 @@ SPECIAL_FUNCS = {
     "quality-gates": lab_quality_gates,
     "developer-communication": lab_developer_communication,
     "semgrep-rules": lab_semgrep_rules,
+    "vault": lab_vault,
 }
 
 
