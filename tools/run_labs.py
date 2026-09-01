@@ -53,7 +53,8 @@ LABS = ROOT / "pilot/lab"
 
 # Лабы «почини» на Python: четыре прогона на каждую (см. докстринг модуля).
 FIX_PY = [
-    "business-logic-flaws", "crypto-misuse", "fail-open", "idor",
+    "business-logic-flaws", "crypto-misuse", "docker-insecure-practices",
+    "fail-open", "idor",
     "jwt-attacks", "jwt-basics", "linux-capabilities",
     "linux-file-permissions", "linux-setuid", "oauth-basics",
     "os-command-injection", "parameterized-queries", "password-storage",
