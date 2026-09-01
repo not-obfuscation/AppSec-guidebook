@@ -129,6 +129,29 @@ else
     bad "нет tools/bin/vale"
 fi
 
+# --- Vault ------------------------------------------------------------------
+# Бинарник нужен лабе `pilot/lab/vault` (прогонщик `make labs`): лаба
+# поднимает dev-сервер на петле. Тот же пин версии, что у Vale.
+VAULT_VERSION="1.21.3"
+step "Vault $VAULT_VERSION — лаба хранилища секретов"
+if [ ! -x tools/bin/vault ] && [ "$CHECK_ONLY" = 0 ]; then
+    mkdir -p tools/bin
+    tmp="$(mktemp -d)"
+    url="https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip"
+    if curl -fsSL "$url" -o "$tmp/vault.zip"; then
+        ( cd "$tmp" && unzip -q vault.zip vault ) && mv "$tmp/vault" tools/bin/vault
+        chmod +x tools/bin/vault
+    else
+        bad "не скачался Vault: $url"
+    fi
+    rm -rf "$tmp"
+fi
+if [ -x tools/bin/vault ]; then
+    ok "$(tools/bin/vault --version 2>&1 | head -1)"
+else
+    bad "нет tools/bin/vault"
+fi
+
 # --- пакеты node ------------------------------------------------------------
 step "пакеты node — markdownlint-cli2 и mermaid-cli"
 if [ ! -d tools/node/node_modules ] && [ "$CHECK_ONLY" = 0 ]; then

@@ -1349,7 +1349,7 @@ terms:
       Стандарт OWASP, перечисляющий требования к приложению с нумерацией:
       `v5.0-4.1.4` — глава 4, раздел 1, требование 4. В темах выступает нормой
       «что должно быть реализовано»; как это проверить, говорит WSTG.
-    defines: [http-basics]
+    defines: [http-basics, owasp-asvs]
     see_also: [wstg, cwe]
     source: OWASP Application Security Verification Standard 5.0.0
 

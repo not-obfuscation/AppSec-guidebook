@@ -848,7 +848,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Стандарт OWASP, перечисляющий требования к приложению с нумерацией: `v5.0-4.1.4` — глава 4, раздел 1, требование 4. В темах выступает нормой «что должно быть реализовано»; как это проверить, говорит WSTG.
 
-*вводится в [http-basics](content/stage-0/http-basics.md); рядом: [WSTG](#wstg), [CWE](#cwe); источник: OWASP Application Security Verification Standard 5.0.0.*
+*вводится в [http-basics](content/stage-0/http-basics.md), [owasp-asvs](content/stage-5/owasp-asvs.md); рядом: [WSTG](#wstg), [CWE](#cwe); источник: OWASP Application Security Verification Standard 5.0.0.*
 
 ### CVE { #cve }
 

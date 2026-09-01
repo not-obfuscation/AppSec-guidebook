@@ -5781,6 +5781,40 @@ sources:
       ранжирование угроз, меры, проверка. Честно оговаривает, что единого
       отраслевого стандарта процесса нет.
 
+  - id: threat-modeling-manifesto
+    url: https://www.threatmodelingmanifesto.org/
+    title: Threat Modeling Manifesto
+    type: official-docs
+    level: 1
+    publisher: рабочая группа Threat Modeling Manifesto
+    version_or_date: текущая версия на постоянном адресе
+    volatility: stable
+    license: CC BY 4.0
+    checked: 2026-09-01
+    status: ok
+    notes: >
+      Первоисточник четырёх вопросов, которые cheat sheet цитирует: над чем
+      работаем, что может пойти не так, что с этим делаем, достаточно ли
+      хорошо вышло. Ценности и принципы процесса: культура поиска дефектов
+      дизайна важнее формального соответствия; модель живёт и дорабатывается.
+      Методологически агностичен: не предписывает технику.
+
+  - id: sei-threat-modeling-methods-paper
+    url: https://insights.sei.cmu.edu/documents/569/2018_019_001_524597.pdf
+    title: "Threat Modeling: A Summary of Available Methods (white paper)"
+    type: research
+    level: 5
+    publisher: Software Engineering Institute, CMU
+    version_or_date: white paper 2018
+    volatility: stable
+    license: материал SEI для свободного чтения; права за CMU
+    checked: 2026-09-01
+    status: ok
+    notes: >
+      Полный текст, на который опирается блог-разбор двенадцати методов
+      (sei-threat-modeling-methods). У PASTA там отдельная глава со стадиями
+      — второй источник темы pasta, где книга авторов платная.
+
   - id: ms-stride
     url: https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats
     title: Threats — Microsoft Threat Modeling Tool
@@ -5879,6 +5913,22 @@ sources:
       лежат на страницах самих практик — проверено на
       owaspsamm.org/model/design/threat-assessment/, где для каждого уровня
       сформулирована цель и разложены потоки A и B.
+
+  - id: owasp-samm-about
+    url: https://owaspsamm.org/about/
+    title: What is OWASP SAMM?
+    type: official-docs
+    level: 1
+    publisher: OWASP SAMM Project
+    version_or_date: живая страница проекта
+    volatility: medium
+    license: CC BY-SA 4.0
+    checked: 2026-09-01
+    status: ok
+    notes: >
+      Миссия и свойства модели одной страницей: измеримая (уровни зрелости
+      по практикам), применимая (пути повышения зрелости), не зависящая от
+      технологии и процесса. Второй источник темы owasp-samm.
 
   - id: owasp-top10-2021
     url: https://owasp.org/Top10/2021/

@@ -77,6 +77,7 @@ SPECIAL = [
     "cve-cvss", "sast-principles", "zap-scanning", "supply-chain-threats",
     "pipeline-anatomy", "pipeline-security", "quality-gates",
     "developer-communication", "semgrep-rules", "vault",
+    "threat-modeling", "owasp-asvs",
 ]
 
 # Порты, которые лабы поднимают на петле. После прогона все обязаны быть
@@ -176,6 +177,17 @@ def lab_cve_cvss() -> None:
     try:
         shutil.copy(lab / "solution.csv", lab / "answers.csv")
         expect("cve-cvss: check.py", [PY, "check.py"], lab, 0)
+    finally:
+        tmp.cleanup()
+
+
+def lab_reading_task(name: str) -> None:
+    # Задачи чтения (threat-modeling, owasp-asvs): эталон лежит в
+    # solution.csv, бланк answers.csv заменяется им во временной копии.
+    tmp, lab = temp_lab(name)
+    try:
+        shutil.copy(lab / "solution.csv", lab / "answers.csv")
+        expect(f"{name}: check.py", [PY, "check.py"], lab, 0)
     finally:
         tmp.cleanup()
 
@@ -281,10 +293,16 @@ def lab_vault() -> None:
     # бинарнику vault приходит из VAULT_BIN, иначе ищется в PATH.
     tmp, lab = temp_lab("vault")
     env = os.environ.copy()
-    if "VAULT_BIN" not in env and shutil.which("vault") is None:
-        FAILURES.append("vault: нет бинарника (VAULT_BIN не задан, "
-                        "в PATH пусто)")
-        return
+    # Порядок поиска бинарника: VAULT_BIN → PATH → tools/bin/vault (его
+    # ставит tools/setup.sh). Совсем нет — честный провал, не пропуск.
+    if "VAULT_BIN" not in env and not shutil.which("vault"):
+        candidate = ROOT / "tools" / "bin" / "vault"
+        if candidate.exists():
+            env["VAULT_BIN"] = str(candidate)
+        else:
+            FAILURES.append("vault: нет бинарника (VAULT_BIN не задан, "
+                            "в PATH и tools/bin пусто)")
+            return
     try:
         shutil.copy(lab / "solution/app-policy.hcl", lab / "app-policy.hcl")
         shutil.copy(lab / "solution/app-role.sql", lab / "app-role.sql")
@@ -311,6 +329,8 @@ SPECIAL_FUNCS = {
     "developer-communication": lab_developer_communication,
     "semgrep-rules": lab_semgrep_rules,
     "vault": lab_vault,
+    "threat-modeling": lambda: lab_reading_task("threat-modeling"),
+    "owasp-asvs": lambda: lab_reading_task("owasp-asvs"),
 }
 
 
