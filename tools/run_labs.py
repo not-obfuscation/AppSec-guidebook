@@ -59,7 +59,7 @@ FIX_PY = [
     "linux-file-permissions", "linux-setuid", "oauth-basics",
     "os-command-injection", "parameterized-queries", "password-storage",
     "path-traversal", "privilege-escalation-vertical", "race-conditions",
-    "sqli-basics", "ssrf-basics",
+    "security-logging", "sqli-basics", "ssrf-basics",
 ]
 
 # Браузерные лабы: каталог → расширение целевого файла.

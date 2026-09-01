@@ -6054,6 +6054,33 @@ sources:
       обнаружение и анализ → сдерживание, устранение, восстановление →
       выводы) многие до сих пор цитируют как текущий.
 
+  - id: nist-sp-800-61r3-pdf
+    url: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-61r3.pdf
+    title: "NIST SP 800-61 Rev. 3 — Incident Response Recommendations and Considerations for Cybersecurity Risk Management: A CSF 2.0 Community Profile (PDF)"
+    type: standard
+    level: 2
+    publisher: NIST
+    version_or_date: Rev. 3, Final, апрель 2025; DOI 10.6028/NIST.SP.800-61r3
+    volatility: stable
+    license: общественное достояние (труд правительства США)
+    checked: 2026-09-02
+    status: ok
+    notes: >
+      Сам документ, а не страница-карточка: на nist-sp-800-61r3 текста нет
+      (аннотация и реквизиты), поэтому PDF заведён отдельной записью по
+      прецеденту owasp-asvs-5-document — находка Н-01 оглавления этапа 5.
+      Скачан и прочитан 2026-09-02 (pdftotext -layout). Ключевое содержание:
+      реагирование перестроено вокруг шести функций CSF 2.0 (Govern,
+      Identify, Protect, Detect, Respond, Recover); собственно реагирование —
+      Detect, Respond, Recover, подготовка и извлечение уроков разнесены по
+      остальным функциям (улучшение — категория ID.IM); таблица 1 переводит
+      четырёхфазный цикл Rev. 2 в функции CSF 2.0; роли — руководство,
+      обработчики инцидентов, технические специалисты, юристы, пиар, HR,
+      физическая охрана, владельцы активов, плюс разделение ответственности
+      с провайдерами; плейбуки рекомендованы по образцу CISA. Объём Rev. 2
+      сокращён сознательно: детали процедур вынесены в онлайн-ресурсы (CPRT),
+      документ объявляет себя CSF 2.0 Community Profile.
+
 
   # Добавлено миссией appsec-gapfix (2026-08-22). Не из списка дыр
   # journal/FINAL-CHECK.md напрямую, а по правилу досье «расхождение с аудитом — повод
