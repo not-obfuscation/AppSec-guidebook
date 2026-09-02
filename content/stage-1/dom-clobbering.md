@@ -8,7 +8,7 @@ summary: >
   раньше того, что объявил разработчик.
 stage: web-vulns
 order: 360
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 12
@@ -24,7 +24,7 @@ wstg: []
 owasp: ['A05:2025']
 labs: []
 sources: [ps-dom-clobbering, owasp-cs-dom-clobbering]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

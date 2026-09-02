@@ -8,7 +8,7 @@ summary: >
   закрывает первые два, но не третий сам собой.
 stage: web-vulns
 order: 430
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-IDNT-04']
 owasp: ['A07:2025']
 labs: []
 sources: [owasp-cs-authentication, ps-authentication, wstg-v42-idnt-04-account-enumeration]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

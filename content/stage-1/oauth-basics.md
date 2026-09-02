@@ -8,7 +8,7 @@ summary: >
   устаревшими и где здесь проходит граница доверия.
 stage: web-vulns
 order: 550
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -22,12 +22,12 @@ prerequisites: [sessions-vs-tokens, app-architecture]
 related: [oauth-attacks, oidc, jwt-basics, token-lifetime-revocation]
 tags: [oauth, auth, api]
 cwe: [CWE-522, CWE-287]
-asvs: ['v5.0-3.5.4', 'v5.0-9.2.1']
+asvs: ['v5.0-10.4.4']
 wstg: []
 owasp: ['A07:2025']
 labs: [lab-oauth-basics]
 sources: [rfc6749-oauth2, ps-oauth, rfc9700-oauth-bcp]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 
@@ -327,7 +327,7 @@ token = exchange_code(code)
 Теперь через браузер идёт код авторизации, а токен приходит обменом кода, мимо
 браузера. RFC 9700 предписывает именно это: клиент использует `response_type=code`
 и получает токены в ответе токена, а не в ответе авторизации. ASVS требует того
-же в v5.0-3.5.4.
+же в v5.0-10.4.4.
 
 **Границы применимости.** Один поток кода полной защиты не даёт. Публичный
 клиент обязан добавить к нему PKCE (Proof Key for Code Exchange) — привязку
@@ -405,7 +405,7 @@ patterns:
 ## 10. Чеклист ревью
 
 1. Verify that клиент запрашивает `response_type=code`, а не `token`
-   (ASVS v5.0-3.5.4).
+   (ASVS v5.0-10.4.4).
 2. Verify that парольный грант (`grant_type=password`) не используется нигде.
 3. Verify that токен доступа приходит клиенту по обратному каналу обменом кода, а
    не в адресе переадресации.

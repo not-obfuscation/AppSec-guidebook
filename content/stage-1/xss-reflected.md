@@ -8,7 +8,7 @@ summary: >
   экранирование у самого места вставки.
 stage: web-vulns
 order: 270
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -27,7 +27,7 @@ wstg: ['WSTG-v42-INPV-01']
 owasp: ['A05:2025']
 labs: [lab-xss-reflected]
 sources: [ps-xss, owasp-cs-xss-prevention, owasp-top10-2025-a05]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

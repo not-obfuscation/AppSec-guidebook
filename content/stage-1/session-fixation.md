@@ -8,7 +8,7 @@ summary: >
   от гашения cookie при выходе.
 stage: web-vulns
 order: 450
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-SESS-03', 'WSTG-v42-SESS-06']
 owasp: ['A07:2025']
 labs: []
 sources: [owasp-cs-session-management, wstg-v42-sess-03-session-fixation, wstg-v42-sess-06-logout]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

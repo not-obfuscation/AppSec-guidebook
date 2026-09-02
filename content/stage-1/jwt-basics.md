@@ -8,7 +8,7 @@ summary: >
   сверялись срок, получатель и издатель, а не одна подпись.
 stage: web-vulns
 order: 510
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -27,7 +27,7 @@ wstg: []
 owasp: ['A04:2025']
 labs: [lab-jwt-basics]
 sources: [rfc7519-jwt, owasp-cs-jwt, rfc8725-jwt-bcp]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

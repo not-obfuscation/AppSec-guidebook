@@ -8,7 +8,7 @@ summary: >
   пароля обязана спрашивать текущий и гасить прочие сессии.
 stage: web-vulns
 order: 440
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-ATHN-09']
 owasp: ['A07:2025']
 labs: []
 sources: [owasp-cs-forgot-password, wstg-v42-athn-09-weak-password-change, ps-auth-other-mechanisms]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

@@ -8,7 +8,7 @@ summary: >
   атакующего за кого угодно.
 stage: web-vulns
 order: 580
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 15
@@ -24,7 +24,7 @@ wstg: []
 owasp: ['A07:2025']
 labs: []
 sources: [owasp-cs-saml, oidc-core]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

@@ -8,7 +8,7 @@ summary: >
   запроса и почему защита ставится заголовком, а не скриптом.
 stage: web-vulns
 order: 350
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-CLNT-09']
 owasp: ['A06:2025']
 labs: []
 sources: [ps-clickjacking, owasp-cs-clickjacking-defense, owasp-top10-2025-a06]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

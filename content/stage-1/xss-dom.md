@@ -8,7 +8,7 @@ summary: >
   разметку или как код. Сервер такого пути не видит.
 stage: web-vulns
 order: 290
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -27,7 +27,7 @@ wstg: ['WSTG-v42-CLNT-01']
 owasp: ['A05:2025']
 labs: [lab-xss-dom]
 sources: [ps-dom-based, owasp-cs-dom-xss-prevention, owasp-cs-xss-prevention]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

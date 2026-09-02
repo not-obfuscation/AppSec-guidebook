@@ -8,7 +8,7 @@ summary: >
   refresh-токена ограничивают цену его утечки.
 stage: web-vulns
 order: 540
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-SESS-07']
 owasp: ['A07:2025']
 labs: []
 sources: [rfc9700-oauth-bcp, owasp-cs-jwt, wstg-v42-sess-07-session-timeout]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

@@ -8,7 +8,7 @@ summary: >
   использование кода — и почему это дефекты логики, а не слабость фактора.
 stage: web-vulns
 order: 460
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: []
 owasp: ['A07:2025']
 labs: []
 sources: [ps-mfa, owasp-cs-mfa, nist-sp-800-63b]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

@@ -8,7 +8,7 @@ summary: >
   заголовком запроса.
 stage: web-vulns
 order: 400
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-SESS-05']
 owasp: ['A01:2025']
 labs: []
 sources: [owasp-cs-csrf-prevention, ps-csrf]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

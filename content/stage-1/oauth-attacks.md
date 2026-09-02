@@ -8,7 +8,7 @@ summary: >
   код и токен утекают через Referer и промежуточную страницу.
 stage: web-vulns
 order: 560
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -21,12 +21,12 @@ prerequisites: [oauth-basics, csrf-mechanics]
 related: [oauth-basics, jwt-attacks, ssrf-basics, oidc]
 tags: [oauth, auth, csrf]
 cwe: [CWE-601, CWE-352]
-asvs: ['v5.0-3.5.4']
+asvs: ['v5.0-10.4.1']
 wstg: []
 owasp: ['A07:2025']
 labs: []
 sources: [rfc9700-oauth-bcp, ps-oauth]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 
@@ -234,7 +234,7 @@ OAuth; при входе исключительно через OAuth он не �
 ## 10. Чеклист ревью
 
 1. Verify that сервер авторизации сверяет `redirect_uri` точным совпадением
-   строк, а не по началу или подстроке (ASVS v5.0-3.5.4).
+   строк, а не по началу или подстроке (ASVS v5.0-10.4.1).
 2. Verify that запрос авторизации несёт непредсказуемый `state`, привязанный к
    сессии инициатора.
 3. Verify that callback сверяет вернувшийся `state` и отвергает поток при его

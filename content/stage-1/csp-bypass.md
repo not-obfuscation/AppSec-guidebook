@@ -8,7 +8,7 @@ summary: >
   отдаёт своё одноразовое значение или не закрывает нужную директиву.
 stage: web-vulns
 order: 320
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30
@@ -26,7 +26,7 @@ wstg: []
 owasp: ['A05:2025', 'A06:2025']
 labs: []
 sources: [ps-csp, w3c-csp3, owasp-cs-xss-prevention, owasp-top10-2025-a06]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

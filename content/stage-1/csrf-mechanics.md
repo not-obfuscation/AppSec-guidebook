@@ -8,7 +8,7 @@ summary: >
   приложение отличает свой запрос от подделанного.
 stage: web-vulns
 order: 370
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -27,7 +27,7 @@ wstg: ['WSTG-v42-SESS-05']
 owasp: ['A01:2025']
 labs: [lab-csrf-mechanics]
 sources: [ps-csrf, owasp-cs-csrf-prevention, owasp-top10-2025-a01]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

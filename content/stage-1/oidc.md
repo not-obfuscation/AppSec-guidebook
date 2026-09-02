@@ -8,7 +8,7 @@ summary: >
   повторного проигрывания.
 stage: web-vulns
 order: 570
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 15
@@ -24,7 +24,7 @@ wstg: []
 owasp: ['A07:2025']
 labs: []
 sources: [oidc-core, ps-oauth]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

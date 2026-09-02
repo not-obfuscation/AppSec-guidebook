@@ -8,7 +8,7 @@ summary: >
   выбирается для каждого места вставки.
 stage: web-vulns
 order: 300
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -27,7 +27,7 @@ wstg: ['WSTG-v42-INPV-01']
 owasp: ['A05:2025']
 labs: [lab-xss-contexts]
 sources: [ps-xss-contexts, owasp-cs-xss-prevention, owasp-cs-dom-xss-prevention]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

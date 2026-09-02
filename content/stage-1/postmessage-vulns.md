@@ -8,7 +8,7 @@ summary: >
   проверки отправителя проверяется ещё и форма данных.
 stage: web-vulns
 order: 340
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30
@@ -27,7 +27,7 @@ owasp: ['A07:2025', 'A05:2025']
 labs: []
 sources: [ps-postmessage, mdn-postmessage, wstg-v42-clnt-11-web-messaging,
   owasp-top10-2025-a07]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

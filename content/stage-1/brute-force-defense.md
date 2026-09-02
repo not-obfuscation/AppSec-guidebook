@@ -8,7 +8,7 @@ summary: >
   ни одного пароля напрямую.
 stage: web-vulns
 order: 420
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-ATHN-03']
 owasp: ['A07:2025']
 labs: []
 sources: [owasp-cs-authentication, ps-authentication, nist-sp-800-63b, wstg-v42-athn-03-weak-lockout]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

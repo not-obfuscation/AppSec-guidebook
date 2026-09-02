@@ -8,7 +8,7 @@ summary: >
   устроен серверный токен со случайным значением и сроком.
 stage: web-vulns
 order: 470
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-ATHN-05']
 owasp: ['A07:2025']
 labs: []
 sources: [ps-auth-other-mechanisms, wstg-v42-athn-05-remember-password, owasp-cs-session-management]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

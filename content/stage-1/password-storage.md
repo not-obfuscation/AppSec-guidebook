@@ -7,7 +7,7 @@ summary: >
   после утечки дампа и чем цена догадки задаётся в коде.
 stage: web-vulns
 order: 480
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-CRYP-04']
 owasp: ['A07:2025', 'A04:2025']
 labs: [lab-password-storage]
 sources: [owasp-cs-password-storage, nist-sp-800-63b, wstg-v42-cryp-04-weak-encryption, rfc9106-argon2, python-hashlib, node-crypto]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 
@@ -722,8 +722,8 @@ derivation» документации `hashlib`.
 PBKDF2-HMAC-SHA-1: Cheat Sheet требует 1 400 000 итераций, ASVS v5.0.0 —
 1 300 000. WSTG-v42-CRYP-04 требует «более 10 000» итераций PBKDF2 — на два
 порядка ниже обоих и, судя по всему, унаследовано от старой редакции.
-RFC 9106 § 4 первым выбором называет Argon2id с `t=1, p=4, m=2 ГиБ`, тогда как
-Cheat Sheet и ASVS для `t=1` требуют 46 МиБ при `p=1`. Практический вывод:
+RFC 9106 § 7.4 первым выбором называет Argon2id с `t=1` и `m=2 ГиБ`,
+тогда как Cheat Sheet и ASVS для `t=1` требуют 46 МиБ при `p=1`. Практический вывод:
 ссылаться на конкретный документ с его номером версии, а не «по OWASP».
 
 **Скоропортящийся слой.** Параметры функций и число итераций — самое
