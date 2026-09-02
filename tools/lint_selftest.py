@@ -542,7 +542,8 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         ("поле вне схемы", "C-FM-UNKNOWN", CATCH,
          sub("order: 480\n", "order: 480\nnext: [x]\n")),
         ("поля не в порядке схемы", "C-FM-SEQ", CATCH,
-         sub("status: draft\ndepth: L1", "depth: L1\nstatus: draft")),
+         sub_re(r"status: (draft|published)\ndepth: L1",
+                r"depth: L1\nstatus: \1")),
         ("условные поля на своём месте", "C-FM-SEQ", SILENT,
          sub(f"reviewed: {REV}\nreview_interval",
              f"derived_from: [python-hashlib]\nupdated: {REV}\n"
