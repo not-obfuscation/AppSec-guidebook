@@ -8,7 +8,7 @@ summary: >
   что ставить в этих местах вместо параметра.
 stage: web-vulns
 order: 200
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -27,7 +27,7 @@ wstg: ['WSTG-v42-INPV-05']
 owasp: ['A05:2025']
 labs: [lab-parameterized-queries]
 sources: [ps-sqli, owasp-cs-sqli-prevention, wstg-v42-inpv-0507-orm-injection]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

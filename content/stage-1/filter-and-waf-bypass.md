@@ -8,7 +8,7 @@ summary: >
   слой защиты, а не замена разделению кода и данных.
 stage: web-vulns
 order: 190
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-INPV-05']
 owasp: ['A05:2025']
 labs: []
 sources: [ps-sqli, owasp-cs-sqli-prevention]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

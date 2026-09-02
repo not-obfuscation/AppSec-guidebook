@@ -8,7 +8,7 @@ summary: >
   почему чинится это передачей ввода данными, а не экранированием вывода.
 stage: web-vulns
 order: 230
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-INPV-18']
 owasp: ['A05:2025']
 labs: []
 sources: [ps-ssti, owasp-top10-2025-a05]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

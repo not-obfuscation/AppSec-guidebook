@@ -8,7 +8,7 @@ summary: >
   самом запросе, а в том, кто решает, куда он уйдёт.
 stage: web-vulns
 order: 110
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 95
@@ -27,7 +27,7 @@ wstg: ['WSTG-v42-INPV-19']
 owasp: ['A01:2025']
 labs: [lab-ssrf-basics]
 sources: [ps-ssrf, wstg-v42-inpv-19-ssrf, owasp-cs-ssrf, owasp-top10-2025-a01]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

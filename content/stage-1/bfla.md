@@ -7,7 +7,7 @@ summary: >
   отличает эту находку от подмены идентификатора объекта.
 stage: web-vulns
 order: 50
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -25,7 +25,7 @@ wstg: []
 owasp: ['A01:2025']
 labs: []
 sources: [owasp-api-top10-2023-a5-bfla, owasp-api-top10-2023-risk-list]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

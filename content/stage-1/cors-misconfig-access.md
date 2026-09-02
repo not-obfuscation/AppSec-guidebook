@@ -7,7 +7,7 @@ summary: >
   чужому origin, и почему ошибка в списке доверенных дороже отсутствия списка.
 stage: web-vulns
 order: 90
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -25,7 +25,7 @@ wstg: []
 owasp: ['A01:2025']
 labs: []
 sources: [ps-cors, mdn-cors]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

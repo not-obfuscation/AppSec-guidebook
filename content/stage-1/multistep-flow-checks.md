@@ -7,7 +7,7 @@ summary: >
   атакующий, отправивший запрос последнего шага сразу.
 stage: web-vulns
 order: 80
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -25,7 +25,7 @@ wstg: ['WSTG-v42-BUSL-06']
 owasp: ['A01:2025']
 labs: []
 sources: [wstg-v42-busl-06-workflow-circumvention, ps-access-control, owasp-cs-idor]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

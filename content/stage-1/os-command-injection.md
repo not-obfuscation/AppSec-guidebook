@@ -8,7 +8,7 @@ summary: >
   экранировать метасимволы, а вызывать программу без оболочки.
 stage: web-vulns
 order: 220
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -27,7 +27,7 @@ wstg: ['WSTG-v42-INPV-12']
 owasp: ['A05:2025']
 labs: [lab-os-command-injection]
 sources: [ps-oscmd, owasp-cs-oscmd-defense]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 
@@ -336,9 +336,9 @@ def make_label(name):
 что это допустимое доменное имя или адрес. Для числа — что это число; для
 выбора из вариантов — что присланное есть в конечном наборе. Список разрешённого —
 второй рубеж, а не замена вызову без оболочки: данные, прошедшие проверку, всё
-равно не склеивают в команду. Cheat sheet и Web Security Academy сходятся в
-запрете: **никогда не экранировать метасимволы вручную** — это ненадёжно и
-обходится.
+равно не склеивают в команду. Web Security Academy запрещает ручное
+экранирование метасимволов прямо: оно ненадёжно и обходится. Cheat sheet
+оставляет его запасным приёмом и тут же показывает предел — инъекцию аргумента.
 
 **Границы применимости.** Вызов без оболочки закрывает инъекцию, но убирает и
 возможности оболочки: подстановку переменных, каналы, шаблоны имён. Если они
@@ -509,7 +509,7 @@ pattern-sinks:
    <https://portswigger.net/web-security/os-command-injection>
 2. OWASP OS Command Injection Defense Cheat Sheet; реестр `owasp-cs-oscmd-defense`.
    Разделы: Primary Defenses — avoid calling OS commands, parameterization,
-   input validation; запрет ручного экранирования.
+   input validation; экранирование как запасной приём и инъекция аргумента.
    <https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html>
 
 Каркас этапа: `owasp-asvs-5-document` (ASVS v5.0.0), `owasp-wstg-42`,

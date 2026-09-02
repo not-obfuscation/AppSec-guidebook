@@ -8,7 +8,7 @@ summary: >
   обращение к резолверу без последующего запроса.
 stage: web-vulns
 order: 120
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-INPV-19']
 owasp: ['A01:2025']
 labs: []
 sources: [ps-blind-ssrf, ps-ssrf, wstg-v42-inpv-19-ssrf]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

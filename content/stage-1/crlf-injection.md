@@ -8,7 +8,7 @@ summary: >
   почему стеки закрывают это отказом, а старый код — нет.
 stage: web-vulns
 order: 260
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-INPV-15']
 owasp: ['A05:2025']
 labs: []
 sources: [wstg-v42-inpv-15-splitting, cwe-113-crlf]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

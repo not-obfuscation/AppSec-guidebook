@@ -8,7 +8,7 @@ summary: >
   закрыты по умолчанию и что проверить, чтобы это не включили обратно.
 stage: web-vulns
 order: 250
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-INPV-07']
 owasp: ['A02:2025']
 labs: []
 sources: [ps-xxe, owasp-cs-xxe-prevention, owasp-top10-2025-a02]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

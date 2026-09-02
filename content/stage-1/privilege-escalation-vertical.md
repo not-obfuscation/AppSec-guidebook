@@ -7,7 +7,7 @@ summary: >
   почему список закрытых путей проигрывает списку разрешённых на любом сроке.
 stage: web-vulns
 order: 20
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 93
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-ATHZ-02', 'WSTG-v42-ATHZ-03']
 owasp: ['A01:2025']
 labs: [lab-privilege-escalation-vertical]
 sources: [ps-access-control, wstg-v42-athz-03-privilege-escalation, wstg-v42-athz-02-bypassing-authz-schema, owasp-top10-2025-a01, spring-security-authorize-http-requests]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

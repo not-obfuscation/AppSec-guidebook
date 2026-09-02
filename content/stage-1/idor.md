@@ -7,7 +7,7 @@ summary: >
   непредсказуемый ключ не заменяет проверку и где эта проверка должна стоять.
 stage: web-vulns
 order: 30
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 93
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-ATHZ-02', 'WSTG-v42-ATHZ-04', 'WSTG-v42-IDNT-01']
 owasp: ['A01:2025']
 labs: [lab-idor]
 sources: [ps-idor, wstg-v42-athz-04-idor, owasp-cs-idor, owasp-cs-authorization]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

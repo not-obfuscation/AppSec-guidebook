@@ -7,7 +7,7 @@ summary: >
   улучшает интерфейс, от проверки, на которой держится доступ.
 stage: web-vulns
 order: 60
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 28
@@ -26,7 +26,7 @@ wstg: []
 owasp: ['A01:2025']
 labs: []
 sources: [owasp-top10-2025-a01, ps-access-control, owasp-asvs-5-document]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

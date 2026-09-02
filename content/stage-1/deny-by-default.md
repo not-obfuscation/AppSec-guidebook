@@ -7,7 +7,7 @@ summary: >
   список исключений дешевле списка запретов на любом размере приложения.
 stage: web-vulns
 order: 100
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -25,7 +25,7 @@ wstg: ['WSTG-v42-ATHZ-02']
 owasp: ['A01:2025']
 labs: []
 sources: [owasp-cs-authorization, wstg-v42-athz-02-bypassing-authz-schema, owasp-top10-2025-a01]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

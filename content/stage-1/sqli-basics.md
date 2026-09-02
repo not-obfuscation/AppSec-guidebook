@@ -8,7 +8,7 @@ summary: >
   отделить текст запроса от данных.
 stage: web-vulns
 order: 160
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -27,7 +27,7 @@ wstg: ['WSTG-v42-INPV-05']
 owasp: ['A05:2025']
 labs: [lab-sqli-basics]
 sources: [ps-sqli, owasp-cs-sqli-prevention, owasp-top10-2025-a05]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

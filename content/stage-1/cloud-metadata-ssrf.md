@@ -8,7 +8,7 @@ summary: >
   когда SSRF доходит до временных учётных данных роли.
 stage: web-vulns
 order: 140
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -26,7 +26,7 @@ wstg: []
 owasp: ['A01:2025']
 labs: []
 sources: [aws-imds, gcp-metadata-server, azure-imds, owasp-cs-ssrf]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 
