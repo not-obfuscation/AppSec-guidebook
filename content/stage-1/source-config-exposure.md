@@ -8,7 +8,7 @@ summary: >
   и как найти это у себя раньше, чем найдут снаружи.
 stage: web-vulns
 order: 630
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-CONF-04']
 owasp: ['A01:2025']
 labs: []
 sources: [ps-information-disclosure, wstg-v42-conf-04-backup]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

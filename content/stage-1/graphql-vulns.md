@@ -8,7 +8,7 @@ summary: >
   авторизацию в GraphQL проверяют на резолвере, а не на эндпоинте.
 stage: web-vulns
 order: 720
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 40
@@ -26,7 +26,7 @@ wstg: []
 owasp: ['A01:2025', 'A06:2025']
 labs: []
 sources: [ps-graphql, owasp-cs-graphql, graphql-learn]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

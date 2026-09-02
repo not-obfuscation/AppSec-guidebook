@@ -8,7 +8,7 @@ summary: >
   переживают откат базы.
 stage: web-vulns
 order: 830
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-BUSL-06']
 owasp: ['A10:2025']
 labs: []
 sources: [wstg-v42-busl-06-workflow-circumvention, django-transactions]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

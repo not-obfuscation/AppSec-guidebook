@@ -8,7 +8,7 @@ summary: >
   читать требования, чтобы находить его глазами.
 stage: web-vulns
 order: 640
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -27,7 +27,7 @@ wstg: ['WSTG-v42-BUSL-01', 'WSTG-v42-BUSL-06']
 owasp: ['A06:2025']
 labs: [lab-business-logic-flaws]
 sources: [ps-business-logic, wstg-v42-busl-01-data-validation, wstg-v42-busl-06-workflow-circumvention]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

@@ -8,7 +8,7 @@ summary: >
   проходятся, а решает четвёртая.
 stage: web-vulns
 order: 600
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: []
 owasp: ['A06:2025']
 labs: []
 sources: [ps-file-upload, owasp-cs-file-upload]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

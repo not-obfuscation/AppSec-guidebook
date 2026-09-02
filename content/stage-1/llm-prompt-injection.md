@@ -8,7 +8,7 @@ summary: >
   закрывает и что даёт разделение прав вместо надежды на фильтр.
 stage: web-vulns
 order: 730
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 40
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [owasp-llm01-prompt-injection, ps-llm-attacks]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

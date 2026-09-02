@@ -8,7 +8,7 @@ summary: >
   данных и что закрывает класс, а что только сужает вектор.
 stage: web-vulns
 order: 610
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: []
 owasp: ['A08:2025']
 labs: []
 sources: [ps-deserialization, owasp-cs-deserialization]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

@@ -8,7 +8,7 @@ summary: >
   вместо готовой.
 stage: web-vulns
 order: 760
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-CRYP-04']
 owasp: ['A04:2025']
 labs: [lab-crypto-misuse]
 sources: [nist-sp-800-38a, nist-sp-800-38d-gcm, wstg-v42-cryp-04-weak-encryption]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

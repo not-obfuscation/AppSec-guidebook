@@ -8,7 +8,7 @@ summary: >
   приложении нужен второй.
 stage: web-vulns
 order: 780
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 35
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-SESS-01']
 owasp: ['A04:2025']
 labs: []
 sources: [wstg-v42-sess-01-session-schema, owasp-cs-crypto-storage]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

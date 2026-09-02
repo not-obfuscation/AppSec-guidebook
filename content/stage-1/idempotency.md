@@ -8,7 +8,7 @@ summary: >
   запросом, сам становится гонкой, и как повтор закрывают схемой.
 stage: web-vulns
 order: 680
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: []
 owasp: ['A06:2025']
 labs: []
 sources: [rfc9110-http-semantics, stripe-api-idempotent-requests, ietf-idempotency-key]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

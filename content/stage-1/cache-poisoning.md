@@ -8,7 +8,7 @@ summary: >
   приложения в разборе пути заставляет кеш сохранить чужую приватную страницу.
 stage: web-vulns
 order: 710
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 40
@@ -26,7 +26,7 @@ wstg: []
 owasp: ['A06:2025']
 labs: []
 sources: [ps-cache-poisoning, ps-cache-deception, rfc9111-http-caching]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

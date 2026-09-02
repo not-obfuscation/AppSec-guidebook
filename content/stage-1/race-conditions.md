@@ -8,7 +8,7 @@ summary: >
   решение и запись сводятся к одной операции хранилища.
 stage: web-vulns
 order: 650
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -27,7 +27,7 @@ wstg: ['WSTG-v42-BUSL-05']
 owasp: ['A06:2025']
 labs: [lab-race-conditions]
 sources: [ps-race-conditions, pg-transaction-iso, wstg-v42-busl-05-function-limits]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

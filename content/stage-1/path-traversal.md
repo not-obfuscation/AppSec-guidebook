@@ -8,7 +8,7 @@ summary: >
   канонизация пути до сверки с базовым каталогом.
 stage: web-vulns
 order: 590
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -27,7 +27,7 @@ wstg: ['WSTG-v42-ATHZ-01']
 owasp: ['A01:2025']
 labs: [lab-path-traversal]
 sources: [ps-path-traversal, wstg-v42-athz-01-directory-traversal, python-os-path]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

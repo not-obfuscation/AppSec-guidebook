@@ -8,7 +8,7 @@ summary: >
   разделение адресата важнее подавления самих сообщений.
 stage: web-vulns
 order: 620
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-ERRH-01']
 owasp: ['A10:2025']
 labs: []
 sources: [ps-information-disclosure, owasp-cs-error-handling, wstg-v42-errh-01-improper-error-handling]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

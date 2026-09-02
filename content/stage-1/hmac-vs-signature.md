@@ -8,7 +8,7 @@ summary: >
   цифровой подписи.
 stage: web-vulns
 order: 500
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 40
@@ -26,7 +26,7 @@ wstg: []
 owasp: ['A04:2025']
 labs: []
 sources: [rfc2104-hmac, fips-198-1-hmac]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

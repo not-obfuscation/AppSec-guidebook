@@ -8,7 +8,7 @@ summary: >
   ревьюера.
 stage: web-vulns
 order: 800
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-ERRH-01']
 owasp: ['A10:2025']
 labs: [lab-fail-open]
 sources: [cwe-636, wstg-v42-errh-01-improper-error-handling]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

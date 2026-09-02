@@ -8,7 +8,7 @@ summary: >
   названным режимом.
 stage: web-vulns
 order: 660
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [python-floating-point, python-decimal, cwe-682]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

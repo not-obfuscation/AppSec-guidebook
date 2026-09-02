@@ -8,7 +8,7 @@ summary: >
   стойкости.
 stage: web-vulns
 order: 750
-status: draft
+status: published
 depth: L2
 mode: справка
 time_min: 40
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-CRYP-04']
 owasp: ['A04:2025']
 labs: []
 sources: [nist-sp-800-131a-r2, wstg-v42-cryp-04-weak-encryption]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

@@ -8,7 +8,7 @@ summary: >
   закрывает это целиком.
 stage: web-vulns
 order: 770
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 15
@@ -24,7 +24,7 @@ wstg: ['WSTG-v42-CRYP-02']
 owasp: ['A04:2025']
 labs: []
 sources: [wstg-v42-cryp-02-padding-oracle, nist-sp-800-38a]
-reviewed: 2026-08-24
+reviewed: 2026-09-02
 review_interval: 12
 ---
 
