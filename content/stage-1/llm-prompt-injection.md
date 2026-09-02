@@ -18,7 +18,7 @@ teaches:
   - Объяснить, почему фильтр запрещённых фраз инъекцию не закрывает
   - Свести меры к разделению прав и назвать границу их применимости
 prerequisites: [app-architecture]
-related: [business-logic-flaws, information-disclosure, ssrf-basics, xss-reflected]
+related: [business-logic-flaws, information-disclosure, ssrf-basics, xss-reflected, llm-top10]
 tags: [llm, injection]
 cwe: [CWE-1427]
 asvs: []

@@ -6984,12 +6984,80 @@ sources:
     version_or_date: живая страница сертификации, даты на странице нет
     volatility: fast
     license: не указана; © PortSwigger Ltd
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
-      Формат экзамена, требования и условия. Существенное для планирования:
-      экзамен требует Burp Suite Professional, то есть платной лицензии —
-      это, а не сложность, обычно и определяет, когда за него браться.
+      Формат экзамена, требования и условия. Перепроверено при письме темы
+      (миссия appsec-stage8-write): экзамен практический — четыре часа, два
+      приложения с преднамеренными уязвимостями, каждое в три стадии (доступ
+      к учётной записи → административный интерфейс → чтение файла на
+      сервере), сдача под автоматическим прокторингом с проверкой документа;
+      сертификат действует пять лет (страница how-it-works той же
+      сертификации). Существенное для планирования: экзамен требует
+      действующей подписки Burp Suite Professional, то есть платной
+      лицензии — это, а не сложность, обычно и определяет, когда за него
+      браться. Цены на странице подставляются скриптом при покупке и в
+      разметку не попадают — в тему не перенесены.
+
+  # Добавлено миссией appsec-stage8-write (2026-09-02): вторые источники к
+  # темам 8.0.02, 8.0.04 и 8.0.05 по находке Н-01 оглавления этапа 8
+  # (journal/STAGE8-TOC.md). Все три страницы открыты лично.
+
+  - id: owasp-mastg
+    url: https://mas.owasp.org/MASTG/
+    title: OWASP MASTG — Mobile Application Security Testing Guide
+    type: owasp
+    level: 2
+    publisher: OWASP Foundation
+    version_or_date: живой документ, даты на странице нет; тесты привязаны к слабостям MASWE
+    volatility: medium
+    license: CC BY 4.0 (подпись в подвале сайта)
+    checked: 2026-09-02
+    status: ok
+    notes: >
+      Парный к MASVS документ того же проекта OWASP MAS: методики
+      тестирования требований стандарта; к каждой слабости MASWE приложены
+      тесты и демонстрации для Android и iOS. Профили тестирования
+      (бывшие уровни L1/L2/R стандарта) с 2023 года живут в MASWE, а не в
+      MASVS. Титульная страница — оглавление; предисловие предупреждает,
+      что документ не заменяет понимания платформ.
+
+  - id: rfc9116-security-txt
+    url: https://www.rfc-editor.org/rfc/rfc9116.html
+    title: RFC 9116 — A File Format to Aid in Security Vulnerability Disclosure
+    type: spec
+    level: 1
+    publisher: IETF
+    version_or_date: Informational, апрель 2022
+    volatility: stable
+    license: IETF Trust (BCP 78); код — Revised BSD
+    checked: 2026-09-02
+    status: ok
+    notes: >
+      Формат файла security.txt — машиночитаемой публикации канала приёма
+      отчётов об уязвимостях. § 2.5: поля Contact и Expires обязательны
+      (Expires — ровно один раз), Policy, Encryption, Acknowledgments,
+      Hiring, Preferred-Languages опциональны. § 3: расположение
+      /.well-known/security.txt, действие файла ограничено доменом, без
+      поддоменов. § 5.5: наличие файла не даёт и не отнимает разрешения на
+      тестирование — разрешение живёт в политике.
+
+  - id: ps-web-security-academy
+    url: https://portswigger.net/web-security
+    title: Web Security Academy — Free Online Training from PortSwigger
+    type: course
+    level: 3
+    publisher: PortSwigger
+    version_or_date: живая платформа, обновляется постоянно; даты на странице нет
+    volatility: medium
+    license: не указана; © PortSwigger Ltd
+    checked: 2026-09-02
+    status: ok
+    notes: >
+      Бесплатная учебная платформа PortSwigger: темы с объяснениями и
+      интерактивные лабораторные, часть решается и на Community Edition.
+      Учебная сторона сертификации BSCP: экзамен построен по формату этих
+      лабораторных (страница how-it-works это подтверждает).
 
   # Добавлено миссией appsec-gapfix (2026-08-22): обзор всей десятки LLM,
   # которого не было ни на одной привязанной странице (journal/FINAL-CHECK.md).

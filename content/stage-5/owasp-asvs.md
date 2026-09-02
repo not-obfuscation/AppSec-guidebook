@@ -18,7 +18,7 @@ teaches:
   - Прочитать требование с номером и найти его в документе
   - Прогнать уровень L1 как чек-лист и записать вердикт с признаком
 prerequisites: []
-related: [threat-modeling, owasp-samm, parameterized-queries]
+related: [threat-modeling, owasp-samm, parameterized-queries, mobile-masvs]
 fixes_in: [parameterized-queries]
 tags: [standards]
 cwe: []

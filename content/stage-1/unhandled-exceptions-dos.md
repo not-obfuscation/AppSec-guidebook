@@ -18,7 +18,7 @@ teaches:
   - Сравнить цену пути ошибки с ценой рабочего пути и объяснить последствие
   - Отличить обработчик последней надежды от перехвата, скрывающего сбой
 prerequisites: [fail-open-vs-fail-closed]
-related: [fail-open-vs-fail-closed, error-message-leaks, partial-state-recovery, race-conditions]
+related: [fail-open-vs-fail-closed, error-message-leaks, partial-state-recovery, race-conditions, fuzzing]
 tags: [error-handling, availability, architecture]
 cwe: [CWE-248, CWE-460, CWE-755]
 asvs: ['v5.0-16.5.4', 'v5.0-15.1.3', 'v5.0-16.5.2']
