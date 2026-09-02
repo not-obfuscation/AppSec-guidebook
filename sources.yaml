@@ -1403,7 +1403,7 @@ sources:
     version_or_date: живой документ, даты публикации на странице нет
     volatility: medium
     license: CC BY-SA 4.0
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Главное правило — не звать шелл, а передавать аргументы массивом; что
@@ -2658,7 +2658,7 @@ sources:
     version_or_date: живой документ, даты публикации на странице нет
     volatility: medium
     license: CC BY-SA 4.0
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Разделение того, что видит пользователь, и того, что попадает в лог;
@@ -6174,7 +6174,7 @@ sources:
     version_or_date: документация Python 3.14
     volatility: stable
     license: PSF License
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Документация начинается с предупреждения: модуль небезопасен, не
@@ -6192,7 +6192,7 @@ sources:
     version_or_date: живая документация проекта, даты на странице нет
     volatility: stable
     license: не указана на странице; проект под MIT License
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Разница между yaml.load и yaml.safe_load: первый умеет
@@ -6209,7 +6209,7 @@ sources:
     version_or_date: документация Python 3.14
     volatility: stable
     license: PSF License
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Раздел «Security Considerations» и разбор shell=True: с ним строка
@@ -6226,7 +6226,7 @@ sources:
     version_or_date: документация stable
     volatility: medium
     license: BSD-3-Clause (документация Django)
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Где именно ORM перестаёт защищать: raw(), extra(), RawSQL и
@@ -6243,7 +6243,7 @@ sources:
     version_or_date: документация версии 2.0
     volatility: medium
     license: MIT License (документация SQLAlchemy)
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Раздел Sending Parameters: конструкция text() для сырого SQL и связанные
@@ -6263,7 +6263,7 @@ sources:
     version_or_date: документация Python 3.14
     volatility: stable
     license: PSF License
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Тонкость, из которой растёт path traversal в Python: os.path.join с
@@ -6281,7 +6281,7 @@ sources:
     version_or_date: документация stable
     volatility: medium
     license: BSD-3-Clause (документация Django)
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Что фреймворк закрывает сам (экранирование в шаблонах, CSRF-мидлварь,
@@ -6320,7 +6320,7 @@ sources:
     version_or_date: документация Flask 3.1.x
     volatility: medium
     license: не указана на странице; © Pallets, проект под BSD-3-Clause
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Контраст с Django, ради которого обе страницы берутся в паре: Flask
@@ -6339,7 +6339,7 @@ sources:
     version_or_date: документация latest, даты на странице нет
     volatility: medium
     license: не указана на странице; проект под MIT License
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Валидаторы полей (@field_validator) и модели (@model_validator), режимы
@@ -6358,7 +6358,7 @@ sources:
     version_or_date: живая документация, даты на странице нет
     volatility: medium
     license: не указана на странице; проект под MIT License
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Security-раздел FastAPI покрывает только OAuth2 и схемы
@@ -6375,7 +6375,7 @@ sources:
     version_or_date: WSTG v4.2; даты обновления страницы нет
     volatility: stable
     license: CC BY-SA 4.0
-    checked: 2026-08-22
+    checked: 2026-09-02
     status: ok
     notes: >
       Процедура ретеста темы 7.1.04, которой не давала документация Python:
@@ -6397,7 +6397,7 @@ sources:
     version_or_date: блог проекта Go, к релизу 1.13
     volatility: stable
     license: CC BY 4.0 (сайт go.dev)
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Обёртывание ошибок через %w, errors.Is и errors.As. Для ревью важен
@@ -6414,7 +6414,7 @@ sources:
     version_or_date: живая документация, даты на странице нет
     volatility: stable
     license: CC BY 4.0 (сайт go.dev)
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Гонки в горутинах и встроенный детектор: go test -race, как читать
@@ -6431,7 +6431,7 @@ sources:
     version_or_date: справочник пакета, живая версия
     volatility: stable
     license: BSD-3-Clause (документация Go)
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Плейсхолдеры и подготовленные выражения в Query и Exec —
@@ -6447,7 +6447,7 @@ sources:
     version_or_date: справочник пакета, живая версия
     volatility: stable
     license: BSD-3-Clause (документация Go)
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Контекстно-зависимое автоэкранирование: пакет сам понимает, куда
@@ -6465,12 +6465,49 @@ sources:
     version_or_date: справочник пакета, живая версия
     volatility: stable
     license: BSD-3-Clause (документация Go)
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Clean, Abs, EvalSymlinks и разница между filepath (с учётом
       разделителя ОС) и path (всегда со слэшем). Ошибка в выборе пакета —
       готовый обход проверки пути на Windows.
+
+  - id: go-os
+    url: https://pkg.go.dev/os
+    title: os package
+    type: official-docs
+    level: 1
+    publisher: The Go Authors
+    version_or_date: справочник пакета, живая версия; os.Root добавлен в Go 1.24
+    volatility: stable
+    license: BSD-3-Clause (документация Go)
+    checked: 2026-09-02
+    status: ok
+    notes: >
+      Тип Root (os.OpenRoot): методы читают только внутри корневого
+      каталога, любой выход за него — ошибка «path escapes from parent»;
+      символические ссылки за пределы корня запрещены. Второй источник темы
+      go-filepath (находка Н-01 оглавления этапа 7): пакет filepath — это
+      лексика путей, а реальная изоляция начинается с os.Root.
+
+  - id: go-blog-race-detector
+    url: https://go.dev/blog/race-detector
+    title: Introducing the Go Race Detector
+    type: official-docs
+    level: 1
+    publisher: The Go Authors
+    version_or_date: блог проекта Go, июнь 2013, к релизу Go 1.1
+    volatility: stable
+    license: CC BY 4.0 (сайт go.dev)
+    checked: 2026-09-02
+    status: ok
+    notes: >
+      Вводная статья о детекторе: в основе — ThreadSanitizer, ложных
+      срабатываний нет, цена прогона — до десятикратного роста CPU и памяти,
+      поэтому детектор включают в тестах и на части боевой нагрузки, а не
+      постоянно. Два разобранных кейса: Timer.Reset и ioutil.Discard.
+      Второй источник темы go-race-detector (находка Н-01 оглавления
+      этапа 7).
 
   # 7.3 JavaScript / TypeScript
 
@@ -6709,7 +6746,7 @@ sources:
     version_or_date: живая документация, даты на странице нет
     volatility: fast
     license: не указана на странице; проект под MIT License
-    checked: 2026-08-22
+    checked: 2026-09-02
     status: ok
     notes: >
       Практика вместо обзора: у привязанной ранее fastapi-security нет ни
