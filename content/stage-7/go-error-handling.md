@@ -8,7 +8,7 @@ summary: >
   в ответе клиенту.
 stage: code-review-languages
 order: 70
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 15

@@ -8,7 +8,7 @@ summary: >
   npm install в конвейере.
 stage: code-review-languages
 order: 120
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 15

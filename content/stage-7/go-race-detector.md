@@ -8,7 +8,7 @@ summary: >
   почему чистый прогон не доказывает отсутствие гонок.
 stage: code-review-languages
 order: 80
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент

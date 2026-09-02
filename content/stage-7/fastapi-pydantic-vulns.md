@@ -8,7 +8,7 @@ summary: >
   а jwt.decode без списка алгоритмов падает — и это защита.
 stage: code-review-languages
 order: 60
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 40

@@ -8,7 +8,7 @@ summary: >
   аргумента-флага и как выглядит починка.
 stage: code-review-languages
 order: 20
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 35

@@ -8,7 +8,7 @@ summary: >
   по контексту — и где у каждого проходит граница.
 stage: code-review-languages
 order: 90
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 20

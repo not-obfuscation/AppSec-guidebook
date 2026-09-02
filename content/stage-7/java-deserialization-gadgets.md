@@ -8,7 +8,7 @@ summary: >
   цепочка гаджетов и что даёт ObjectInputFilter.
 stage: code-review-languages
 order: 160
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30

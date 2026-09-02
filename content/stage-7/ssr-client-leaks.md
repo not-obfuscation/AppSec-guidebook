@@ -8,7 +8,7 @@ summary: >
   бандл, и секрет утекает через обе двери.
 stage: code-review-languages
 order: 130
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30
@@ -271,7 +271,7 @@ taintObjectReference, и поздний рефакторинг упадёт с �
 сериализация» стареет медленнее.
 
 **Маркеры уверенности.** **Проверено лично** 2026-09-02 на Node.js 26.8.1
-и react-server-dom-webpack 0.0.0-experimental-21c89c9f (сборка без
+и react-server-dom-webpack 0.0.0-experimental-21c89c9f-20260901 (сборка без
 бандлера, руками собранная ссылка на клиентский модуль): объект user с
 токеном целиком попадает в нагрузку RSC; после taintObjectReference
 нагрузка несёт ошибку с текстом пометки, а токена в ней нет; классический

@@ -8,7 +8,7 @@ summary: >
   наружу только health — пока include не скажет иначе.
 stage: code-review-languages
 order: 170
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 15

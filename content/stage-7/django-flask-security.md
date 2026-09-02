@@ -8,7 +8,7 @@ summary: >
   CSRF, DEBUG в проде.
 stage: code-review-languages
 order: 50
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 45

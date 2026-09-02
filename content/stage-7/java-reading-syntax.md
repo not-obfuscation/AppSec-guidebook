@@ -8,7 +8,7 @@ summary: >
   аннотации и static.
 stage: code-review-languages
 order: 150
-status: draft
+status: published
 depth: L3
 mode: справка
 time_min: 20

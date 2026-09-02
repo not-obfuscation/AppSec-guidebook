@@ -7,7 +7,7 @@ summary: >
   не дают, IsLocal как отбор входа и os.Root как реальная граница.
 stage: code-review-languages
 order: 100
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 15

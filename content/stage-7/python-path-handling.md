@@ -8,7 +8,7 @@ summary: >
   пути реально держит границу.
 stage: code-review-languages
 order: 40
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 15

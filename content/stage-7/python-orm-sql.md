@@ -8,7 +8,7 @@ summary: >
   столбца параметром не передаётся.
 stage: code-review-languages
 order: 30
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 40

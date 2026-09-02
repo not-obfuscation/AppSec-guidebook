@@ -8,7 +8,7 @@ summary: >
   и то, чем их заменить.
 stage: code-review-languages
 order: 10
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 40

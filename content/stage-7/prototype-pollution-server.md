@@ -8,7 +8,7 @@ summary: >
   Гаджеты, проверки и рабочие защиты.
 stage: code-review-languages
 order: 110
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30
