@@ -8,7 +8,7 @@ summary: >
   конвейере делает проверку бессмысленной и где живёт история кроме коммитов.
 stage: appsec-tooling
 order: 190
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: ['A04:2025', 'A07:2025']
 labs: []
 sources: [gh-secret-scanning, gitleaks]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

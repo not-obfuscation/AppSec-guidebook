@@ -8,7 +8,7 @@ summary: >
   у которых след подавления выглядит по-разному или не выглядит никак.
 stage: appsec-tooling
 order: 280
-status: draft
+status: published
 depth: L2
 mode: траблшутинг
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: ['A05:2025']
 labs: []
 sources: [nist-sp-500-268, semgrep-ignore, semgrep-customize-ci-job]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

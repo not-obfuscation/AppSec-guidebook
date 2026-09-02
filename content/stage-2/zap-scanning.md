@@ -9,7 +9,7 @@ summary: >
   отчёте.
 stage: appsec-tooling
 order: 220
-status: draft
+status: published
 depth: L1
 mode: рецепт
 skeleton: инструмент
@@ -30,7 +30,7 @@ wstg: []
 owasp: ['A01:2025', 'A05:2025']
 labs: [lab-zap-scanning]
 sources: [zap-getting-started, zap-automation, zap-alerts-index]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

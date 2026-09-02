@@ -8,7 +8,7 @@ summary: >
   прогона равен полноте спецификации, а не полноте приложения.
 stage: appsec-tooling
 order: 240
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: ['A01:2025', 'A05:2025']
 labs: []
 sources: [zap-openapi, openapi-spec]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 
@@ -120,7 +120,7 @@ API ни одного запроса.
 ## 4. Что умеет и чего не умеет
 
 **Что умеет.** Прочитать описание из файла или по адресу, в JSON или в YAML,
-версий 2.0 и 3.x. Развернуть его в перечень запросов и передать активным
+версий 1.2, 2.0 и 3.x. Развернуть его в перечень запросов и передать активным
 правилам. Подставить свой базовый адрес вместо того, что записан в описании, —
 это нужно всегда, потому что в описании стоит адрес рабочей системы.
 
@@ -311,8 +311,8 @@ JSON как раз имеет смысл.
    автоматизации и её параметры `apiFile`, `apiUrl`, `targetUrl`.
    <https://www.zaproxy.org/docs/desktop/addons/openapi-support/>
 2. OpenAPI Initiative, «OpenAPI Specification»; реестр `openapi-spec`. Разделы:
-   объект операции, объект параметра и его поле `in` (path, query, querystring,
-   header, cookie), тело запроса и его схема, объект `servers`.
+   объект операции, объект параметра и его поле `in` (path, query, header,
+   cookie), тело запроса и его схема, объект `servers`.
    <https://spec.openapis.org/oas/latest.html>
 
 Каркас этапа: `cwe-taxonomy`. Наследуется всеми темами и отдельной строкой не

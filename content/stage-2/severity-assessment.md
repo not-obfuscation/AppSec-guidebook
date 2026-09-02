@@ -8,7 +8,7 @@ summary: >
   дотянутся и чего стоит отказ: одна находка получает 9.8 и 6.6.
 stage: appsec-tooling
 order: 270
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [first-cvss-v31, first-cvss-v40, first-epss]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

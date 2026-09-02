@@ -7,7 +7,7 @@ summary: >
   утверждать без лицензии и какой вопрос задают на их месте в процессе.
 stage: appsec-tooling
 order: 90
-status: draft
+status: published
 depth: L3
 mode: концепт
 skeleton: инструмент
@@ -25,7 +25,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [isp-ras-svace, solar-appscreener, appsec-solutions]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 6
 ---
 

@@ -8,7 +8,7 @@ summary: >
   перестаёт хватать и нужен режим распространения метки.
 stage: appsec-tooling
 order: 30
-status: draft
+status: published
 depth: L1
 mode: концепт
 skeleton: инструмент
@@ -29,7 +29,7 @@ wstg: []
 owasp: ['A05:2025']
 labs: [lab-semgrep-rules]
 sources: [semgrep-rule-syntax, semgrep-pattern-syntax, semgrep-taint, semgrep-testing-rules]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

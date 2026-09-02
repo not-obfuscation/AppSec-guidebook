@@ -8,7 +8,7 @@ summary: >
   почему SBOM, которому верят на слово, бесполезен.
 stage: appsec-tooling
 order: 130
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [cyclonedx-spec, spdx-spec, syft-docs]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

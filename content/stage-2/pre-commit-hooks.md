@@ -8,7 +8,7 @@ summary: >
   записью в журнал. Как поставить обе и чем они отличаются на прогоне.
 stage: appsec-tooling
 order: 210
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: ['A04:2025', 'A07:2025']
 labs: []
 sources: [pre-commit, gh-push-protection]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

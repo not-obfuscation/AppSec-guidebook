@@ -8,7 +8,7 @@ summary: >
   показывающий, что секрет остаётся достижим после переписывания истории.
 stage: appsec-tooling
 order: 200
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: ['A04:2025', 'A07:2025']
 labs: []
 sources: [gh-remove-sensitive-data, gh-secret-scanning]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

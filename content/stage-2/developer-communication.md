@@ -8,7 +8,7 @@ summary: >
   тексту заявки чужими руками, без её автора.
 stage: appsec-tooling
 order: 320
-status: draft
+status: published
 depth: L1
 mode: концепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: ['A01:2025', 'A05:2025', 'A10:2025']
 labs: [lab-developer-communication]
 sources: [google-bsrs, google-bsrs-ch21-culture]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

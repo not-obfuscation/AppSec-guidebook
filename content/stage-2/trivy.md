@@ -8,7 +8,7 @@ summary: >
   один и тот же CVE у разных источников получает разный балл.
 stage: appsec-tooling
 order: 150
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: ['A03:2025']
 labs: []
 sources: [trivy-docs, trivy-filtering]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

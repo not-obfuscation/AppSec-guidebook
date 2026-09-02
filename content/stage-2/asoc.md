@@ -8,7 +8,7 @@ summary: >
   берёт и почему сам не находит ничего.
 stage: appsec-tooling
 order: 310
-status: draft
+status: published
 depth: L3
 mode: концепт
 skeleton: инструмент
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [defectdojo-docs, defectdojo-dedup]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

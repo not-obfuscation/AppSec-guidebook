@@ -8,7 +8,7 @@ summary: >
   другой — адрес и параметр, третий не называет даже класс дефекта.
 stage: appsec-tooling
 order: 290
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: ['A05:2025']
 labs: []
 sources: [defectdojo-dedup, zap-alerts-index, bandit-test-plugins]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

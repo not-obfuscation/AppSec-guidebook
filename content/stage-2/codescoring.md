@@ -8,7 +8,7 @@ summary: >
   и сравнения без прогона тоже.
 stage: appsec-tooling
 order: 160
-status: draft
+status: published
 depth: L3
 mode: концепт
 skeleton: инструмент
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [codescoring, codescoring-docs]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

@@ -8,7 +8,7 @@ summary: >
   измеренному шуму.
 stage: appsec-tooling
 order: 40
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: ['A05:2025']
 labs: []
 sources: [semgrep-testing-rules, semgrep-rule-syntax, semgrep-ignore, semgrep-customize-ci-job]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

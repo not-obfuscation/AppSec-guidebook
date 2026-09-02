@@ -8,7 +8,7 @@ summary: >
   приложении с подставленными дефектами он не нашёл ни одного.
 stage: appsec-tooling
 order: 260
-status: draft
+status: published
 depth: L3
 mode: концепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [nuclei-docs, nuclei-templates-intro]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

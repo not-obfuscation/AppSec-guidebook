@@ -8,7 +8,7 @@ summary: >
   как он опознаёт зависимости и почему манифеста ему мало.
 stage: appsec-tooling
 order: 140
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: ['A03:2025']
 labs: []
 sources: [dependency-check-docs, dependency-track-docs]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

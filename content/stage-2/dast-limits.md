@@ -9,7 +9,7 @@ summary: >
   ни в одну сторону.
 stage: appsec-tooling
 order: 250
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: ['A01:2025', 'A06:2025']
 labs: []
 sources: [wstg-v42-introduction, nist-sp-500-268]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

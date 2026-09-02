@@ -8,7 +8,7 @@ summary: >
   одной находки по ним.
 stage: appsec-tooling
 order: 80
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: ['A01:2025', 'A05:2025']
 labs: []
 sources: [sonarqube-quality-gates, sonarqube-feature-comparison, nist-sp-500-268]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 6
 ---
 

@@ -8,7 +8,7 @@ summary: >
   узнаётся в конкретной находке.
 stage: appsec-tooling
 order: 20
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: ['A04:2025', 'A05:2025']
 labs: []
 sources: [nist-sp-500-268, semgrep-taint, bandit-test-plugins, gosec-repo]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

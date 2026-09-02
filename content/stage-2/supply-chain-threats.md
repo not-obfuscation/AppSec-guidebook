@@ -8,7 +8,7 @@ summary: >
   захват мейнтейнера — и что от них по-настоящему защищает.
 stage: appsec-tooling
 order: 100
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 90
@@ -25,7 +25,7 @@ wstg: []
 owasp: ['A03:2025']
 labs: [lab-supply-chain-threats]
 sources: [slsa-threats, pip-install-docs, pep-503]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

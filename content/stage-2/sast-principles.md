@@ -8,7 +8,7 @@ summary: >
   а какие пропустит.
 stage: appsec-tooling
 order: 10
-status: draft
+status: published
 depth: L1
 mode: концепт
 skeleton: инструмент
@@ -29,7 +29,7 @@ wstg: []
 owasp: ['A01:2025', 'A04:2025', 'A05:2025']
 labs: [lab-sast-principles]
 sources: [nist-sp-500-268, semgrep-taint, semgrep-pattern-syntax, gosec-repo]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

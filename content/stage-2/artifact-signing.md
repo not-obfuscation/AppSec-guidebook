@@ -8,7 +8,7 @@ summary: >
   прозрачного журнала подпись теряет половину смысла.
 stage: appsec-tooling
 order: 170
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: ['A03:2025']
 labs: []
 sources: [sigstore-docs, sigstore-quickstart-cosign, slsa-v12-build-provenance, slsa-v12-build-track-basics]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

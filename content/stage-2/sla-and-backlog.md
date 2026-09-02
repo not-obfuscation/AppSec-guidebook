@@ -8,7 +8,7 @@ summary: >
   соглашения о сроках получается очередь и что показывает её просрочка.
 stage: appsec-tooling
 order: 300
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [cisa-bod-26-04, first-epss]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 
