@@ -1608,7 +1608,7 @@ sources:
     version_or_date: живая платформа, даты на странице нет
     volatility: medium
     license: не указана; © PortSwigger Ltd
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Источники загрязнения прототипа, поиск гаджетов, раскрутка до DOM XSS на
@@ -1624,7 +1624,7 @@ sources:
     version_or_date: живой документ, даты публикации на странице нет
     volatility: medium
     license: CC BY-SA 4.0
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Защита: Object.freeze для прототипа, Object.create(null) и Map вместо
@@ -2195,7 +2195,7 @@ sources:
     version_or_date: живой документ, даты публикации на странице нет
     volatility: medium
     license: CC BY-SA 4.0
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Разложено по стекам темы: Python pickle, PyYAML (yaml.load против
@@ -3838,7 +3838,7 @@ sources:
     version_or_date: документация npm CLI v11
     volatility: medium
     license: не указана на странице; © npm/GitHub
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Как lock-файл фиксирует всё дерево зависимостей, включая транзитивные,
@@ -6520,7 +6520,7 @@ sources:
     version_or_date: документация npm CLI v11
     volatility: medium
     license: не указана на странице; © npm/GitHub
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Как устроена проверка дерева зависимостей на известные уязвимости,
@@ -6537,7 +6537,7 @@ sources:
     version_or_date: живая документация, даты на странице нет
     volatility: fast
     license: не указана на странице; © Vercel
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Граница сервера и клиента в SSR-фреймворке: что остаётся на сервере,
@@ -6554,7 +6554,7 @@ sources:
     version_or_date: экспериментальный API, доступен только в канале Canary
     volatility: fast
     license: не указана на странице; © Meta Platforms
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Механизм пометки объектов, которые нельзя отдавать клиенту: попытка
@@ -6572,7 +6572,7 @@ sources:
     version_or_date: документация Node.js v26.7.0
     volatility: medium
     license: не указана на странице; документация Node.js под MIT License
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Разница между exec (через оболочку) и execFile/spawn (без неё) —
@@ -6589,7 +6589,7 @@ sources:
     version_or_date: документация Node.js v26.7.0
     volatility: medium
     license: не указана на странице; документация Node.js под MIT License
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       path.join, path.resolve и normalize с той же ловушкой, что в Python:
@@ -6606,7 +6606,7 @@ sources:
     version_or_date: живая документация, даты на странице нет
     volatility: medium
     license: не указана на странице; документация Node.js под MIT License
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Модель угроз самой платформы: отравление зависимостей, вредоносные
@@ -6626,7 +6626,7 @@ sources:
     version_or_date: живой учебный портал Oracle, версии и даты на странице нет
     volatility: stable
     license: не указана на странице; © Oracle
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Действующий учебный портал Oracle по Java: с чего начать, JShell, сборка в
@@ -6653,7 +6653,7 @@ sources:
     version_or_date: документация Java SE 21
     volatility: medium
     license: не указана на странице; © Oracle
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Официальный механизм защиты от небезопасной десериализации: фильтры
@@ -6661,6 +6661,28 @@ sources:
       пофабричные. Объясняет, почему цепочка гаджетов работает — при
       десериализации создаются произвольные классы из classpath — и как
       это ограничивается. Общий разбор класса — по owasp-cs-deserialization.
+      2026-09-02: страница отдаётся JS-оболочкой, автоматическому клиенту
+      доступно оглавление; детали сверены по справочнику API
+      (java-objectinputfilter-api) и прогоном на OpenJDK 17.
+
+  - id: java-objectinputfilter-api
+    url: https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/ObjectInputFilter.html
+    title: ObjectInputFilter — Java SE 21 & JDK 21
+    type: official-docs
+    level: 1
+    publisher: Oracle
+    version_or_date: документация Java SE 21, JDK 21
+    volatility: medium
+    license: не указана на странице; © Oracle
+    checked: 2026-09-02
+    status: ok
+    notes: >
+      Справочник интерфейса фильтра десериализации: статусы
+      ALLOWED/REJECTED/UNDECIDED, метрики (глубина графа, число ссылок,
+      размер потока), образец строки-паттерна «example.*;java.base/*;!*»,
+      фабрика фильтров и JVM-wide фильтр через jdk.serialFilter.
+      Предупреждение шапки: десериализация недоверенных данных опасна по
+      построению. Третий источник темы java-deserialization-gadgets.
 
   - id: spring-security-docs
     url: https://docs.spring.io/spring-security/reference/index.html
@@ -6671,7 +6693,7 @@ sources:
     version_or_date: живая справочная документация, даты на странице нет
     volatility: medium
     license: не указана на странице; документация Spring под Apache License 2.0
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Цепочка фильтров, правила авторизации запросов, метод-уровневая
@@ -6689,7 +6711,7 @@ sources:
     version_or_date: живая справочная документация, даты на странице нет
     volatility: medium
     license: не указана на странице; документация Spring под Apache License 2.0
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Полный перечень эндпоинтов actuator с указанием, какие открыты по
@@ -6706,7 +6728,7 @@ sources:
     version_or_date: живая страница безопасности проекта
     volatility: medium
     license: Apache License 2.0
-    checked: 2026-08-20
+    checked: 2026-09-02
     status: ok
     notes: >
       Страница безопасности проекта Apache Logging: модель угроз и таблица всех
@@ -6732,6 +6754,10 @@ sources:
       Показательный кейс целиком: описание, вектор CVSS, затронутые
       версии, ссылки на исправления. Полезен и как пример того, как
       читается запись NVD — навык из этапа 2 на конкретной уязвимости.
+      2026-09-02 (волна этапа 7): веб-страница отвечает JS-проверкой
+      Cloudflare автоматическому клиенту; содержание записи (описание,
+      CVSS 3.1 10.0, вектор, CWE-917) сверено в тот же день через
+      официальный API NVD (services.nvd.nist.gov/rest/json/cves/2.0).
 
 
   # Добавлено миссией appsec-gapfix (2026-08-22): глубина привязки
@@ -6774,7 +6800,7 @@ sources:
     version_or_date: живой учебник, даты на странице нет
     volatility: medium
     license: не указана; © Oracle and/or its affiliates
-    checked: 2026-08-22
+    checked: 2026-09-02
     status: ok
     notes: >
       Текст, а не каталог: по адресу java-tutorial-language лежит список
@@ -6794,7 +6820,7 @@ sources:
     version_or_date: живой учебник, даты на странице нет
     volatility: medium
     license: не указана; © Oracle and/or its affiliates
-    checked: 2026-08-22
+    checked: 2026-09-02
     status: ok
     notes: >
       Сводка операторов одним списком: присваивание, арифметические, унарные,
@@ -6812,7 +6838,7 @@ sources:
     version_or_date: живой учебник, даты на странице нет
     volatility: medium
     license: не указана; © Oracle and/or its affiliates
-    checked: 2026-08-22
+    checked: 2026-09-02
     status: ok
     notes: >
       Объявление класса и его частей: заголовок класса с модификаторами,
