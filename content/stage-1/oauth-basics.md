@@ -23,7 +23,7 @@ related: [oauth-attacks, oidc, jwt-basics, token-lifetime-revocation]
 tags: [oauth, auth, api]
 cwe: [CWE-522, CWE-287]
 asvs: ['v5.0-3.5.4', 'v5.0-9.2.1']
-wstg: ['WSTG-v42-ATHZ-04']
+wstg: []
 owasp: ['A07:2025']
 labs: [lab-oauth-basics]
 sources: [rfc6749-oauth2, ps-oauth, rfc9700-oauth-bcp]
@@ -413,7 +413,7 @@ patterns:
 5. Verify that запрошенная область (`scope`) сужена до необходимого, а не берётся
    с запасом.
 6. Verify that при входе через OAuth личность подтверждается полем `id_token`
-   OpenID Connect, а не одним токеном доступа (WSTG-v42-ATHZ-04).
+   OpenID Connect, а не одним токеном доступа.
 
 ## 11. Лаба
 

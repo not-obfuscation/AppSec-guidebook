@@ -22,7 +22,7 @@ related: [sqli-basics, parameterized-queries, filter-and-waf-bypass, ldap-xpath-
 tags: [nosql, injection, api]
 cwe: [CWE-943]
 asvs: ['v5.0-1.2.4']
-wstg: ['WSTG-v42-INPV-06']
+wstg: []
 owasp: ['A05:2025']
 labs: []
 sources: [ps-nosqli, owasp-cs-nosql-security]

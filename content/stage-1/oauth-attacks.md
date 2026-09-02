@@ -22,7 +22,7 @@ related: [oauth-basics, jwt-attacks, ssrf-basics, oidc]
 tags: [oauth, auth, csrf]
 cwe: [CWE-601, CWE-352]
 asvs: ['v5.0-3.5.4']
-wstg: ['WSTG-v42-ATHZ-04']
+wstg: []
 owasp: ['A07:2025']
 labs: []
 sources: [rfc9700-oauth-bcp, ps-oauth]
@@ -244,7 +244,7 @@ OAuth; при входе исключительно через OAuth он не �
 5. Verify that на адресах callback нет открытых редиректов, а Referer погашен
    политикой (CWE-601).
 6. Verify that код одноразовый и гасится после первого обмена, а область при
-   обмене сверяется с исходной (WSTG-v42-ATHZ-04).
+   обмене сверяется с исходной.
 
 ## 11. Задача
 
