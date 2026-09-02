@@ -8,7 +8,7 @@ summary: >
   секрета открытым текстом.
 stage: secure-sdlc
 order: 110
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 60

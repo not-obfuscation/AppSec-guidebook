@@ -8,7 +8,7 @@ summary: >
   может всякий, кто может создать под в том же пространстве имён.
 stage: infrastructure
 order: 130
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 10
@@ -24,7 +24,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [k8s-secrets, owasp-cs-kubernetes]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

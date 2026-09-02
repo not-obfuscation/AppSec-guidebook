@@ -8,7 +8,7 @@ summary: >
   собранный опыт сообщества, а не стандарт.
 stage: secure-sdlc
 order: 100
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент

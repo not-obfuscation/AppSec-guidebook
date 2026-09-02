@@ -8,7 +8,7 @@ summary: >
   Standards.
 stage: infrastructure
 order: 160
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 10
@@ -25,7 +25,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [k8s-admission-controllers, k8s-pod-security-standards]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

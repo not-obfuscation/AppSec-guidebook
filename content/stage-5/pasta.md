@@ -7,7 +7,7 @@ summary: >
   бизнес-целей к разбору атаки, и цена такого размаха.
 stage: secure-sdlc
 order: 40
-status: draft
+status: published
 depth: L3
 mode: концепт
 skeleton: инструмент
@@ -25,7 +25,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [sei-threat-modeling-methods, sei-threat-modeling-methods-paper]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

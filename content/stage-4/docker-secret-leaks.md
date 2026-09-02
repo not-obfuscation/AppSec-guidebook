@@ -8,7 +8,7 @@ summary: >
   в образ: RUN --mount=type=secret.
 stage: infrastructure
 order: 90
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [docker-build-secrets, docker-image-history]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 6
 ---
 

@@ -8,7 +8,7 @@ summary: >
   allowlist как оформленное исключение.
 stage: infrastructure
 order: 110
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [harbor-docs, harbor-vulnerability-scanning]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 6
 ---
 

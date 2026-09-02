@@ -8,7 +8,7 @@ summary: >
   использованию.
 stage: secure-sdlc
 order: 30
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [schneier-attack-trees, owasp-cs-abuse-case]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

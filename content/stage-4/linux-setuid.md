@@ -8,7 +8,7 @@ summary: >
   общий каталог.
 stage: infrastructure
 order: 20
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 60
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: [lab-linux-setuid]
 sources: [man-inode, man-credentials, man-ld-so]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

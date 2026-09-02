@@ -8,7 +8,7 @@ summary: >
   создании файла.
 stage: infrastructure
 order: 10
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 70
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: [lab-linux-file-permissions]
 sources: [man-inode, man-umask]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

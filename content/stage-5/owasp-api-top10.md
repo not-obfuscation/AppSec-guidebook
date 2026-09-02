@@ -8,7 +8,7 @@ summary: >
   уже разобранные в темах маршрута.
 stage: secure-sdlc
 order: 80
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 15

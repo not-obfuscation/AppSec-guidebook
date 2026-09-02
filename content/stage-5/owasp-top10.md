@@ -8,7 +8,7 @@ summary: >
   и читается он с годом издания у каждого номера.
 stage: secure-sdlc
 order: 70
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 30

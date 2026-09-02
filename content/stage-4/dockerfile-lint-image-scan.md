@@ -8,7 +8,7 @@ summary: >
   сканер, который сравнивает состав образа с базой уязвимостей.
 stage: infrastructure
 order: 100
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -29,7 +29,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [hadolint-repo, trivy-docs]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 6
 ---
 

@@ -8,7 +8,7 @@ summary: >
   запуска и чем каждая чинится.
 stage: infrastructure
 order: 70
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 75
@@ -27,7 +27,7 @@ wstg: []
 owasp: []
 labs: [lab-docker-insecure-practices]
 sources: [docker-engine-security, owasp-cs-docker, man-capabilities]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

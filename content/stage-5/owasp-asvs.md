@@ -7,7 +7,7 @@ summary: >
   требований, выбор уровня под риск и прогон уровня L1 по приложению.
 stage: secure-sdlc
 order: 50
-status: draft
+status: published
 depth: L1
 mode: концепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: []
 labs: [lab-owasp-asvs]
 sources: [owasp-asvs-5, owasp-asvs-5-document]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

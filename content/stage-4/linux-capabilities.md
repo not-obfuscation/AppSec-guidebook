@@ -7,7 +7,7 @@ summary: >
   набора есть у процесса и почему CAP_SYS_ADMIN считают новым root.
 stage: infrastructure
 order: 30
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 60
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: [lab-linux-capabilities]
 sources: [man-capabilities, man-capsh]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

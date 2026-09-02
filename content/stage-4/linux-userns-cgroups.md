@@ -8,7 +8,7 @@ summary: >
   превращает root внутри в обычного пользователя снаружи.
 stage: infrastructure
 order: 40
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 40
@@ -29,7 +29,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [man-namespaces, man-cgroups, man-user-namespaces]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

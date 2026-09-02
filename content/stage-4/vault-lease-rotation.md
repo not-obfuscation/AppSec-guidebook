@@ -7,7 +7,7 @@ summary: >
   включая массовый отзыв по префиксу при инциденте.
 stage: infrastructure
 order: 180
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [vault-lease, vault-database-secrets]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

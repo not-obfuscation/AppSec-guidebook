@@ -8,7 +8,7 @@ summary: >
   с профилями по путям.
 stage: infrastructure
 order: 50
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 15
@@ -24,7 +24,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [selinux-notebook, apparmor-ubuntu]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

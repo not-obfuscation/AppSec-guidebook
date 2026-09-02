@@ -8,7 +8,7 @@ summary: >
   объявлен, а admission не настроен.
 stage: infrastructure
 order: 150
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 35
@@ -27,7 +27,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [k8s-pod-security-standards, owasp-cs-kubernetes]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

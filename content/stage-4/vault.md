@@ -8,7 +8,7 @@ summary: >
   динамическая создаёт учётную запись на время и удаляет её.
 stage: infrastructure
 order: 170
-status: draft
+status: published
 depth: L1
 mode: концепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: []
 labs: [lab-vault]
 sources: [vault-what-is, vault-database-secrets]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

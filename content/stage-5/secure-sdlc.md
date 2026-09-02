@@ -8,7 +8,7 @@ summary: >
   артефакт это подтверждает.
 stage: secure-sdlc
 order: 90
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент

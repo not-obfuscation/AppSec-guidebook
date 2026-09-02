@@ -8,7 +8,7 @@ summary: >
   на каждую.
 stage: secure-sdlc
 order: 10
-status: draft
+status: published
 depth: L1
 mode: концепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: []
 labs: [lab-threat-modeling]
 sources: [owasp-cs-threat-modeling, threat-modeling-manifesto]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

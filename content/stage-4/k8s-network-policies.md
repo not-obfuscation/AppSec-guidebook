@@ -7,7 +7,7 @@ summary: >
   deny-by-default — и две оговорки, ради которых тема стоит в плане.
 stage: infrastructure
 order: 140
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 10
@@ -23,7 +23,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [k8s-network-policies, owasp-cs-kubernetes]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

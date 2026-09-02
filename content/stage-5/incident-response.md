@@ -8,7 +8,7 @@ summary: >
   начинающего инженера в этом процессе.
 stage: secure-sdlc
 order: 120
-status: draft
+status: published
 depth: L3
 mode: концепт
 skeleton: инструмент

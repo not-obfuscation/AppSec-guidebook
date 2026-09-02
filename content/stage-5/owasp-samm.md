@@ -8,7 +8,7 @@ summary: >
   даёт, кроме цифры.
 stage: secure-sdlc
 order: 60
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -27,7 +27,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [owasp-samm, owasp-samm-about]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

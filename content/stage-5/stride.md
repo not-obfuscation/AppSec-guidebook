@@ -8,7 +8,7 @@ summary: >
   хватило фантазии».
 stage: secure-sdlc
 order: 20
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -27,8 +27,8 @@ asvs: []
 wstg: []
 owasp: []
 labs: []
-sources: [ms-stride, owasp-cs-threat-modeling]
-reviewed: 2026-09-01
+sources: [ms-stride, owasp-cs-threat-modeling, sei-threat-modeling-methods]
+reviewed: 2026-09-02
 review_interval: 12
 ---
 
@@ -221,6 +221,10 @@ D — заблокировать вход перебором; E — войти �
    Разделы: категории против нарушаемых свойств, примеры, место STRIDE в
    процессе.
    <https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html>
+3. Threat Modeling: 12 Available Methods, каталог SEI; реестр
+   `sei-threat-modeling-methods`. Разделы: зрелость STRIDE, конец его
+   развития у Microsoft, варианты per-element и per-interaction.
+   <https://insights.sei.cmu.edu/blog/threat-modeling-12-available-methods/>
 
 Каркас этапа: этап 5 опирается на открытые документы методов; стендов
 нет.

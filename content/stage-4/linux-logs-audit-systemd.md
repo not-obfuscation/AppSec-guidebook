@@ -8,7 +8,7 @@ summary: >
   контейнера.
 stage: infrastructure
 order: 60
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [man-systemd-exec, man-auditd]
-reviewed: 2026-09-01
+reviewed: 2026-09-02
 review_interval: 12
 ---
 
