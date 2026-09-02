@@ -8,7 +8,7 @@ summary: >
   того, как оно попадёт на сервер.
 stage: ci-cd
 order: 20
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [gha-understanding, gha-workflow-syntax, gha-token-permissions]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

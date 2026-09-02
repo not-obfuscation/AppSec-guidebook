@@ -7,7 +7,7 @@ summary: >
   чтения этой группы: она сокращается, а не растёт.
 stage: protocol-basics
 order: 80
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 28
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [owasp-cs-http-headers, rfc6797-hsts]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

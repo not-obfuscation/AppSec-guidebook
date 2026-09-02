@@ -7,7 +7,7 @@ summary: >
   Расхождение между парсерами — самостоятельный класс дефекта.
 stage: protocol-basics
 order: 20
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [whatwg-url, rfc3986-uri, unicode-uts39-security-mechanisms, claroty-url-parsing-confusion]
-reviewed: 2026-08-22
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

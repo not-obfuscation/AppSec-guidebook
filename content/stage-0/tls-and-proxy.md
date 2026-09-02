@@ -7,7 +7,7 @@ summary: >
   почему перехватывающий прокси читает HTTPS, не ломая криптографию.
 stage: protocol-basics
 order: 90
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [rfc9846-tls13, rfc5280-x509, burp-docs-proxy, burp-proxy-manage-certificates, burp-proxy-intercept-messages]
-reviewed: 2026-08-22
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

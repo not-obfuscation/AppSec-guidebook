@@ -8,7 +8,7 @@ summary: >
   признаки каждого и правило «номер всегда с годом».
 stage: optional
 order: 30
-status: draft
+status: published
 depth: L3
 mode: концепт
 time_min: 15

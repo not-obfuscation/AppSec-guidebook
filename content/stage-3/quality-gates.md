@@ -8,7 +8,7 @@ summary: >
   новом коде отличается от порога на всём и почему кодов возврата три.
 stage: ci-cd
 order: 40
-status: draft
+status: published
 depth: L1
 mode: концепт
 skeleton: инструмент
@@ -29,7 +29,7 @@ wstg: []
 owasp: []
 labs: [lab-quality-gates]
 sources: [sonarqube-quality-gates, gh-protected-branches]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

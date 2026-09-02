@@ -8,7 +8,7 @@ summary: >
   подписка и пять лет действия.
 stage: optional
 order: 50
-status: draft
+status: published
 depth: L3
 mode: концепт
 skeleton: инструмент

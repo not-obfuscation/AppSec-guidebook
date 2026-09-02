@@ -8,7 +8,7 @@ summary: >
   на выпуске — и почему ранняя проверка не отменяет позднюю.
 stage: ci-cd
 order: 50
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [owasp-devsecops-guideline, pre-commit]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

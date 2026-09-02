@@ -7,7 +7,7 @@ summary: >
   фактическим действием обработчика — рабочий дефект, а не формальность.
 stage: protocol-basics
 order: 10
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 28
@@ -26,7 +26,7 @@ wstg: ['WSTG-v42-CONF-06']
 owasp: []
 labs: []
 sources: [rfc9110-http-semantics, wstg-v42-conf-06-http-methods]
-reviewed: 2026-08-22
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

@@ -7,7 +7,7 @@ summary: >
   почему единственный адрес /graphql не означает единственную точку входа.
 stage: protocol-basics
 order: 110
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -27,7 +27,7 @@ owasp: []
 labs: []
 sources: [openapi-spec, openapi-311, graphql-spec,
   graphql-learn-serving-over-http, graphql-learn-security, owasp-cs-rest-security]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

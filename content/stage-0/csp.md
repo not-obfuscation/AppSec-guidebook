@@ -8,7 +8,7 @@ summary: >
   трёх условий.
 stage: protocol-basics
 order: 70
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -27,7 +27,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [w3c-csp3, mdn-csp]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

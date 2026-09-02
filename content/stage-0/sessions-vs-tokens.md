@@ -7,7 +7,7 @@ summary: >
   и самодостаточный токен — и почему выход из системы устроен в них по-разному.
 stage: protocol-basics
 order: 40
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 28
@@ -27,7 +27,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [owasp-cs-session-management, rfc7519-jwt, rfc6265bis-cookies]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

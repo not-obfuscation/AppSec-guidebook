@@ -8,7 +8,7 @@ summary: >
   достаётся нападающему и почему две системы чинятся по-разному.
 stage: ci-cd
 order: 60
-status: draft
+status: published
 depth: L1
 mode: концепт
 skeleton: уязвимость
@@ -28,7 +28,7 @@ wstg: []
 owasp: ['A05:2025', 'A03:2025']
 labs: [lab-pipeline-security]
 sources: [gha-security-hardening, ghsl-pwn-requests, gitlab-pipeline-security]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

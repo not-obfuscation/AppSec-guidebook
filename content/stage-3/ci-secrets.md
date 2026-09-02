@@ -8,7 +8,7 @@ summary: >
   доступ, выданный хранилищем по предъявленной личности.
 stage: ci-cd
 order: 80
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: ['A04:2025', 'A07:2025']
 labs: []
 sources: [gha-oidc-vault, gitlab-pipeline-security]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

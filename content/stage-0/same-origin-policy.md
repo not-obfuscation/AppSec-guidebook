@@ -7,7 +7,7 @@ summary: >
   и почему запрет на чтение не мешает кросс-доменной записи.
 stage: protocol-basics
 order: 50
-status: draft
+status: published
 depth: L1
 mode: концепт
 time_min: 93
@@ -26,7 +26,7 @@ wstg: []
 owasp: []
 labs: [lab-same-origin-policy]
 sources: [mdn-same-origin-policy, whatwg-html-origin, whatwg-html-web-messaging]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

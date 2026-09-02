@@ -8,7 +8,7 @@ summary: >
   вердикт складывается из кодов возврата.
 stage: ci-cd
 order: 10
-status: draft
+status: published
 depth: L1
 mode: концепт
 skeleton: инструмент
@@ -29,7 +29,7 @@ wstg: []
 owasp: []
 labs: [lab-pipeline-anatomy]
 sources: [gha-understanding, gitlab-ci-yaml]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

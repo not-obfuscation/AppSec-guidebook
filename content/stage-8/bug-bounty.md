@@ -8,7 +8,7 @@ summary: >
   сроки и канал security.txt по RFC 9116.
 stage: optional
 order: 40
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: инструмент

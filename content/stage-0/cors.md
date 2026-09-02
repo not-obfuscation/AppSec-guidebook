@@ -8,7 +8,7 @@ summary: >
   задуманного.
 stage: protocol-basics
 order: 60
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -27,7 +27,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [whatwg-fetch, mdn-cors, mdn-cors-errors]
-reviewed: 2026-08-22
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

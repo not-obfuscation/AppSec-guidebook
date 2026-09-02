@@ -7,7 +7,7 @@ summary: >
   утверждения о запросе приходят от этих узлов, а не от клиента.
 stage: protocol-basics
 order: 100
-status: draft
+status: published
 depth: L2
 mode: концепт
 time_min: 33
@@ -27,7 +27,7 @@ owasp: []
 labs: []
 sources: [webdev-rendering-on-the-web, mdn-proxy-tunneling, rfc7239-forwarded,
   rfc9111-http-caching, mdn-cors-errors]
-reviewed: 2026-08-23
+reviewed: 2026-09-02
 review_interval: 24
 ---
 

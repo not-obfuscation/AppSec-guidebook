@@ -8,7 +8,7 @@ summary: >
   говорит о том, кто записан его автором.
 stage: ci-cd
 order: 70
-status: draft
+status: published
 depth: L2
 mode: концепт
 skeleton: уязвимость
@@ -27,7 +27,7 @@ wstg: []
 owasp: ['A08:2025']
 labs: []
 sources: [gh-protected-branches, gh-commit-signing]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 

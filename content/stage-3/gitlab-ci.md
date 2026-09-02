@@ -8,7 +8,7 @@ summary: >
   проверять схемой до отправки на сервер.
 stage: ci-cd
 order: 30
-status: draft
+status: published
 depth: L2
 mode: рецепт
 skeleton: инструмент
@@ -28,7 +28,7 @@ wstg: []
 owasp: []
 labs: []
 sources: [gitlab-ci-yaml, gitlab-pipeline-security]
-reviewed: 2026-08-25
+reviewed: 2026-09-02
 review_interval: 12
 ---
 
