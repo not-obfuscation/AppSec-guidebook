@@ -179,7 +179,7 @@ WSTG-v42-INPV-19 отдельно отмечает запросы методом
 выглядит так.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def register_webhook(request):
     url = request["json"]["callback"]
     queue.enqueue(ping, url)          # (1)

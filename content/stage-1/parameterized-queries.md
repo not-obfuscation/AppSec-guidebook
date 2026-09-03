@@ -304,7 +304,7 @@ $ python3 hack.py
 идентификатора и сырой фрагмент ORM.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def by_ids(ids):
     in_list = ",".join(ids)                                   # (1)
     query = ("SELECT id, name FROM products "
@@ -321,7 +321,7 @@ def by_ids(ids):
 колонки без сверки со списком:
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 cur.execute("SELECT name FROM products ORDER BY " + sort_col)   # (3)
 ```
 

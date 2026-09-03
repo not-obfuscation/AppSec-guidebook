@@ -158,7 +158,7 @@ callback. Гасить Referer политикой. Привязывать код
 Дефект узнаётся по сверке `redirect_uri` и по отсутствию `state`.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def validate_redirect(candidate):
     return candidate.startswith("https://client.shop.example")  # нестрого
 

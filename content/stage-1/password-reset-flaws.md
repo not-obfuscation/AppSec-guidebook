@@ -139,7 +139,7 @@ CSPRNG, одноразовый, срок 900 с):
 Ревьюер ищет, откуда берётся токен и что гасит его.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def request_reset(email):
     token = md5(f"{email}{int(time.time())}".encode()).hexdigest()  # (1)
     RESET[email] = token                                            # (2)

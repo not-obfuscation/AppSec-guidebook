@@ -44,7 +44,7 @@ review_interval: 12
 ```text
 bandit   db.py:28  B608 hardcoded_sql_expressions   Conf: Medium
 semgrep  db.py:28  sqlalchemy-execute-raw-query     ERROR
-gosec    db.go:26  находки нет
+gosec    db.go:25  находки нет
 ```
 
 За этими строками стоит один и тот же чистый код: имя таблицы сверяется
@@ -189,10 +189,10 @@ semgrep --config=p/default --metrics=off --no-git-ignore --json \
 ```text
 bandit   db.py:28  B608 hardcoded_sql_expressions   Conf: Medium
 semgrep  db.py:28  sqlalchemy-execute-raw-query     ERROR
-gosec    db.go:26  находки нет
+gosec    db.go:25  находки нет
 ```
 
-Строки 28 и 26 — один и тот же чистый код на двух языках: имя таблицы
+Строки 28 и 25 — один и тот же чистый код на двух языках: имя таблицы
 сверяется с замкнутым множеством и только потом подставляется. Два инструмента
 из трёх назвали его дефектом, третий промолчал. Расхождение объясняется
 устройством правила. У gosec правило `G701` построено на распространении
@@ -310,7 +310,7 @@ gosec    db.go:26  находки нет
    <https://www.nist.gov/publications/source-code-security-analysis-tool-functional-specification-version-11>
 2. Semgrep, «Taint analysis overview»; реестр `semgrep-taint`. Разделы: область
    работы пропагаторов и условия межпроцедурного анализа.
-   <https://docs.semgrep.dev/writing-rules/data-flow/taint-mode>
+   <https://docs.semgrep.dev/writing-rules/data-flow/taint-mode/overview>
 3. Bandit, «Test Plugins»; реестр `bandit-test-plugins`. Разделы: нумерация
    тестов B1xx–B7xx, устройство плагина, поля важности и уверенности в
    возвращаемой находке.

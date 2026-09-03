@@ -152,7 +152,7 @@ Python — линейный регистр с состоянием из 624 сл
 в Go — пакет `math/rand`, в Node.js — `Math.random()`, в Python — `random`.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 import random, time
 def reset_token() -> str:
     random.seed(int(time.time()))                       # (1)
@@ -163,7 +163,7 @@ def reset_token() -> str:
 2. Даже без явного зерна генератор остаётся предсказуемым по своему выводу.
 
 ```javascript
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 const id = Math.random().toString(36).slice(2);   // (3)
 const csrf = Date.now() + '-' + userId;           // (4)
 ```

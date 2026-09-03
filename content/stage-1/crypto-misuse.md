@@ -191,7 +191,7 @@ $ python e03-cbc-iv.py
 Первый признак — режим в строке инициализации.
 
 ```java
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 Cipher c = Cipher.getInstance("AES/ECB/PKCS5Padding");   // (1)
 Cipher d = Cipher.getInstance("AES");                    // (2)
 ```
@@ -202,7 +202,7 @@ Cipher d = Cipher.getInstance("AES");                    // (2)
 Второй признак — константа там, где ожидается свежее значение.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 IV = b"0123456789abcdef"                       # (3)
 def encrypt(data, key):
     c = Cipher(algorithms.AES(key), modes.CBC(IV))
@@ -217,7 +217,7 @@ def encrypt(data, key):
 выведения. Собственное дополнение до длины блока.
 
 ```javascript
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 function encrypt(s, key) {
   return [...s].map((ch, i) =>
     ch.charCodeAt(0) ^ key.charCodeAt(i % key.length))  // (5)

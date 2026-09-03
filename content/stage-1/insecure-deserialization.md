@@ -196,7 +196,7 @@ PortSwigger показывает эти формы; разбор языково�
 Признак читается по имени вызова и по источнику аргумента.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def load_state(request):
     raw = base64.b64decode(request.cookies["state"])   # (1)
     state = pickle.loads(raw)                          # (2)
@@ -213,7 +213,7 @@ def load_state(request):
 **Тот же дефект на другом стеке.** Меняется имя вызова, инвариант тот же:
 
 ```javascript
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 const state = nodeSerialize.unserialize(req.cookies.state);
 ```
 

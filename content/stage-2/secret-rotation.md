@@ -348,7 +348,7 @@ TOKEN = "AKIA5TQR7WXZ3KLM6NDF"
    рекомендация немедленно ротировать при получении оповещения, оценка уборки
    истории как трудоёмкой и часто ненужной, партнёрская программа отзыва
    поставщиком.
-   <https://docs.github.com/en/code-security/secret-scanning/introduction/about-secret-scanning>
+   <https://docs.github.com/en/code-security/concepts/secret-security/secret-scanning>
 
 Каркас этапа: `cwe-taxonomy`. Наследуется всеми темами и отдельной строкой не
 повторяется.

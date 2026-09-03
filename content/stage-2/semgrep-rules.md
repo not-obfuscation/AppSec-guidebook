@@ -547,7 +547,7 @@ injection» не говорит ничего: разработчик и так �
    `pattern-sources`, `pattern-sinks`, `pattern-sanitizers`,
    `pattern-propagators`; область работы пропагаторов и условия
    межпроцедурного анализа.
-   <https://docs.semgrep.dev/writing-rules/data-flow/taint-mode>
+   <https://docs.semgrep.dev/writing-rules/data-flow/taint-mode/overview>
 4. Semgrep, «Testing rules»; реестр `semgrep-testing-rules`. Разделы:
    аннотации `ruleid:`, `ok:`, `todoruleid:`, `todook:`, устройство прогона
    `semgrep --test` и вывод про пропущенные и лишние строки.

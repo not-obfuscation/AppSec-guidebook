@@ -141,7 +141,7 @@ WSTG-v42-SESS-03 формулирует признак прямо: если по
 выходе.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def login(request):
     sid = request.cookies.get("sid") or new_sid()   # (1)
     SESSIONS[sid]["user"] = authenticate(request)    # (2)

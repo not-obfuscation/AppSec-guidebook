@@ -24,7 +24,7 @@ asvs: []
 wstg: []
 owasp: []
 labs: []
-sources: [isp-ras-svace, solar-appscreener, appsec-solutions]
+sources: [isp-ras-svace, solar-appscreener, appsec-solutions, pt-application-inspector]
 reviewed: 2026-09-02
 review_interval: 6
 ---
@@ -116,6 +116,10 @@ Solar appScreener — анализатор кода российской раз�
 3. AppSec Solutions, сайт вендора; реестр `appsec-solutions`. Разделы:
    назначение платформы AppSec.Track как средства учёта находок.
    <https://appsec.global/>
+4. Positive Technologies, страница продукта PT Application Inspector; реестр
+   `pt-application-inspector`. Разделы: состав платформы — SAST с абстрактной
+   интерпретацией, SCA, DAST.
+   <https://ptsecurity.com/products/ai/>
 
 Каркас этапа: `cwe-taxonomy`. Наследуется всеми темами и отдельной строкой не
 повторяется.
@@ -130,5 +134,5 @@ Solar appScreener — анализатор кода российской раз�
 анализа Svace, а также назначение Solar appScreener и AppSec.Track — **по
 страницам разработчиков**, открытым лично 2026-08-25. Ни один из названных
 инструментов **не запускался**: лицензий нет, и ни одно утверждение об их
-качестве в теме не сделано. Страница PT Application Inspector в этой среде
-**не открылась** и в источники не вошла.
+качестве в теме не сделано. Страница PT Application Inspector переехала на
+канонический адрес и вошла в источники — **проверено лично** 2026-09-03.

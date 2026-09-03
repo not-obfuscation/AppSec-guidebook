@@ -241,7 +241,7 @@ affected без версии фикса — ждать или менять ба�
    <https://github.com/hadolint/hadolint>
 2. Документация Trivy; реестр `trivy-docs`. Стартовая страница —
    оглавление: сканирование образов и уровни лежат на подстраницах.
-   <https://trivy.dev/latest/docs/>
+   <https://trivy.dev/docs/latest/guide/>
 3. Trivy, «Filtering»; реестр `trivy-filtering`. Разделы: фильтр по
    уровню и статусу фикса, подавление находок (.trivyignore).
    <https://trivy.dev/docs/latest/configuration/filtering/>

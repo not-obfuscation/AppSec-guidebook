@@ -318,10 +318,10 @@ sources:
     type: tool-docs
     level: 1
     publisher: PortSwigger
-    version_or_date: обновлено 19 августа 2026
+    version_or_date: обновлено 3 сентября 2026
     volatility: fast
     license: не указана; © PortSwigger
-    checked: 2026-08-20
+    checked: 2026-09-03
     status: ok
     notes: >
       Перехват и модификация запросов, история, правила перехвата, установка
@@ -356,10 +356,10 @@ sources:
   - id: webdev-same-origin-policy
     url: https://web.dev/articles/same-origin-policy
     title: Same-origin policy
-    type: official-docs
+    type: course
     level: 3
-    publisher: web.dev (Google); Rowan Merewood
-    version_or_date: живой сайт, даты страницы нет
+    publisher: web.dev (Google); Mariko Kosaka
+    version_or_date: обновлено 2018-11-05 (колонтитул страницы)
     volatility: medium
     license: CC BY 4.0 (текст), Apache 2.0 (код)
     checked: 2026-09-03
@@ -468,7 +468,7 @@ sources:
     version_or_date: живой сайт, © 2026 The GraphQL Foundation; даты страницы нет
     volatility: medium
     license: не указана на странице
-    checked: 2026-08-20
+    checked: 2026-09-03
     status: ok
     notes: >
       Схема и система типов, запросы, мутации, подписки, валидация,
@@ -478,12 +478,18 @@ sources:
       браузерным User-Agent.
 
       УКАЗАТЕЛЬ, НЕ ПОКРЫТИЕ (письмо темы 0.11, 2026-08-22). Страница
-      /learn/ — оглавление курса: перечень из шестнадцати уроков с
-      однострочными аннотациями и ни одного содержательного абзаца.
-      Всё перечисленное выше лежит на подстраницах. Тот же класс, что
+      /learn/ — оглавление курса без содержательного текста, всё
+      перечисленное выше лежит на подстраницах. Тот же класс, что
       находка С-1 journal/FINAL-CHECK.md. От темы 0.11 отвязана, содержание
       закрывают graphql-learn-serving-over-http и graphql-learn-security.
       Запись оставлена: она годится как точка входа в курс.
+
+      Проверка 2026-09-03: «шестнадцать уроков» не подтверждается — курс
+      перестроен. Теперь два трека: учебный «Learn GraphQL» (Introduction,
+      Schemas and Types, Queries, Mutations, Subscriptions, Validation,
+      Execution, Response, Introspection — и далее за «Show more») и «Best
+      practices» (Thinking in Graphs, Serving over HTTP, Authorization,
+      Pagination и другие); у каждого урока аннотация в одно-два предложения.
 
 
   # Добавлено при письме темы 0.11 (миссия appsec-write-0b, 2026-08-22):
@@ -780,10 +786,10 @@ sources:
     type: tool-docs
     level: 1
     publisher: PortSwigger
-    version_or_date: обновлено 20 августа 2026
+    version_or_date: обновлено 3 сентября 2026
     volatility: fast
     license: не указана; © PortSwigger
-    checked: 2026-08-22
+    checked: 2026-09-03
     status: ok
     notes: >
       Откуда берётся сертификат, которым прокси подписывает перехваченный
@@ -801,10 +807,10 @@ sources:
     type: tool-docs
     level: 1
     publisher: PortSwigger
-    version_or_date: обновлено 20 августа 2026
+    version_or_date: обновлено 3 сентября 2026
     volatility: fast
     license: не указана; © PortSwigger
-    checked: 2026-08-22
+    checked: 2026-09-03
     status: ok
     notes: >
       Сама процедура перехвата: вкладка Proxy > Intercept, кнопки Forward,
@@ -1253,16 +1259,15 @@ sources:
       живого сервиса, перепроверять при каждом использовании.
 
   - id: gcp-metadata-server
-    url: https://cloud.google.com/compute/docs/metadata/querying-metadata
+    url: https://docs.cloud.google.com/compute/docs/metadata/querying-metadata
     title: View and query VM metadata
     type: official-docs
     level: 1
     publisher: Google (Compute Engine documentation)
-    version_or_date: живая документация, даты на странице нет; адрес
-      редиректит на docs.cloud.google.com
+    version_or_date: живая документация; на странице «Last updated 2026-08-26 UTC»
     volatility: fast
     license: не указана; © Google LLC
-    checked: 2026-08-24
+    checked: 2026-09-03
     status: ok
     notes: >
       Вторая половина темы 1.2.04: у Google сервер метаданных отвечает по тем
@@ -3554,7 +3559,7 @@ sources:
       документации инструментов.
 
   - id: semgrep-taint
-    url: https://docs.semgrep.dev/writing-rules/data-flow/taint-mode
+    url: https://docs.semgrep.dev/writing-rules/data-flow/taint-mode/overview
     title: Taint analysis overview
     type: tool-docs
     level: 1
@@ -3562,11 +3567,13 @@ sources:
     version_or_date: живая документация, даты на странице нет
     volatility: fast
     license: не указана на странице; © Semgrep, Inc.
-    checked: 2026-08-20
+    checked: 2026-09-03
     status: ok
     notes: >
-      Режим mode: taint — обязательные pattern-sources и pattern-sinks,
-      необязательные pattern-sanitizers и pattern-propagators, опции exact и
+      Режим mode: taint — из операторов обязателен только pattern-sources
+      (pattern-sinks, pattern-sanitizers и pattern-propagators необязательны;
+      редакция документации 2026-06, ранее pattern-sinks был обязательным),
+      опции exact и
       by-side-effect, at-exit для стоков. Прямо сказано про границу анализа:
       пропагаторы работают только внутрипроцедурно, межпроцедурный анализ — это
       --pro-intrafile (в пределах файла) и --pro (между файлами), и последнее
@@ -3780,24 +3787,25 @@ sources:
       утверждений о его качестве.
 
   - id: pt-application-inspector
-    url: https://www.ptsecurity.com/ru-ru/products/ai/
+    url: https://ptsecurity.com/products/ai/
     title: PT Application Inspector
     type: tool-docs
     level: 1
     publisher: Positive Technologies
-    version_or_date: не установлено — страница не открылась
+    version_or_date: страница продукта, даты на странице нет
     volatility: fast
-    license: не установлена — страница не открылась
-    checked: 2026-08-20
-    status: needs_manual_check
+    license: не указана; © Positive Technologies
+    checked: 2026-09-03
+    status: ok
     notes: >
-      Открыть не удалось ни одним каналом: `ptsecurity.com` не проходит
-      проверку TLS-сертификата в этой среде («unable to get local issuer
-      certificate») — и через curl с браузерным User-Agent, и через штатный
-      фетчер. Тот же класс отказа, что был у доменов `.gov.ru`. Покрытием темы
-      эта запись не считается: тема 2.1.09 закрыта записями по Solar
-      appScreener и AppSec Solutions, а PT Application Inspector нужно открыть
-      с обычной сети и дозаполнить.
+      Страница продукта: AppSec-платформа — SAST с абстрактной
+      интерпретацией, SCA (анализ сторонних компонентов) и DAST; для темы
+      2.1.09 берётся на уровне «знать по назначению». Открыто оператором с
+      обычной сети 2026-09-03: 200 с браузерным User-Agent; TLS-сертификат
+      выдан НУЦ Минцифры (Russian Trusted Sub CA), в среде разработки цепочка
+      по-прежнему не строится. Канонический адрес сменился:
+      www.ptsecurity.com/ru-ru/products/ai/ отдаёт редирект на
+      ptsecurity.com/products/ai/.
 
   # 2.2 SCA и цепочка поставок
 
@@ -3821,30 +3829,6 @@ sources:
       даёт лишь слабый сдерживающий эффект. Эту честную оговорку надо перенести в
       текст темы, иначе выучится, что SLSA закрывает всё.
       Версия обновлена аудитом 2026-08-20: v1.1 помечена Retired.
-
-  - id: slsa-spec
-    url: https://slsa.dev/spec/v1.2/
-    title: SLSA specification
-    type: standard
-    level: 2
-    publisher: OpenSSF (The Linux Foundation)
-    version_or_date: v1.2, статус Approved (текущая версия)
-    volatility: medium
-    license: Community Specification License 1.0
-    checked: 2026-08-20
-    status: ok
-    notes: >
-      Уровни Build track и требования к provenance, Source track, форматы
-      аттестаций (provenance, verification summary attestation), верификация
-      артефактов и оценка платформы сборки. Формат provenance и VSA рекомендованы,
-      но не обязательны.
-      Версия обновлена аудитом 2026-08-20: v1.1 на сайте помечена Status: Retired
-      и сама говорит «Version 1.2 is the current version».
-
-      УКАЗАТЕЛЬ, НЕ ПОКРЫТИЕ (проверка appsec-gapfix, 2026-08-22). По этому
-      адресу — навигация по спецификации, а не её текст: ни определения
-      provenance, ни уровней Build track на странице нет. Содержание заведено
-      отдельно: slsa-v12-build-provenance и slsa-v12-build-track-basics.
 
   - id: npm-package-lock
     url: https://docs.npmjs.com/cli/v11/configuring-npm/package-lock-json
@@ -3927,7 +3911,7 @@ sources:
       непрерывно — новая CVE находит уже собранный артефакт без пересборки.
 
   - id: trivy-docs
-    url: https://trivy.dev/latest/docs/
+    url: https://trivy.dev/docs/latest/guide/
     title: Trivy documentation
     type: tool-docs
     level: 1
@@ -3935,7 +3919,7 @@ sources:
     version_or_date: документация latest, даты на странице нет
     volatility: fast
     license: не указана на странице; проект под Apache License 2.0
-    checked: 2026-08-20
+    checked: 2026-09-03
     status: ok
     notes: >
       ПРОВЕРКА 2026-08-21: этот url отдаёт 301 на /docs/latest/ и в итоге приводит
@@ -4161,17 +4145,20 @@ sources:
     version_or_date: живая документация, даты на странице нет
     volatility: medium
     license: не указана на странице; проект под Apache License 2.0
-    checked: 2026-08-20
+    checked: 2026-09-03
     status: ok
     notes: >
       cosign, подпись без долгоживущего ключа через OIDC, удостоверяющий
       центр Fulcio, прозрачный журнал Rekor, аттестации. Ключевая идея —
       подписывать идентичностью, а не ключом, который надо где-то хранить.
 
-      УКАЗАТЕЛЬ, НЕ ПОКРЫТИЕ (проверка appsec-gapfix, 2026-08-22). Страница
-      целиком состоит из дерева разделов, связного текста на ней нет; ни
-      cosign sign, ни cosign verify по этому адресу не найти. Команды и
-      модель доверия — отдельная запись sigstore-quickstart-cosign.
+      Проверка 2026-09-03: страница больше не дерево разделов —
+      полноценный Overview: векторы против неподписанного ПО (typosquatting,
+      компрометация хостинга, подмена после публикации), «Why Sigstore»
+      (подпись эфемерными ключами, события в неизменяемом публичном журнале,
+      проект OpenSSF под Linux Foundation), «How Sigstore works», «How to use
+      Sigstore». Команды и модель доверия — отдельная запись
+      sigstore-quickstart-cosign.
 
   # 2.3 Поиск секретов
 
@@ -4216,7 +4203,7 @@ sources:
       нельзя гнать вслепую по чужим репозиториям.
 
   - id: gh-secret-scanning
-    url: https://docs.github.com/en/code-security/secret-scanning/introduction/about-secret-scanning
+    url: https://docs.github.com/en/code-security/concepts/secret-security/secret-scanning
     title: About secret scanning
     type: official-docs
     level: 1
@@ -4224,7 +4211,7 @@ sources:
     version_or_date: живая документация, даты на странице нет
     volatility: medium
     license: CC BY 4.0 (документация GitHub)
-    checked: 2026-08-20
+    checked: 2026-09-03
     status: ok
     notes: >
       Почему сканировать HEAD бессмысленно: секрет остаётся в истории
@@ -4267,7 +4254,7 @@ sources:
       является.
 
   - id: gh-push-protection
-    url: https://docs.github.com/en/code-security/secret-scanning/introduction/about-push-protection
+    url: https://docs.github.com/en/code-security/concepts/secret-security/push-protection
     title: About push protection
     type: official-docs
     level: 1
@@ -4275,7 +4262,7 @@ sources:
     version_or_date: живая документация, даты на странице нет
     volatility: medium
     license: CC BY 4.0 (документация GitHub)
-    checked: 2026-08-20
+    checked: 2026-09-03
     status: ok
     notes: >
       Серверная половина темы: проверка на стороне платформы, которую нельзя
@@ -4368,7 +4355,7 @@ sources:
       безопасности. Ровно тема «где DAST бесполезен».
 
   - id: nuclei-docs
-    url: https://docs.projectdiscovery.io/tools/nuclei/overview
+    url: https://docs.projectdiscovery.io/opensource/nuclei/overview
     title: Nuclei Overview
     type: tool-docs
     level: 1
@@ -4376,7 +4363,7 @@ sources:
     version_or_date: живая документация, даты на странице нет
     volatility: fast
     license: не указана на странице; проект под MIT License
-    checked: 2026-08-20
+    checked: 2026-09-03
     status: ok
     notes: >
       Сканер на YAML-шаблонах: не универсальный анализатор, а быстрая
@@ -4568,33 +4555,6 @@ sources:
       форме входа. Добавлен аудитом к теме 2.4.02: прежний единственный
       источник (zap-authentication) — навигационное дерево решений, на самой
       странице только первый вопрос «есть ли форма входа», а механики нет.
-
-  - id: spa-textbook
-    url: https://cs.au.dk/~amoeller/spa/spa.pdf
-    title: Static Program Analysis
-    type: book
-    level: 4
-    publisher: Anders Møller, Michael I. Schwartzbach (Department of Computer Science, Aarhus University)
-    version_or_date: редакция от 29 апреля 2025
-    volatility: stable
-    license: CC BY-NC-ND 4.0
-    checked: 2026-08-20
-    status: ok
-    notes: >
-      Учебник, бесплатный PDF; содержание сверено лично. Даёт понятийный
-      аппарат, которого нет в документации инструментов: графы потока
-      управления, решётки и неподвижные точки, анализ потока данных (глава 5),
-      widening и narrowing (глава 6), path sensitivity и реляционный анализ
-      (глава 7), межпроцедурный анализ и context sensitivity (глава 8),
-      IFDS и IDE (глава 9), анализ потока управления (глава 10), анализ
-      указателей во всех вариантах, включая flow-sensitive (глава 11).
-      Во введении прямо сказано, зачем это AppSec-инженеру: анализ, который
-      даёт много ложных срабатываний или слишком медленный, никто
-      использовать не станет. Добавлен аудитом к теме 2.1.01: path
-      sensitivity названа в теме поимённо, а ни codeql-dataflow, ни
-      semgrep-taint её не разбирают — у CodeQL страница ограничивается
-      различием data flow и taint tracking.
-
 
   # Добавлено миссией appsec-gapfix (2026-08-22) по разделу «Дыры» journal/FINAL-CHECK.md:
   # у пяти тем этапа был привязан корень документации, а команды, списки
@@ -4826,30 +4786,6 @@ sources:
       где платформа изолирует прогоны и защищает секрет подписи. Нужны теме
       2.2.08 для блока «как чинится»: «подписать артефакт» — это не одна
       мера, а лестница, и каждая ступень снимает свой класс угроз.
-
-  - id: nvd-cve-process
-    url: https://nvd.nist.gov/general/cve-process
-    title: CVEs and the NVD Process
-    type: reference-db
-    level: 2
-    publisher: NIST (National Vulnerability Database)
-    version_or_date: создано 20 сентября 2022, обновлено 14 апреля 2026
-    volatility: medium
-    license: не указана; материал правительства США
-    checked: 2026-08-22
-    status: ok
-    notes: >
-      Читаемое описание механики CVE взамен www.cve.org, который в этой среде
-      отдаёт 42 байта текста (SPA). Что здесь есть: кто ведёт программу
-      (MITRE, спонсоры DHS и CISA), кто присваивает идентификаторы (CVE
-      Assignment Team и CNA), правила Counting Process и дерево решений «одна
-      запись или несколько», обязательное содержание описания (тип дефекта,
-      вендор, затронутая кодовая база), статусы RESERVED, REJECTED и
-      DISPUTED. Дальше — обогащение в NVD, где и связываются все предметы
-      темы 2.2.07: CVSS v4.0 и v3.1, CWE (подмножество CWE-1003, собранное
-      совместно с командой CWE), CPE, ссылки; отдельно сказано, что записи из
-      каталога KEV обогащаются в течение одного рабочего дня — это прямая
-      связка KEV и CVE.
 
   - id: google-bsrs-ch21-culture
     url: https://google.github.io/building-secure-and-reliable-systems/raw/ch21.html
@@ -5817,7 +5753,7 @@ sources:
       Методологически агностичен: не предписывает технику.
 
   - id: sei-threat-modeling-methods-paper
-    url: https://insights.sei.cmu.edu/documents/569/2018_019_001_524597.pdf
+    url: https://www.sei.cmu.edu/documents/569/2018_019_001_524597.pdf
     title: "Threat Modeling: A Summary of Available Methods (white paper)"
     type: research
     level: 5
@@ -5825,7 +5761,7 @@ sources:
     version_or_date: white paper 2018
     volatility: stable
     license: материал SEI для свободного чтения; права за CMU
-    checked: 2026-09-01
+    checked: 2026-09-03
     status: ok
     notes: >
       Полный текст, на который опирается блог-разбор двенадцати методов
@@ -5872,7 +5808,7 @@ sources:
       Полный текст открыт лично.
 
   - id: sei-threat-modeling-methods
-    url: https://insights.sei.cmu.edu/blog/threat-modeling-12-available-methods/
+    url: https://www.sei.cmu.edu/blog/threat-modeling-12-available-methods/
     title: "Threat Modeling: 12 Available Methods"
     type: research
     level: 5
@@ -5880,7 +5816,7 @@ sources:
     version_or_date: 3 декабря 2018
     volatility: stable
     license: не указана; © Carnegie Mellon University
-    checked: 2026-08-20
+    checked: 2026-09-03
     status: ok
     notes: >
       Сравнительный разбор двенадцати методологий — STRIDE, PASTA, attack
@@ -6568,17 +6504,18 @@ sources:
     type: official-docs
     level: 1
     publisher: Meta (React)
-    version_or_date: экспериментальный API, доступен только в канале Canary
+    version_or_date: экспериментальный API, доступен только в канале Experimental (react@experimental)
     volatility: fast
     license: не указана на странице; © Meta Platforms
-    checked: 2026-09-02
+    checked: 2026-09-03
     status: ok
     notes: >
       Механизм пометки объектов, которые нельзя отдавать клиенту: попытка
       передать помеченный объект в клиентский компонент падает с ошибкой.
       Взят как иллюстрация подхода, а не как рекомендация: API
-      экспериментальный и живёт только в Canary — это указано на самой
-      странице и должно быть указано в тексте темы.
+      экспериментальный и доступен только в канале Experimental
+      (react@experimental) — это указано на самой странице (в прежней редакции
+      канал назывался Canary) и должно быть указано в тексте темы.
 
   - id: node-child-process
     url: https://nodejs.org/api/child_process.html

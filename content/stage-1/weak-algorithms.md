@@ -113,6 +113,9 @@ SHA-1 запрещён для генерации подписи, разрешё�
 
 ### Что чем заменяют
 
+Пары «вывели — взамен» сгруппированы по разрядам; код аутентичности здесь —
+HMAC (Hash-based Message Authentication Code).
+
 | разряд | вывели | взамен |
 |---|---|---|
 | симметричный шифр | DES, 2TDEA, 3DES, RC4, Blowfish | AES-128 и выше |
@@ -183,7 +186,7 @@ secrecy. Раскрытие ключа сервера раскроет и зап
 `PKCS1v15`.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 digest = hashlib.md5(document).hexdigest()        # (1)
 sig = private_key.sign(digest, padding.PKCS1v15(),
                        hashes.SHA1())             # (2)
@@ -195,7 +198,7 @@ sig = private_key.sign(digest, padding.PKCS1v15(),
    `v5.0-11.4.3`).
 
 ```java
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");   // (3)
 MessageDigest md = MessageDigest.getInstance("MD5");     // (4)
 ```

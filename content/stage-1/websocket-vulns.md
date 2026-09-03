@@ -176,7 +176,7 @@ WebSocket — двусторонний канал между браузером 
 Ревьюер начинает с обработчика переключения.
 
 ```javascript
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 server.on('upgrade', (req, socket, head) => {
   const user = sessionFromCookie(req.headers.cookie);        // (1)
   wss.handleUpgrade(req, socket, head, (ws) => {

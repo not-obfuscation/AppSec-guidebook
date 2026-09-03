@@ -156,7 +156,7 @@ Python 3.14.7) показывает четыре обхода на одном п
 Ревьюер ищет ключ счётчика и то, что его сбрасывает.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def login(request):
     ip = request.headers.get("X-Forwarded-For", request.remote_addr)  # (1)
     if fails[ip] >= LIMIT:

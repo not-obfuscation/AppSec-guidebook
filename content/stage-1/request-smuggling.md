@@ -171,7 +171,7 @@ HTTP/2 кадрирует тело собственными кадрами `DATA
 `Content-Length` вместо того, чтобы отвергнуть запрос.
 
 ```python
-# УЯЗВИМО — демонстрация модели разбора, не для продакшена.
+# УЯЗВИМО — демонстрация модели разбора, не для продакшена
 def frame(head, rest):
     cl = header(head, b"content-length")
     te = header(head, b"transfer-encoding")

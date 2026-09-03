@@ -47,7 +47,8 @@ hmac      = HMAC-SHA256(secret, message)
 csrfToken = hex(hmac) "." hex(random)
 ```
 
-Токен, собранный так, привязан к сессии через HMAC на серверном ключе:
+Токен, собранный так, привязан к сессии через HMAC
+(Hash-based Message Authentication Code) на серверном ключе:
 атакующий не знает ни ключа, ни идентификатора сессии жертвы. Это
 подписанный double-submit — вариант защиты от подделки запроса без
 хранения состояния.
@@ -202,7 +203,7 @@ Cheat sheet отдельно разбирает форму входа. Подд�
 Ревьюер ищет, откуда берётся ожидаемое значение.
 
 ```javascript
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 app.post('/transfer', (req, res) => {
   const fromCookie = parseCookies(req).csrf;          // (1)
   if (req.body.csrf !== fromCookie) {                 // (2)
@@ -228,7 +229,7 @@ app.post('/transfer', (req, res) => {
 проверка, написанная вместо штатной:
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 @csrf_exempt
 def transfer(request):
     if request.POST.get("csrf") != request.COOKIES.get("csrf"):

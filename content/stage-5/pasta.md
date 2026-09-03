@@ -90,11 +90,11 @@ SEI описывает его как рамку, сводящую бизнес-�
 1. Threat Modeling: 12 Available Methods, блог SEI; реестр
    `sei-threat-modeling-methods`. Разделы: PASTA и место метода среди
    двенадцати.
-   <https://insights.sei.cmu.edu/blog/threat-modeling-12-available-methods/>
+   <https://www.sei.cmu.edu/blog/threat-modeling-12-available-methods/>
 2. Threat Modeling: A Summary of Available Methods, white paper SEI;
    реестр `sei-threat-modeling-methods-paper`. Разделы: глава про PASTA
    со стадиями.
-   <https://insights.sei.cmu.edu/documents/569/2018_019_001_524597.pdf>
+   <https://www.sei.cmu.edu/documents/569/2018_019_001_524597.pdf>
 
 Каркас этапа: этап 5 опирается на открытые документы методов; стендов
 нет.

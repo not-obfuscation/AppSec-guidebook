@@ -182,7 +182,7 @@ ASVS v5.0-8.3.2 формулирует её как требование: изм�
 
 ```python
 # ФРАГМЕНТ — срез, самостоятельно не компилируется
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 role = request.form.get("profile") or request.cookies.get("role")  # (1)
 if role == "SysAdmin":                                             # (2)
     return admin_console()

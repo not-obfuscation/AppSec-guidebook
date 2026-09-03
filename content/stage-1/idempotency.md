@@ -188,7 +188,7 @@ $ python e06-idempotency.py
 опора есть — смотрит, когда она занимается.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def charge(conn, key, body):
     row = conn.execute("SELECT response FROM idem WHERE key=?",
                        (key,)).fetchone()          # (1)

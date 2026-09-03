@@ -122,7 +122,7 @@ Python и десять матчеров одного шаблона про от�
 
 1. ProjectDiscovery, «Nuclei Overview»; реестр `nuclei-docs`. Разделы:
    назначение инструмента, работа по списку целей, ключи запуска.
-   <https://docs.projectdiscovery.io/tools/nuclei/overview>
+   <https://docs.projectdiscovery.io/opensource/nuclei/overview>
 2. ProjectDiscovery, «Templates Introduction»; реестр
    `nuclei-templates-intro`. Разделы: поля `id` и `info`, блок протокола,
    `matchers` семи видов (word, binary, regex, status, size, dsl, xpath),

@@ -315,7 +315,7 @@ base64url. Ключа для этого не нужно. В нагрузке л�
 
 ```python
 # ФРАГМЕНТ — срез, самостоятельно не компилируется
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 return jwt.encode({
     "sub": username,
     "role": profile["role"],
@@ -334,7 +334,7 @@ return jwt.encode({
 имя вызова:
 
 ```javascript
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 const token = jwt.sign(
   { sub: username, role: profile.role, ssn: profile.ssn },
   SECRET, { algorithm: "HS256", expiresIn: "1h" }
@@ -348,7 +348,7 @@ const token = jwt.sign(
 проверки подписи или с ослабленной проверкой:
 
 ```python
-# УЯЗВИМО: подпись не проверяется вовсе.
+# УЯЗВИМО — подпись не проверяется вовсе
 claims = jwt.decode(token, options={"verify_signature": False})
 if claims["role"] == "admin":
     ...

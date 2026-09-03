@@ -145,7 +145,7 @@ $ python e03-host.py
 Ревьюер ищет домен, маршрут или адрес, собранный из `Host` без проверки.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def send_reset(request, user):
     token = new_token(user)
     host = request.headers["Host"]                 # (1)

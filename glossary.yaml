@@ -107,7 +107,7 @@ terms:
       Свойство метода, при котором повторение одного и того же запроса даёт то
       же состояние, что и однократное исполнение. Опора серверных защит: повтор
       подделанного запроса не добавляет атакующему ничего нового.
-    defines: []
+    defines: [idempotency]
     see_also: [safe-method, method]
     source: RFC 9110 § 9.2.2
 
@@ -136,6 +136,19 @@ terms:
     see_also: [start-line]
     source: RFC 9110 § 15
 
+  - id: crlf
+    term: CRLF
+    en: Carriage Return and Line Feed
+    group: protocol
+    definition: >
+      Пара управляющих символов `\r\n`, которой сообщение разделяет строки:
+      start-line, поля и пустую строку перед телом. Попав в значение поля,
+      пара разрывает сообщение раньше, чем рассчитывал отправитель, — на этом
+      стоятся расщепление ответа и контрабанда запросов.
+    defines: [crlf-injection]
+    see_also: [header-field, start-line]
+    source: RFC 9112
+
   - id: trust-boundary
     term: граница доверия
     en: trust boundary
@@ -148,12 +161,13 @@ terms:
     see_also: [sink, threat-model]
 
   - id: sink
-    term: sink
+    term: сток
+    en: sink
     group: craft
     definition: >
       Место, где данные достигают действия с последствиями: запрос к базе,
       вывод в разметку, строка в таблице учётных записей. Второй конец пары
-      «источник — sink», вокруг которой строится разбор дефекта.
+      «источник — сток», вокруг которой строится разбор дефекта.
     defines: [password-storage]
     see_also: [trust-boundary, threat-model]
 
@@ -268,7 +282,7 @@ terms:
 
   - id: origin
     term: origin
-    aliases: [источник, происхождение]
+    aliases: [происхождение]
     group: origin
     definition: >
       Единица, между которой браузер проводит границу доверия: акторы с общим
@@ -455,7 +469,7 @@ terms:
       Атака, в которой значение сессии задаёт атакующий, а жертва входит уже
       под ним. Лечится сменой идентификатора при смене прав: старая запись
       гасится, новая создаётся.
-    defines: []
+    defines: [session-fixation]
     see_also: [session-id, session]
 
   - id: token
@@ -517,7 +531,7 @@ terms:
 
   - id: csrf
     term: CSRF
-    en: cross-site request forgery
+    en: Cross-Site Request Forgery
     aliases: [подделка межсайтового запроса]
     group: state
     definition: >
@@ -575,6 +589,19 @@ terms:
     defines: [oidc]
     see_also: [oauth, jwt, authentication]
     source: OpenID Connect Core 1.0
+
+  - id: saml
+    term: SAML
+    en: Security Assertion Markup Language
+    group: state
+    definition: >
+      Язык подписанных утверждений о входе и его веб-профиль единого входа:
+      поставщик удостоверений подписывает утверждение, приложение решает по
+      нему, кто вошёл. Проверке подлежит подпись всего утверждения, а не факт
+      его наличия.
+    defines: [saml]
+    see_also: [oauth, oidc, authentication]
+    source: OWASP SAML Security Cheat Sheet
 
   # --- headers --------------------------------------------------------------
 
@@ -753,7 +780,7 @@ terms:
       Посредник в канале, который читает и меняет сообщения. В работе это не
       только атака: перехватывающий прокси инструментального набора устроен так
       же и требует того же доверенного корня.
-    defines: [tls-and-proxy]
+    defines: [security-headers]
     see_also: [tls, intercepting-proxy, bootstrap-mitm]
 
   - id: intercepting-proxy
@@ -765,7 +792,7 @@ terms:
       клиенту свой сертификат. Работает только там, где его корень добавлен в
       доверенные, и на этом же держится разница между инструментом и атакой.
     defines: [tls-and-proxy]
-    see_also: [mitm, tls, reverse-proxy]
+    see_also: [mitm, tls, reverse-proxy, forward-proxy]
 
   - id: reverse-proxy
     term: обратный прокси
@@ -787,7 +814,7 @@ terms:
       Посредник со стороны клиента: обслуживает клиента или группу клиентов и
       может скрывать их адреса.
     defines: [app-architecture]
-    see_also: [reverse-proxy, x-forwarded-for]
+    see_also: [reverse-proxy, intercepting-proxy, x-forwarded-for]
     source: MDN
 
   - id: cdn
@@ -859,10 +886,25 @@ terms:
     see_also: [trust-boundary]
     source: AWS EC2 User Guide, Instance Metadata Service
 
+  - id: ssrf
+    term: SSRF
+    en: Server-Side Request Forgery
+    aliases: ['подделка запроса на стороне сервера', 'подделка серверных запросов']
+    group: transport
+    definition: >
+      Дефект, при котором сервер выполняет запрос по адресу из присланных
+      данных: запрос настоящий и отправлен самим приложением, а цель ему
+      назвал атакующий. Сервер идёт по этому адресу со своего места — изнутри
+      периметра, где стоят службы, закрытые от интернета.
+    defines: [ssrf-basics]
+    see_also: [imds, trust-boundary, csrf]
+    source: OWASP Server Side Request Forgery Prevention Cheat Sheet, CWE-918
+
   # --- api ------------------------------------------------------------------
 
   - id: rest
     term: REST
+    en: Representational State Transfer
     group: api
     definition: >
       Стиль устройства API, в котором точка входа — пара «метод и путь». Точки
@@ -960,7 +1002,6 @@ terms:
   - id: mfa
     term: MFA
     en: multi-factor authentication
-    abbr: MFA
     aliases: [многофакторная аутентификация, двухфакторная аутентификация]
     group: api
     definition: >
@@ -974,7 +1015,6 @@ terms:
   - id: totp
     term: TOTP
     en: time-based one-time password
-    abbr: TOTP
     group: api
     definition: >
       Одноразовый код, привязанный к текущему временному шагу и общему
@@ -1015,7 +1055,7 @@ terms:
       Доступ к объекту по присланному идентификатору без проверки права на этот
       объект: подмена номера в адресе возвращает чужую запись. В API то же
       свойство называется BOLA.
-    defines: [access-control-models]
+    defines: [idor]
     see_also: [bola, authorization]
 
   - id: bola
@@ -1026,7 +1066,7 @@ terms:
       Отсутствие проверки авторизации на уровне объекта: вошедший пользователь
       читает или меняет чужие объекты, подменяя идентификатор. Отличие от BFLA
       — подменяется объект, а не функция.
-    defines: [access-control-models]
+    defines: [bola]
     see_also: [idor, bfla, authorization]
     source: OWASP API Security Top 10:2023, API1
 
@@ -1041,6 +1081,84 @@ terms:
     defines: [bola, bfla]
     see_also: [bola, authorization]
     source: OWASP API Security Top 10:2023, API5
+
+  - id: rbac
+    term: RBAC
+    en: Role-Based Access Control
+    aliases: ['ролевая модель доступа']
+    group: api
+    definition: >
+      Модель контроля доступа, в которой права привязаны к роли, а не к
+      учётной записи: учётная запись получает права через назначенные ей
+      роли. Проверка сводится к вопросу «есть ли у ролей обратившегося это
+      право», и присланная клиентом роль входом для неё не служит.
+    defines: [access-control-models]
+    see_also: [authorization, idor, bfla]
+
+  - id: orm
+    term: ORM
+    en: Object-Relational Mapping
+    aliases: ['объектно-реляционное отображение']
+    group: api
+    definition: >
+      Слой, отображающий записи базы на объекты кода: запрос строится
+      вызовами методов, а не сборкой строки SQL. Его защита кончается на
+      «сырых» фрагментах — raw(), extra(), text(): в них параметры связывает
+      уже не слой, а сам разработчик.
+    defines: [python-orm-sql]
+    see_also: [sink]
+
+  - id: xxe
+    term: XXE
+    en: XML External Entity
+    aliases: ['внешняя сущность XML']
+    group: api
+    definition: >
+      Класс дефектов разбора XML: парсер разрешает внешние сущности, и
+      присланный документ заставляет сервер прочитать локальный файл или
+      обратиться по названному адресу. Лечится конфигурацией парсера, а не
+      фильтрацией входной строки.
+    defines: [xxe]
+    see_also: [ssrf, trust-boundary]
+    source: OWASP XML External Entity Prevention Cheat Sheet
+
+  - id: ldap
+    term: LDAP
+    en: Lightweight Directory Access Protocol
+    group: api
+    definition: >
+      Протокол доступа к службе каталогов: древовидные записи с атрибутами, а
+      запрос — фильтр своего синтаксиса. Фильтр, собранный из присланной
+      строки конкатенацией, даёт инъекцию: метасимволы фильтра меняют логику
+      запроса.
+    defines: [ldap-xpath-injection]
+    see_also: [authentication, xxe]
+
+  - id: ssti
+    term: SSTI
+    en: Server-Side Template Injection
+    aliases: ['инъекция в шаблонизатор']
+    group: api
+    definition: >
+      Класс дефектов, при котором присланная строка попадает в текст шаблона
+      до его компиляции и исполняется движком на сервере. От экранирования
+      вывода не защищает: выражение срабатывает при отрисовке, до того как
+      экранирование ответа вступит в силу.
+    defines: [ssti]
+    see_also: [insertion-context, sink]
+    source: PortSwigger Web Security Academy, Server-side template injection
+
+  - id: jndi
+    term: JNDI
+    en: Java Naming and Directory Interface
+    group: api
+    definition: >
+      Интерфейс Java для поиска объектов по имени в службах каталогов. Имя,
+      собранное из присланных данных, отправляет приложение в чужой каталог
+      за объектом, и загруженный оттуда класс исполняется — ход, сделавший
+      Log4Shell удалённым исполнением кода.
+    defines: [jndi-log4shell]
+    see_also: [ldap, cve]
 
   # --- crypto ---------------------------------------------------------------
 
@@ -1167,6 +1285,19 @@ terms:
       одноразовое значение политики.
     defines: [sessions-vs-tokens, password-storage]
     see_also: [entropy, session-id, salt, nonce]
+
+  - id: hmac
+    term: HMAC
+    en: Hash-based Message Authentication Code
+    group: crypto
+    definition: >
+      Стандартная конструкция кода аутентификации сообщения поверх
+      хеш-функции: секрет подмешивается дважды, через внутреннюю и внешнюю
+      подкладки. Даёт целостность и авторство внутри круга владельцев общего
+      секрета; неотказуемости, как у подписи на паре ключей, не даёт.
+    defines: [hmac-vs-signature]
+    see_also: [hash-function, self-contained-token]
+    source: RFC 2104, FIPS 198-1
 
   # --- client ---------------------------------------------------------------
 
@@ -1424,6 +1555,19 @@ terms:
     defines: [cve-cvss]
     see_also: [cve, cvss, epss]
     source: CISA, Known Exploited Vulnerabilities Catalog
+
+  - id: nvd
+    term: NVD
+    en: National Vulnerability Database
+    group: standards
+    definition: >
+      База уязвимостей NIST: обогащает записи CVE оценками CVSS и привязкой к
+      конфигурациям продуктов. Производная, а не первоисточник: между записью
+      CVE и её обработкой в NVD бывают расхождения, и выгрузку читают с этой
+      поправкой.
+    defines: [cve-cvss]
+    see_also: [cve, cvss, kev]
+    source: NIST, CVEs and the NVD Process
 
   - id: sbom
     term: SBOM

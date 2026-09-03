@@ -194,7 +194,7 @@ $ python e05-numbers.py
 Ревьюер ищет сравнение с одной стороной и приведение типа без границ.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def transfer(account, req):
     amount = int(req["amount"])          # (1)
     if amount > account.balance:         # (2)

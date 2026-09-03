@@ -188,7 +188,7 @@ Python 3.14.7
 типу и имя файла, взятое от клиента:
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def upload(req):
     f = req.files["avatar"]
     if not f.content_type.startswith("image/"):   # (1)

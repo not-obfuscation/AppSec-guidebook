@@ -375,7 +375,7 @@ gitleaks — поиск секретов...............................Passed
    файлов, API), два вида защиты и их умолчания, обход с указанием причины и
    что при этом создаётся — оповещение, запись в журнале аудита, письмо
    владельцам.
-   <https://docs.github.com/en/code-security/secret-scanning/introduction/about-push-protection>
+   <https://docs.github.com/en/code-security/concepts/secret-security/push-protection>
 
 Каркас этапа: `cwe-taxonomy`. Наследуется всеми темами и отдельной строкой не
 повторяется.

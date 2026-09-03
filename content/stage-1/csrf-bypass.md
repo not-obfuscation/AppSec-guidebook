@@ -219,7 +219,7 @@ cookie и перечисляет пути: захват поддомена, уя
 Ревьюер ищет проверку, у которой есть путь мимо.
 
 ```javascript
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 app.post('/email/change', (req, res) => {
   const sent = req.body.csrf;
   if (sent && sent !== issuedTokens.get(sent)) {        // (1)
@@ -245,7 +245,7 @@ app.post('/email/change', (req, res) => {
 слоем, и дыра появляется там, где его снимают:
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 @csrf_exempt
 def change_email(request):
     ref = request.headers.get("Referer", "")
@@ -267,11 +267,14 @@ def change_email(request):
 
 ```javascript
 // Исправлено.
+import { timingSafeEqual } from 'node:crypto';
+
 app.all('/email/change', (req, res) => {
   if (req.method !== 'POST') return res.status(405).end();     // (1)
   const expected = req.session.csrfToken;                      // (2)
-  const sent = req.body.csrf ?? '';
-  if (!expected || !timingSafeEqualStr(sent, expected)) {      // (3)
+  const sent = String(req.body.csrf ?? '');
+  if (!expected || sent.length !== expected.length ||          // (3)
+      !timingSafeEqual(Buffer.from(sent), Buffer.from(expected))) {
     return res.status(403).end('токен не сошёлся');
   }
   changeEmail(req.session.user, req.body.email);

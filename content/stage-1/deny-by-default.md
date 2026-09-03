@@ -170,7 +170,7 @@ cookie.
 `/export/invoices`, выглядит так.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 PROTECTED = {"/admin", "/reports", "/billing"}   # (1)
 
 @app.before_request

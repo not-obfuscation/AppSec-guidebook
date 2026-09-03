@@ -143,7 +143,7 @@ Web Security Academy делит NoSQL-инъекцию на две.
 типа.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def login(body):
     user = db.users.find_one({
         "username": body["username"],   # (1)

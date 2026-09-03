@@ -224,7 +224,7 @@ D — заблокировать вход перебором; E — войти �
 3. Threat Modeling: 12 Available Methods, каталог SEI; реестр
    `sei-threat-modeling-methods`. Разделы: зрелость STRIDE, конец его
    развития у Microsoft, варианты per-element и per-interaction.
-   <https://insights.sei.cmu.edu/blog/threat-modeling-12-available-methods/>
+   <https://www.sei.cmu.edu/blog/threat-modeling-12-available-methods/>
 
 Каркас этапа: этап 5 опирается на открытые документы методов; стендов
 нет.

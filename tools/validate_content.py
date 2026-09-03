@@ -160,6 +160,12 @@ HEAD_PARTS_RE = re.compile(r"\((?:теория|чтение)\s+(\d+)\s*/\s*(?:л
                            r"\s*/\s*самопроверка\s+(\d+)")
 TICK_RE = re.compile(r"`([^`]+)`")
 
+# Вопрос-возврат из блока «Проверь себя»: «Возврат к теме `id`», законна и
+# короткая форма «Возврат к `id`». Цель обязана быть предпосылкой темы
+# (5.2 п. 10, находка X-PREREQ-12 аудита 2026-09): иначе повторение уводит на
+# материал, которого читатель мог не встречать.
+RETURN_RE = re.compile(r"озврат к (?:теме )?`([^`]+)`")
+
 # Предпосылки: человеческая фраза со ссылками на темы. Абзаца нет вовсе, когда
 # предпосылок нет, — строка «пререквизитов нет» была служебной отметкой.
 PREREQ_HEAD_RE = re.compile(r"\AЧто прочитать сначала:\s*(.+)\Z", re.S)
@@ -930,6 +936,16 @@ def check_head(page: Page, ctx: Ctx) -> list[Finding]:
             if summed != total:
                 add("C-HEAD-TIME", ERROR,
                     f"слагаемые времени дают {summed} мин, а объявлено {total}")
+            # Разбивка с «самопроверкой» на L3 — обещание блока, которого на
+            # этом уровне нет: скелет L3 оставляет только 0, 3 (4) и 13 (12),
+            # и блок «Проверь себя» на нём запрещён тем же сводом. Волна
+            # правок 2026-09 сняла такие шапки с девяти тем; правило не даёт
+            # форме вернуться.
+            if page.depth == "L3":
+                add("C-HEAD-L3-SELFCHECK", ERROR,
+                    "шапка уровня L3 разбивает время с «самопроверкой», а блока "
+                    "«Проверь себя» на L3 нет ни в одном скелете (часть 4): "
+                    "шапка обещает читателю то, чего тема не несёт")
         elif page.depth != "L3":
             add("C-HEAD-TIME", ERROR,
                 "нет разбивки времени вида `(теория 15 / задача 10 / самопроверка 5)`")
@@ -1122,7 +1138,7 @@ def check_body(page: Page, ctx: Ctx) -> list[Finding]:
         else:
             qs = [line for line in raw[:split] if LIST_NUM_RE.match(line)]
             ans = [line for line in raw[split:] if LIST_NUM_RE.match(line)]
-            back = [line for line in qs if "озврат к теме" in line]
+            back = [line for line in qs if RETURN_RE.search(line)]
             if len(qs) != len(ans):
                 add("C-BODY-SELFCHECK", ERROR,
                     f"вопросов {len(qs)}, ответов {len(ans)}", self_check.line)
@@ -1136,6 +1152,23 @@ def check_body(page: Page, ctx: Ctx) -> list[Finding]:
                     f"вопросов на возврат к прошлым темам {len(back)} при норме 1–2 "
                     "(часть 4). Возврат опускается только у темы без предпосылок",
                     self_check.line)
+            # Цель возврата — тема-предпосылка (5.2 п. 10), а не любая смежная:
+            # возврат на related зовёт повторить материал, которого читатель
+            # мог не встречать (находка X-PREREQ-12 аудита 2026-09). У темы без
+            # предпосылок возврата быть не должно вовсе — множество пусто, и
+            # любая цель сюда попадёт.
+            prereq_ids = {str(x) for x in (page.front.get("prerequisites") or [])}
+            for i, line in enumerate(raw[:split]):
+                if not LIST_NUM_RE.match(line):
+                    continue
+                for ref in RETURN_RE.findall(line):
+                    if ref not in prereq_ids:
+                        add("C-BODY-RETURN", ERROR,
+                            f"вопрос-возврат ведёт на `{ref}`, а её нет в "
+                            "`prerequisites` темы: возврат целит тему-предпосылку "
+                            "(5.2 п. 10), иначе повторение уводит на материал, "
+                            "которого читатель мог не встречать",
+                            self_check.start + i + 1)
 
     # источники
     src, src_num = named("sources")

@@ -204,7 +204,7 @@ curl -H "X-aws-ec2-metadata-token: $TOKEN" \
 службы метаданных и ограничение переходов.
 
 ```hcl
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 resource "aws_instance" "app" {
   metadata_options {
     http_tokens   = "optional"   # (1)
@@ -355,7 +355,7 @@ Reachable». Отдельной строкой записано, сколько 
    <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html>
 2. Google, «View and query VM metadata», Compute Engine documentation; реестр
    `gcp-metadata-server`. Разделы: Metadata server endpoints, Request header.
-   <https://cloud.google.com/compute/docs/metadata/querying-metadata>
+   <https://docs.cloud.google.com/compute/docs/metadata/querying-metadata>
 3. Microsoft, «Azure Instance Metadata Service (IMDS)»; реестр `azure-imds`.
    Разделы: Security and authentication, Proxies.
    <https://learn.microsoft.com/en-us/azure/virtual-machines/instance-metadata-service>

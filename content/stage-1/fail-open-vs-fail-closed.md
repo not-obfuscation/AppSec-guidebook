@@ -180,7 +180,7 @@ fail-closed              4         56             0
 Первый признак — перехват всего подряд там, где ожидается ответ проверки.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def is_allowed(user, action):
     try:
         return policy.check(user, action)
@@ -195,7 +195,7 @@ def is_allowed(user, action):
 
 ```python
 # ФРАГМЕНТ — срез, самостоятельно не компилируется
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 resp = requests.get(POLICY_URL, params={"u": user})   # (3)
 return resp.json().get("allow", True)                 # (4)
 ```

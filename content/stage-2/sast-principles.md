@@ -410,7 +410,7 @@ B608 hardcoded_sql_expressions  db.py:28  Severity: Medium  Conf: Medium
 
 ## 8. Ловушка
 
-Распространённое представление: доля ложных срабатываний — свойство
+Ходовая рамка: доля ложных срабатываний — свойство
 инструмента, и выбирать сканер надо по ней. В таком виде вопрос звучит как
 «какой из них меньше врёт».
 
@@ -529,7 +529,7 @@ p/owasp-top-ten   2 находки   1 ложная, оба дефекта SQL �
    `pattern-sources`, `pattern-sinks`, `pattern-sanitizers`,
    `pattern-propagators`; замечание о том, что пропагаторы работают
    внутрипроцедурно, а межпроцедурный анализ выполняется платными сборками.
-   <https://docs.semgrep.dev/writing-rules/data-flow/taint-mode>
+   <https://docs.semgrep.dev/writing-rules/data-flow/taint-mode/overview>
 3. Semgrep, «Rule pattern syntax»; реестр `semgrep-pattern-syntax`. Разделы:
    метапеременные, многоточие как обозначение пропущенных элементов,
    независимость шаблона от форматирования.

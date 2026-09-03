@@ -156,7 +156,7 @@ $ python e05-llm.py
 модели, а не по действию пользователя.
 
 ```python
-# УЯЗВИМО — демонстрация модели, не для продакшена.
+# УЯЗВИМО — демонстрация модели, не для продакшена
 def handle(user_prompt):
     email = get_last_email()                       # (1) внешние данные
     reply = llm(user_prompt + "\n" + email, tools=[forward_all])  # (2)

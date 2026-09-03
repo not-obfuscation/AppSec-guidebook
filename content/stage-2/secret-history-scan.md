@@ -316,7 +316,7 @@ AWS     .git/objects/1c/8367ec5e8b088feb42f018e90c247738628641
    всей истории на всех ветках, дополнительные площадки (задачи, запросы на
    слияние, обсуждения, вики, gist), рекомендация ротировать при находке,
    партнёрская программа отзыва.
-   <https://docs.github.com/en/code-security/secret-scanning/introduction/about-secret-scanning>
+   <https://docs.github.com/en/code-security/concepts/secret-security/secret-scanning>
 2. Gitleaks; реестр `gitleaks`. Разделы: команды `git` и `dir`, ключ
    `--log-opts`, базовый файл прежних находок, поля отчёта с автором, датой и
    сообщением коммита.

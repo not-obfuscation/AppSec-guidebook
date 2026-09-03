@@ -22,7 +22,7 @@
 
 Свойство метода, при котором повторение одного и того же запроса даёт то же состояние, что и однократное исполнение. Опора серверных защит: повтор подделанного запроса не добавляет атакующему ничего нового.
 
-*рядом: [безопасный метод](#safe-method), [метод](#method); источник: RFC 9110 § 9.2.2.*
+*вводится в [idempotency](content/stage-1/idempotency.md); рядом: [безопасный метод](#safe-method), [метод](#method); источник: RFC 9110 § 9.2.2.*
 
 ### код ответа { #status-code }
 
@@ -47,6 +47,14 @@
 Пара «имя — значение» в сообщении. Имя регистронезависимо; исторические реализации заменяют в имени дефис подчёркиванием, и на этом расхождении строится часть атак на посредников.
 
 *вводится в [http-basics](content/stage-0/http-basics.md); рядом: [start-line](#start-line), [X-Forwarded-For](#x-forwarded-for); источник: RFC 9110 § 17.10.*
+
+### CRLF { #crlf }
+
+*англ. Carriage Return and Line Feed*
+
+Пара управляющих символов `\r\n`, которой сообщение разделяет строки: start-line, поля и пустую строку перед телом. Попав в значение поля, пара разрывает сообщение раньше, чем рассчитывал отправитель, — на этом стоятся расщепление ответа и контрабанда запросов.
+
+*вводится в [crlf-injection](content/stage-1/crlf-injection.md); рядом: [поле заголовка](#header-field), [start-line](#start-line); источник: RFC 9112.*
 
 ### HTTP { #http }
 
@@ -160,7 +168,7 @@
 
 ### origin { #origin }
 
-*то же: «источник», «происхождение»*
+*то же: «происхождение»*
 
 Единица, между которой браузер проводит границу доверия: акторы с общим origin считаются доверяющими друг другу и имеющими одинаковые полномочия, акторы с разными origin — потенциально враждебными. Спецификация различает два вида, opaque и tuple.
 
@@ -236,7 +244,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 ### CSRF { #csrf }
 
-*англ. cross-site request forgery · то же: «подделка межсайтового запроса»*
+*англ. Cross-Site Request Forgery · то же: «подделка межсайтового запроса»*
 
 Дефект, при котором чужая страница выполняет изменяющее действие от имени вошедшего пользователя: браузер прикладывает к её запросу сессионную cookie сам. Ответа приложения атакующий при этом не видит, и он ему не нужен — действие выполняется до того, как ответ дойдёт до браузера.
 
@@ -290,6 +298,14 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [cookies](content/stage-0/cookies.md); рядом: [cookie](#cookie), [CSRF-токен](#csrf-token), [политика одного источника](#same-origin-policy); источник: draft-ietf-httpbis-rfc6265bis-22.*
 
+### SAML { #saml }
+
+*англ. Security Assertion Markup Language*
+
+Язык подписанных утверждений о входе и его веб-профиль единого входа: поставщик удостоверений подписывает утверждение, приложение решает по нему, кто вошёл. Проверке подлежит подпись всего утверждения, а не факт его наличия.
+
+*вводится в [saml](content/stage-1/saml.md); рядом: [OAuth](#oauth), [OIDC](#oidc), [аутентификация](#authentication); источник: OWASP SAML Security Cheat Sheet.*
+
 ### Secure { #secure-attribute }
 
 Атрибут cookie, запрещающий отправлять её по незащищённому каналу. Целостности не даёт: посредник в канале без TLS может cookie установить, даже если прочитать её не может.
@@ -302,7 +318,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Атака, в которой значение сессии задаёт атакующий, а жертва входит уже под ним. Лечится сменой идентификатора при смене прав: старая запись гасится, новая создаётся.
 
-*рядом: [идентификатор сессии](#session-id), [сессия](#session).*
+*вводится в [session-fixation](content/stage-1/session-fixation.md); рядом: [идентификатор сессии](#session-id), [сессия](#session).*
 
 ### Set-Cookie { #set-cookie }
 
@@ -392,7 +408,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Место кода, которое читает свойство и делает из него что-то опасное. Само по себе безвредно: вредным становится вместе с записью в прототип, которая подставляет этому месту чужое значение.
 
-*вводится в [prototype-pollution](content/stage-1/prototype-pollution.md); рядом: [загрязнение прототипа](#prototype-pollution), [sink](#sink); источник: PortSwigger Web Security Academy, Prototype pollution.*
+*вводится в [prototype-pollution](content/stage-1/prototype-pollution.md); рядом: [загрязнение прототипа](#prototype-pollution), [сток](#sink); источник: PortSwigger Web Security Academy, Prototype pollution.*
 
 ### загрязнение прототипа { #prototype-pollution }
 
@@ -400,7 +416,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Запись присланного значения в прототип встроенного объекта JavaScript. Свойство после этого видно каждому объекту, у которого своего такого свойства нет, поэтому дефект действует не в одном месте, а во всём коде страницы сразу.
 
-*вводится в [prototype-pollution](content/stage-1/prototype-pollution.md); рядом: [гаджет](#gadget), [sink](#sink); источник: OWASP Prototype Pollution Prevention Cheat Sheet.*
+*вводится в [prototype-pollution](content/stage-1/prototype-pollution.md); рядом: [гаджет](#gadget), [сток](#sink); источник: OWASP Prototype Pollution Prevention Cheat Sheet.*
 
 ### контекст вставки { #insertion-context }
 
@@ -408,7 +424,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Место разметки, куда попадает значение, вместе с правилами разбора, действующими в этом месте: тело документа, значение атрибута, строковый литерал скрипта, значение свойства стиля, адрес. Контекст решает, какое экранирование верно; одно и то же правило в соседнем контексте не защищает.
 
-*вводится в [xss-contexts](content/stage-1/xss-contexts.md); рядом: [санитайзер](#sanitizer), [sink](#sink), [процентное кодирование](#percent-encoding); источник: OWASP Cross Site Scripting Prevention Cheat Sheet.*
+*вводится в [xss-contexts](content/stage-1/xss-contexts.md); рядом: [санитайзер](#sanitizer), [сток](#sink), [процентное кодирование](#percent-encoding); источник: OWASP Cross Site Scripting Prevention Cheat Sheet.*
 
 ### санитайзер { #sanitizer }
 
@@ -436,7 +452,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Механизм браузера, при котором опасные стоки DOM перестают принимать обычную строку и принимают только значение, выданное объявленной политикой. Включается директивой `require-trusted-types-for 'script'`.
 
-*вводится в [xss-dom](content/stage-1/xss-dom.md); рядом: [санитайзер](#sanitizer), [CSP](#csp), [sink](#sink); источник: OWASP Cross Site Scripting Prevention Cheat Sheet.*
+*вводится в [xss-dom](content/stage-1/xss-dom.md); рядом: [санитайзер](#sanitizer), [CSP](#csp), [сток](#sink); источник: OWASP Cross Site Scripting Prevention Cheat Sheet.*
 
 ### WebSocket { #websocket }
 
@@ -468,7 +484,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Инструмент, который встаёт между клиентом и сервером и предъявляет клиенту свой сертификат. Работает только там, где его корень добавлен в доверенные, и на этом же держится разница между инструментом и атакой.
 
-*вводится в [tls-and-proxy](content/stage-0/tls-and-proxy.md); рядом: [MITM](#mitm), [TLS](#tls), [обратный прокси](#reverse-proxy).*
+*вводится в [tls-and-proxy](content/stage-0/tls-and-proxy.md); рядом: [MITM](#mitm), [TLS](#tls), [обратный прокси](#reverse-proxy), [прямой прокси](#forward-proxy).*
 
 ### прямой прокси { #forward-proxy }
 
@@ -476,7 +492,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Посредник со стороны клиента: обслуживает клиента или группу клиентов и может скрывать их адреса.
 
-*вводится в [app-architecture](content/stage-0/app-architecture.md); рядом: [обратный прокси](#reverse-proxy), [X-Forwarded-For](#x-forwarded-for); источник: MDN.*
+*вводится в [app-architecture](content/stage-0/app-architecture.md); рядом: [обратный прокси](#reverse-proxy), [перехватывающий прокси](#intercepting-proxy), [X-Forwarded-For](#x-forwarded-for); источник: MDN.*
 
 ### самоподписанный сертификат { #self-signed }
 
@@ -524,7 +540,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Посредник в канале, который читает и меняет сообщения. В работе это не только атака: перехватывающий прокси инструментального набора устроен так же и требует того же доверенного корня.
 
-*вводится в [tls-and-proxy](content/stage-0/tls-and-proxy.md); рядом: [TLS](#tls), [перехватывающий прокси](#intercepting-proxy), [bootstrap MITM](#bootstrap-mitm).*
+*вводится в [security-headers](content/stage-0/security-headers.md); рядом: [TLS](#tls), [перехватывающий прокси](#intercepting-proxy), [bootstrap MITM](#bootstrap-mitm).*
 
 ### SPA { #spa }
 
@@ -533,6 +549,14 @@ Origin из четырёх полей: схема, хост, порт и дом�
 Приложение, у которого разметку собирает клиент. Для разбора важно не быстродействие, а то, что уезжает на клиент: логика вместе с адресами эндпоинтов, именами полей и признаками ролей.
 
 *вводится в [app-architecture](content/stage-0/app-architecture.md); рядом: [эндпоинт](#endpoint), [REST](#rest), [GraphQL](#graphql).*
+
+### SSRF { #ssrf }
+
+*англ. Server-Side Request Forgery · то же: «подделка запроса на стороне сервера», «подделка серверных запросов»*
+
+Дефект, при котором сервер выполняет запрос по адресу из присланных данных: запрос настоящий и отправлен самим приложением, а цель ему назвал атакующий. Сервер идёт по этому адресу со своего места — изнутри периметра, где стоят службы, закрытые от интернета.
+
+*вводится в [ssrf-basics](content/stage-1/ssrf-basics.md); рядом: [IMDS](#imds), [граница доверия](#trust-boundary), [CSRF](#csrf); источник: OWASP Server Side Request Forgery Prevention Cheat Sheet, CWE-918.*
 
 ### TLS { #tls }
 
@@ -628,7 +652,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Отсутствие проверки авторизации на уровне объекта: вошедший пользователь читает или меняет чужие объекты, подменяя идентификатор. Отличие от BFLA — подменяется объект, а не функция.
 
-*вводится в [access-control-models](content/stage-1/access-control-models.md); рядом: [IDOR](#idor), [BFLA](#bfla), [авторизация](#authorization); источник: OWASP API Security Top 10:2023, API1.*
+*вводится в [bola](content/stage-1/bola.md); рядом: [IDOR](#idor), [BFLA](#bfla), [авторизация](#authorization); источник: OWASP API Security Top 10:2023, API1.*
 
 ### credential stuffing { #credential-stuffing }
 
@@ -650,11 +674,27 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Доступ к объекту по присланному идентификатору без проверки права на этот объект: подмена номера в адресе возвращает чужую запись. В API то же свойство называется BOLA.
 
-*вводится в [access-control-models](content/stage-1/access-control-models.md); рядом: [BOLA](#bola), [авторизация](#authorization).*
+*вводится в [idor](content/stage-1/idor.md); рядом: [BOLA](#bola), [авторизация](#authorization).*
+
+### JNDI { #jndi }
+
+*англ. Java Naming and Directory Interface*
+
+Интерфейс Java для поиска объектов по имени в службах каталогов. Имя, собранное из присланных данных, отправляет приложение в чужой каталог за объектом, и загруженный оттуда класс исполняется — ход, сделавший Log4Shell удалённым исполнением кода.
+
+*вводится в [jndi-log4shell](content/stage-7/jndi-log4shell.md); рядом: [LDAP](#ldap), [CVE](#cve).*
+
+### LDAP { #ldap }
+
+*англ. Lightweight Directory Access Protocol*
+
+Протокол доступа к службе каталогов: древовидные записи с атрибутами, а запрос — фильтр своего синтаксиса. Фильтр, собранный из присланной строки конкатенацией, даёт инъекцию: метасимволы фильтра меняют логику запроса.
+
+*вводится в [ldap-xpath-injection](content/stage-1/ldap-xpath-injection.md); рядом: [аутентификация](#authentication), [XXE](#xxe).*
 
 ### MFA { #mfa }
 
-*англ. multi-factor authentication · сокр. MFA · то же: «многофакторная аутентификация», «двухфакторная аутентификация»*
+*англ. multi-factor authentication · то же: «многофакторная аутентификация», «двухфакторная аутентификация»*
 
 Проверка входа несколькими разными факторами: то, что пользователь знает (пароль), плюс то, что у него есть (код из приложения, ключ). Защищает поток вокруг фактора, а не факт включения: обходят её дырами в логике второго шага, а не взломом фактора.
 
@@ -666,6 +706,14 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [rest-and-graphql](content/stage-0/rest-and-graphql.md); рядом: [REST](#rest), [эндпоинт](#endpoint); источник: OpenAPI v3.2.0.*
 
+### ORM { #orm }
+
+*англ. Object-Relational Mapping · то же: «объектно-реляционное отображение»*
+
+Слой, отображающий записи базы на объекты кода: запрос строится вызовами методов, а не сборкой строки SQL. Его защита кончается на «сырых» фрагментах — raw(), extra(), text(): в них параметры связывает уже не слой, а сам разработчик.
+
+*вводится в [python-orm-sql](content/stage-7/python-orm-sql.md); рядом: [сток](#sink).*
+
 ### password spraying { #password-spraying }
 
 *англ. password spraying · то же: «распыление пароля»*
@@ -674,19 +722,45 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [credential-stuffing](content/stage-1/credential-stuffing.md); рядом: [credential stuffing](#credential-stuffing), [ограничение частоты](#rate-limiting).*
 
+### RBAC { #rbac }
+
+*англ. Role-Based Access Control · то же: «ролевая модель доступа»*
+
+Модель контроля доступа, в которой права привязаны к роли, а не к учётной записи: учётная запись получает права через назначенные ей роли. Проверка сводится к вопросу «есть ли у ролей обратившегося это право», и присланная клиентом роль входом для неё не служит.
+
+*вводится в [access-control-models](content/stage-1/access-control-models.md); рядом: [авторизация](#authorization), [IDOR](#idor), [BFLA](#bfla).*
+
 ### REST { #rest }
+
+*англ. Representational State Transfer*
 
 Стиль устройства API, в котором точка входа — пара «метод и путь». Точки входа перечислимы: они видны в маршрутах и в описании OpenAPI.
 
 *вводится в [rest-and-graphql](content/stage-0/rest-and-graphql.md); рядом: [GraphQL](#graphql), [эндпоинт](#endpoint), [OpenAPI](#openapi); источник: OWASP REST Security Cheat Sheet.*
 
+### SSTI { #ssti }
+
+*англ. Server-Side Template Injection · то же: «инъекция в шаблонизатор»*
+
+Класс дефектов, при котором присланная строка попадает в текст шаблона до его компиляции и исполняется движком на сервере. От экранирования вывода не защищает: выражение срабатывает при отрисовке, до того как экранирование ответа вступит в силу.
+
+*вводится в [ssti](content/stage-1/ssti.md); рядом: [контекст вставки](#insertion-context), [сток](#sink); источник: PortSwigger Web Security Academy, Server-side template injection.*
+
 ### TOTP { #totp }
 
-*англ. time-based one-time password · сокр. TOTP*
+*англ. time-based one-time password*
 
 Одноразовый код, привязанный к текущему временному шагу и общему секрету (RFC 6238). Годен один раз и в узком окне времени; без пометки использования и без лимита попыток перебирается.
 
 *вводится в [mfa-bypass](content/stage-1/mfa-bypass.md); рядом: [MFA](#mfa), [CSPRNG](#csprng).*
+
+### XXE { #xxe }
+
+*англ. XML External Entity · то же: «внешняя сущность XML»*
+
+Класс дефектов разбора XML: парсер разрешает внешние сущности, и присланный документ заставляет сервер прочитать локальный файл или обратиться по названному адресу. Лечится конфигурацией парсера, а не фильтрацией входной строки.
+
+*вводится в [xxe](content/stage-1/xxe.md); рядом: [SSRF](#ssrf), [граница доверия](#trust-boundary); источник: OWASP XML External Entity Prevention Cheat Sheet.*
 
 ## Хеши и хранение паролей
 
@@ -758,6 +832,14 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 *вводится в [sessions-vs-tokens](content/stage-0/sessions-vs-tokens.md), [password-storage](content/stage-1/password-storage.md); рядом: [энтропия](#entropy), [идентификатор сессии](#session-id), [соль](#salt), [одноразовое значение](#nonce).*
 
+### HMAC { #hmac }
+
+*англ. Hash-based Message Authentication Code*
+
+Стандартная конструкция кода аутентификации сообщения поверх хеш-функции: секрет подмешивается дважды, через внутреннюю и внешнюю подкладки. Даёт целостность и авторство внутри круга владельцев общего секрета; неотказуемости, как у подписи на паре ключей, не даёт.
+
+*вводится в [hmac-vs-signature](content/stage-1/hmac-vs-signature.md); рядом: [хеш-функция](#hash-function), [самодостаточный токен](#self-contained-token); источник: RFC 2104, FIPS 198-1.*
+
 ### PBKDF2 { #pbkdf2 }
 
 Функция вывода ключа из пароля, цена которой задаётся числом итераций. Годится там, где требуется алгоритм из утверждённого списка; по цене догадки уступает argon2id и scrypt.
@@ -778,7 +860,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Линия, за которой данные перестают быть под контролем приложения. Сообщение приходит из-за границы доверия целиком: атакующий выбирает метод, цель запроса, каждое имя и значение поля, тело.
 
-*вводится в [http-basics](content/stage-0/http-basics.md), [password-storage](content/stage-1/password-storage.md); рядом: [sink](#sink), [модель угроз](#threat-model).*
+*вводится в [http-basics](content/stage-0/http-basics.md), [password-storage](content/stage-1/password-storage.md); рядом: [сток](#sink), [модель угроз](#threat-model).*
 
 ### дамп { #dump }
 
@@ -794,13 +876,21 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Ответ на вопрос, от кого и от чего защищаемся, до разговора о средствах. У темы про хранение паролей она начинается там, где дамп уже у атакующего, и вопрос стоит один: во что ему обойдётся восстановление.
 
-*вводится в [password-storage](content/stage-1/password-storage.md), [security-headers](content/stage-0/security-headers.md); рядом: [граница доверия](#trust-boundary), [sink](#sink).*
+*вводится в [password-storage](content/stage-1/password-storage.md), [security-headers](content/stage-0/security-headers.md); рядом: [граница доверия](#trust-boundary), [сток](#sink).*
 
 ### стенд { #stand }
 
 Своё приложение, поднятое для опытов. Все задачи гайда ставятся на стенде автора, а не на чужой системе: полезная работа с уязвимостью начинается там, где на неё есть право.
 
 *рядом: [модель угроз](#threat-model).*
+
+### сток { #sink }
+
+*англ. sink*
+
+Место, где данные достигают действия с последствиями: запрос к базе, вывод в разметку, строка в таблице учётных записей. Второй конец пары «источник — сток», вокруг которой строится разбор дефекта.
+
+*вводится в [password-storage](content/stage-1/password-storage.md); рядом: [граница доверия](#trust-boundary), [модель угроз](#threat-model).*
 
 ### тест на регресс { #regression-test }
 
@@ -832,13 +922,7 @@ Origin из четырёх полей: схема, хост, порт и дом�
 
 Проверка по исходному тексту без запуска: анализатор строит представление программы и ищет в нём образцы дефектов. Ловит дефект рано, но не видит того, что проявляется только в исполнении, — зеркало DAST.
 
-*вводится в [privilege-escalation-vertical](content/stage-1/privilege-escalation-vertical.md), [sast-principles](content/stage-2/sast-principles.md); рядом: [DAST](#dast), [sink](#sink), [граница доверия](#trust-boundary).*
-
-### sink { #sink }
-
-Место, где данные достигают действия с последствиями: запрос к базе, вывод в разметку, строка в таблице учётных записей. Второй конец пары «источник — sink», вокруг которой строится разбор дефекта.
-
-*вводится в [password-storage](content/stage-1/password-storage.md); рядом: [граница доверия](#trust-boundary), [модель угроз](#threat-model).*
+*вводится в [privilege-escalation-vertical](content/stage-1/privilege-escalation-vertical.md), [sast-principles](content/stage-2/sast-principles.md); рядом: [DAST](#dast), [сток](#sink), [граница доверия](#trust-boundary).*
 
 ## Стандарты и каталоги
 
@@ -889,6 +973,14 @@ Origin из четырёх полей: схема, хост, порт и дом�
 Каталог CISA уязвимостей, чья эксплуатация подтверждена фактом. В отличие от балла CVSS и прогноза EPSS, попадание в KEV — наблюдение, а не оценка, и сигнал чинить немедленно.
 
 *вводится в [cve-cvss](content/stage-2/cve-cvss.md); рядом: [CVE](#cve), [CVSS](#cvss), [EPSS](#epss); источник: CISA, Known Exploited Vulnerabilities Catalog.*
+
+### NVD { #nvd }
+
+*англ. National Vulnerability Database*
+
+База уязвимостей NIST: обогащает записи CVE оценками CVSS и привязкой к конфигурациям продуктов. Производная, а не первоисточник: между записью CVE и её обработкой в NVD бывают расхождения, и выгрузку читают с этой поправкой.
+
+*вводится в [cve-cvss](content/stage-2/cve-cvss.md); рядом: [CVE](#cve), [CVSS](#cvss), [KEV](#kev); источник: NIST, CVEs and the NVD Process.*
 
 ### SBOM { #sbom }
 

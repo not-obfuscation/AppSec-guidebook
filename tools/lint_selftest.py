@@ -416,6 +416,10 @@ def data_cases() -> list[tuple[str, str, str, list]]:
 # тексте проверяет и правило, и то, что оно молчит на всём остальном.
 
 BASE_PAGE = CONTENT_DIR / "stage-1" / "password-storage.md"
+# Вторая база — живая тема L3: правило `C-HEAD-L3-SELFCHECK` спрашивается
+# только с уровня L3, и мутация настоящей L3-шапки проверяет заодно, что
+# законная форма «без разбивки» правило не задевает.
+BASE_L3_PAGE = CONTENT_DIR / "stage-1" / "dom-clobbering.md"
 
 
 class Nothing:
@@ -530,6 +534,20 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         end = base.find("\n## ", ib + 1)
         return one(base[:ia] + base[ib:end] + base[ia:ib] + base[end:])
 
+    # Та же тема-фикстура, но L3: каталог этапа тот же (stage-1 → web-vulns),
+    # поэтому `home` подходит без нового пути.
+    l3base = BASE_L3_PAGE.read_text(encoding="utf-8")
+    l3target = home / BASE_L3_PAGE.name
+
+    def one_l3(text: str) -> list:
+        if text == l3base:
+            return [Nothing()]
+        l3target.write_text(text, encoding="utf-8")
+        page = vc.read_page(l3target)
+        return (vc.check_front(page, ctx) + vc.check_head(page, ctx)
+                + vc.check_blocks(page, ctx) + vc.check_body(page, ctx))
+
+    clean_l3 = one_l3(l3base + "\n")
     clean = one(base + "\n")
     out = [
         # живая тема проверки проходит: без этого все «ловит» ниже ничего не
@@ -628,6 +646,17 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
         ("декларация состава вернулась", "C-HEAD-CLEAN", CATCH,
          sub("Что прочитать сначала:",
              "Состав блоков — полный по уровню L1. Что прочитать сначала:")),
+        # Разбивка времени с «самопроверкой» на L3 обещает блок, которого на
+        # этом уровне нет (аудит 2026-09: девять таких шапок, гейт был слеп).
+        # Слагаемые подобраны в сумму `time_min`, чтобы мутация задевала ровно
+        # одно правило, а не `C-HEAD-TIME` заодно.
+        ("шапка L3 обещает самопроверку", "C-HEAD-L3-SELFCHECK", CATCH,
+         one_l3(re.sub(r"(время \d+.мин)",
+                       r"\1 (теория 7 / задача 3 / самопроверка 2)", l3base))),
+        ("шапка L3 без разбивки", "C-HEAD-L3-SELFCHECK", SILENT, clean_l3,
+         "на L3 разбивки нет вовсе — обещать самопроверку нечему"),
+        ("разбивка с самопроверкой на L1", "C-HEAD-L3-SELFCHECK", SILENT, clean,
+         "на L1–L2 разбивка обязательна: правило спрашивается только с L3"),
 
         # --- скелет ----------------------------------------------------------
         ("блок назван не по канону", "C-BLOCK-TITLE", CATCH,
@@ -659,6 +688,13 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
          sub("1. Verify that", "1. Убедитесь, что", 1)),
         ("нет ответов под раскрытием", "C-BODY-SELFCHECK", CATCH,
          sub("<details", "<detailz")),
+        # Возврат на смежную тему вместо предпосылки: `tls-and-proxy` стоит в
+        # `related` настоящей темы, но не в её `prerequisites` (X-PREREQ-12).
+        ("возврат ведёт на смежную тему", "C-BODY-RETURN", CATCH,
+         sub("Возврат к теме `sessions-vs-tokens`",
+             "Возврат к теме `tls-and-proxy`", 1)),
+        ("возврат ведёт на предпосылку", "C-BODY-RETURN", SILENT, clean,
+         "оба возврата настоящей темы целят `prerequisites` (5.2 п. 10)"),
         ("сноска и sources расходятся", "C-BODY-SOURCES", CATCH,
          sub("`python-hashlib`", "`mdn-csp`")),
         ("каркас этапа не в sources", "C-BODY-SOURCES", SILENT, clean,

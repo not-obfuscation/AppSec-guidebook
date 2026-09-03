@@ -31,13 +31,13 @@ stages:
             sources: [whatwg-url, rfc3986-uri, unicode-uts39-security-mechanisms, claroty-url-parsing-confusion]
           - id: t-0-0-03
             title: "Cookies: атрибуты Secure, HttpOnly, SameSite, Domain, Path"
-            sources: [rfc6265bis-cookies, mdn-cookies]
+            sources: [rfc6265bis-cookies, mdn-cookies, wstg-v42-conf-06-http-methods]
           - id: t-0-0-04
             title: "Сессии: серверные сессии vs stateless-токены"
             sources: [owasp-cs-session-management, rfc6265bis-cookies, rfc7519-jwt]
           - id: t-0-0-05
             title: "Same-Origin Policy — что именно ограничивает и что нет"
-            sources: [mdn-same-origin-policy, whatwg-html-origin]
+            sources: [mdn-same-origin-policy, whatwg-html-origin, whatwg-html-web-messaging, webdev-same-origin-policy]
           - id: t-0-0-06
             title: "CORS: preflight-запросы, заголовки Access-Control-*, типовые ошибки конфигурации"
             sources: [whatwg-fetch, mdn-cors, mdn-cors-errors]
@@ -52,10 +52,10 @@ stages:
             sources: [rfc9846-tls13, burp-docs-proxy, rfc5280-x509, burp-proxy-manage-certificates, burp-proxy-intercept-messages]
           - id: t-0-0-10
             title: "Модель современного приложения: SPA + REST/GraphQL API, серверный рендеринг, reverse proxy, CDN"
-            sources: [webdev-rendering-on-the-web, mdn-proxy-tunneling, rfc7239-forwarded, rfc9111-http-caching]
+            sources: [webdev-rendering-on-the-web, mdn-proxy-tunneling, rfc7239-forwarded, rfc9111-http-caching, mdn-cors-errors]
           - id: t-0-0-11
             title: "Устройство REST и GraphQL API, где в них появляются точки входа"
-            sources: [openapi-spec, graphql-learn-serving-over-http, graphql-learn-security, owasp-cs-rest-security]
+            sources: [openapi-spec, graphql-learn-serving-over-http, graphql-learn-security, owasp-cs-rest-security, openapi-311, graphql-spec]
   - num: 1
     title: "Веб-уязвимости"
     excluded: false
@@ -70,16 +70,16 @@ stages:
             sources: [nist-ir-7316, nist-sp-800-162-abac, wstg-v42-idnt-01-role-definitions]
           - id: t-1-1-02
             title: "Вертикальная эскалация привилегий"
-            sources: [wstg-v42-athz-03-privilege-escalation, owasp-top10-2025-a01, spring-security-authorize-http-requests]
+            sources: [wstg-v42-athz-03-privilege-escalation, owasp-top10-2025-a01, spring-security-authorize-http-requests, wstg-v42-athz-02-bypassing-authz-schema]
           - id: t-1-1-03
             title: "Горизонтальная эскалация, IDOR (Insecure Direct Object Reference)"
             sources: [ps-idor, wstg-v42-athz-04-idor, owasp-cs-idor]
           - id: t-1-1-04
             title: "BOLA — ошибки авторизации на уровне объектов в API"
-            sources: [owasp-api-top10-2023, owasp-api-top10-2023-a1-bola, owasp-api-top10-2023-risk-list]
+            sources: [owasp-api-top10-2023-a1-bola, owasp-api-top10-2023-risk-list]
           - id: t-1-1-05
             title: "BFLA — ошибки авторизации на уровне функций в API"
-            sources: [owasp-api-top10-2023, owasp-api-top10-2023-a5-bfla, owasp-api-top10-2023-risk-list]
+            sources: [owasp-api-top10-2023-a5-bfla, owasp-api-top10-2023-risk-list]
           - id: t-1-1-06
             title: "Проверки доступа, вынесенные на клиент"
             sources: [owasp-top10-2025-a01]
@@ -88,13 +88,13 @@ stages:
             sources: [mdn-proxy-tunneling, rfc7239-forwarded, wstg-v42-conf-06-http-methods]
           - id: t-1-1-08
             title: "Многошаговые процессы с проверкой только на первом шаге"
-            sources: [wstg-v42-busl-06-workflow-circumvention]
+            sources: [wstg-v42-busl-06-workflow-circumvention, owasp-cs-idor]
           - id: t-1-1-09
             title: "Мисконфигурации CORS как вектор доступа к данным"
             sources: [ps-cors, mdn-cors]
           - id: t-1-1-10
             title: "Манипуляции с токенами и параметрами роли"
-            sources: [owasp-top10-2025-a01]
+            sources: [owasp-top10-2025-a01, wstg-v42-athz-03-privilege-escalation]
           - id: t-1-1-11
             title: "Принцип deny-by-default, проверка авторизации на сервере"
             sources: [wstg-v42-athz-02-bypassing-authz-schema, owasp-top10-2025-a01]
@@ -104,38 +104,38 @@ stages:
         topics:
           - id: t-1-2-01
             title: "Базовый SSRF, доступ к внутренним сервисам"
-            sources: []
+            sources: [wstg-v42-inpv-19-ssrf, owasp-top10-2025-a01]
           - id: t-1-2-02
             title: "Blind SSRF и способы его обнаружения (out-of-band)"
-            sources: [ps-blind-ssrf]
+            sources: [ps-blind-ssrf, wstg-v42-inpv-19-ssrf]
           - id: t-1-2-03
             title: "Обход фильтров: альтернативные представления IP, редиректы, DNS rebinding"
-            sources: []
+            sources: [wstg-v42-inpv-19-ssrf, claroty-url-parsing-confusion]
           - id: t-1-2-04
             title: "Доступ к метаданным облачных провайдеров"
-            sources: [aws-imds]
+            sources: [aws-imds, gcp-metadata-server, azure-imds]
           - id: t-1-2-05
             title: "Защита: allow-list, запрет редиректов, сетевая сегментация"
-            sources: [wstg-v42-inpv-19-ssrf]
+            sources: [wstg-v42-inpv-19-ssrf, iana-ipv4-special-registry]
       - num: "1.3"
         title: "Injection (A05:2025)"
         sources: [owasp-cs-injection]
         topics:
           - id: t-1-3-01
             title: "SQL-инъекции: классические, UNION-based"
-            sources: [ps-sqli]
+            sources: [ps-sqli, owasp-cs-sqli-prevention, owasp-top10-2025-a05]
           - id: t-1-3-02
             title: "Blind SQLi: boolean-based, time-based"
-            sources: [ps-sqli]
+            sources: [ps-sqli, owasp-cs-sqli-prevention]
           - id: t-1-3-03
             title: "Out-of-band SQLi"
-            sources: [ps-sqli]
+            sources: [ps-sqli, owasp-cs-sqli-prevention]
           - id: t-1-3-04
             title: "Обход фильтров и WAF"
-            sources: [ps-sqli]
+            sources: [ps-sqli, owasp-cs-sqli-prevention]
           - id: t-1-3-05
             title: "Параметризованные запросы, безопасное использование ORM"
-            sources: [owasp-cs-sqli-prevention, wstg-v42-inpv-0507-orm-injection]
+            sources: [owasp-cs-sqli-prevention, wstg-v42-inpv-0507-orm-injection, ps-sqli]
           - id: t-1-3-06
             title: "NoSQL-инъекции (MongoDB — оператор-инъекции)"
             sources: [ps-nosqli, owasp-cs-nosql-security]
@@ -144,13 +144,13 @@ stages:
             sources: [ps-oscmd, owasp-cs-oscmd-defense]
           - id: t-1-3-08
             title: "SSTI — инъекции в шаблонизаторы (Jinja2, Twig и др.)"
-            sources: [ps-ssti]
+            sources: [ps-ssti, owasp-top10-2025-a05]
           - id: t-1-3-09
             title: "LDAP- и XPath-инъекции обзорно"
             sources: [owasp-cs-ldap-injection, wstg-v42-inpv-09-xpath]
           - id: t-1-3-10
             title: "XXE: чтение файлов, SSRF через XXE, blind XXE"
-            sources: [ps-xxe, owasp-cs-xxe-prevention]
+            sources: [ps-xxe, owasp-cs-xxe-prevention, owasp-top10-2025-a02]
           - id: t-1-3-11
             title: "CRLF-инъекции, HTTP response splitting"
             sources: [wstg-v42-inpv-15-splitting, cwe-113-crlf]
@@ -160,44 +160,44 @@ stages:
         topics:
           - id: t-1-4-01
             title: "Reflected XSS"
-            sources: []
+            sources: [owasp-top10-2025-a05]
           - id: t-1-4-02
             title: "Stored XSS"
-            sources: []
+            sources: [wstg-v42-inpv-02-stored-xss]
           - id: t-1-4-03
             title: "DOM-based XSS, опасные источники и стоки"
-            sources: [owasp-cs-dom-xss-prevention]
+            sources: [owasp-cs-dom-xss-prevention, ps-dom-based]
           - id: t-1-4-04
             title: "Контексты вставки: HTML, атрибут, JavaScript, URL, CSS — и правильное экранирование для каждого"
-            sources: [ps-xss-contexts]
+            sources: [ps-xss-contexts, owasp-cs-dom-xss-prevention]
           - id: t-1-4-05
             title: "Обход фильтров и санитайзеров"
-            sources: [ps-xss-cheat-sheet]
+            sources: [ps-xss-cheat-sheet, ps-xss-contexts]
           - id: t-1-4-06
             title: "CSP как защита и её обходы (unsafe-inline, JSONP, устаревшие директивы)"
-            sources: [ps-csp, w3c-csp3]
+            sources: [ps-csp, w3c-csp3, owasp-top10-2025-a06]
           - id: t-1-4-07
             title: "Prototype pollution, в том числе client-side"
             sources: [ps-prototype-pollution, owasp-cs-prototype-pollution]
           - id: t-1-4-08
             title: "Уязвимости postMessage"
-            sources: [mdn-postmessage, ps-postmessage]
+            sources: [mdn-postmessage, ps-postmessage, wstg-v42-clnt-11-web-messaging, owasp-top10-2025-a07]
           - id: t-1-4-09
             title: "Clickjacking"
-            sources: [ps-clickjacking, owasp-cs-clickjacking-defense]
+            sources: [ps-clickjacking, owasp-cs-clickjacking-defense, owasp-top10-2025-a06]
           - id: t-1-4-10
             title: "DOM clobbering"
-            sources: [ps-dom-clobbering]
+            sources: [ps-dom-clobbering, owasp-cs-dom-clobbering]
           - id: t-1-4-11
             title: "Уязвимости WebSocket"
-            sources: [ps-websockets, rfc6455-websocket]
+            sources: [ps-websockets, rfc6455-websocket, owasp-top10-2025-a07]
       - num: "1.5"
         title: "CSRF"
         sources: [ps-csrf, owasp-cs-csrf-prevention]
         topics:
           - id: t-1-5-01
             title: "Механика атаки, условия эксплуатации"
-            sources: []
+            sources: [owasp-top10-2025-a01]
           - id: t-1-5-02
             title: "Обход защиты: слабая привязка токена, отсутствие проверки для части методов"
             sources: []
@@ -213,19 +213,19 @@ stages:
         topics:
           - id: t-1-6-01
             title: "Брутфорс и защита от него: rate limiting, блокировки, их обходы"
-            sources: []
+            sources: [nist-sp-800-63b, wstg-v42-athn-03-weak-lockout]
           - id: t-1-6-02
             title: "Перечисление пользователей (по ответам, по времени)"
-            sources: []
+            sources: [wstg-v42-idnt-04-account-enumeration]
           - id: t-1-6-03
             title: "Логика восстановления и смены пароля — типовые дыры"
-            sources: [owasp-cs-forgot-password]
+            sources: [owasp-cs-forgot-password, wstg-v42-athn-09-weak-password-change, ps-auth-other-mechanisms]
           - id: t-1-6-04
             title: "Session fixation, некорректная инвалидация сессии"
-            sources: [owasp-cs-session-management]
+            sources: [owasp-cs-session-management, wstg-v42-sess-03-session-fixation, wstg-v42-sess-06-logout]
           - id: t-1-6-05
             title: "Обходы MFA"
-            sources: [ps-mfa, owasp-cs-mfa]
+            sources: [ps-mfa, owasp-cs-mfa, nist-sp-800-63b]
           - id: t-1-6-06
             title: "«Запомнить меня» и небезопасные постоянные токены"
             sources: [owasp-cs-session-management, ps-auth-other-mechanisms, wstg-v42-athn-05-remember-password]
@@ -234,39 +234,39 @@ stages:
             sources: [owasp-cs-password-storage, nist-sp-800-63b, wstg-v42-cryp-04-weak-encryption, rfc9106-argon2, python-hashlib, node-crypto]
           - id: t-1-6-08
             title: "Password spraying, credential stuffing"
-            sources: [owasp-cs-credential-stuffing]
+            sources: [owasp-cs-credential-stuffing, nist-sp-800-63b]
       - num: "1.7"
         title: "Токены и делегирование доступа"
         sources: []
         topics:
           - id: t-1-7-01
             title: "JWT: структура, подпись, алгоритмы"
-            sources: [rfc7519-jwt, owasp-cs-jwt]
+            sources: [rfc7519-jwt, owasp-cs-jwt, rfc8725-jwt-bcp]
           - id: t-1-7-02
             title: "Атаки на JWT: alg=none, HS/RS confusion, отсутствие проверки подписи, инъекции в kid и jku"
-            sources: [ps-jwt, rfc8725-jwt-bcp]
+            sources: [ps-jwt, rfc8725-jwt-bcp, owasp-cs-jwt]
           - id: t-1-7-03
             title: "Сроки жизни токенов, refresh-токены, отзыв"
             sources: [rfc9700-oauth-bcp, owasp-cs-jwt, wstg-v42-sess-07-session-timeout]
           - id: t-1-7-04
             title: "OAuth 2.0: grant types, роли участников"
-            sources: [rfc6749-oauth2, ps-oauth]
+            sources: [rfc6749-oauth2, ps-oauth, rfc9700-oauth-bcp]
           - id: t-1-7-05
             title: "Атаки на OAuth: подмена redirect_uri, отсутствие проверки state, утечка кода через Referer"
             sources: [rfc9700-oauth-bcp, ps-oauth]
           - id: t-1-7-06
             title: "OpenID Connect обзорно"
-            sources: [oidc-core]
+            sources: [oidc-core, ps-oauth]
           - id: t-1-7-07
             title: "SAML обзорно — встречается в энтерпрайзе"
-            sources: [owasp-cs-saml]
+            sources: [owasp-cs-saml, oidc-core]
       - num: "1.8"
         title: "Работа с файлами и данными"
         sources: []
         topics:
           - id: t-1-8-01
             title: "Path traversal, обходы фильтров"
-            sources: [ps-path-traversal]
+            sources: [ps-path-traversal, wstg-v42-athz-01-directory-traversal, python-os-path]
           - id: t-1-8-02
             title: "Небезопасная загрузка файлов: тип, расширение, содержимое, размещение"
             sources: [ps-file-upload, owasp-cs-file-upload]
@@ -275,7 +275,7 @@ stages:
             sources: [ps-deserialization, owasp-cs-deserialization]
           - id: t-1-8-04
             title: "Утечки информации: debug-режимы, стектрейсы, комментарии, служебные файлы"
-            sources: [ps-information-disclosure, owasp-cs-error-handling]
+            sources: [ps-information-disclosure, owasp-cs-error-handling, wstg-v42-errh-01-improper-error-handling]
           - id: t-1-8-05
             title: "Раскрытие исходников и конфигов (.git, .env, бэкапы)"
             sources: [ps-information-disclosure, wstg-v42-conf-04-backup]
@@ -285,10 +285,10 @@ stages:
         topics:
           - id: t-1-9-01
             title: "Business logic flaws: нарушение последовательности шагов, доверие клиентским данным, некорректные предположения"
-            sources: [ps-business-logic]
+            sources: [ps-business-logic, wstg-v42-busl-01-data-validation, wstg-v42-busl-06-workflow-circumvention]
           - id: t-1-9-02
             title: "Race conditions: TOCTOU, limit overrun, single-packet attack"
-            sources: [ps-race-conditions]
+            sources: [ps-race-conditions, pg-transaction-iso, wstg-v42-busl-05-function-limits]
           - id: t-1-9-03
             title: "Ошибки округления и работы с деньгами"
             sources: [cwe-682, python-floating-point, python-decimal]
@@ -304,13 +304,13 @@ stages:
         topics:
           - id: t-1-10-01
             title: "HTTP request smuggling (CL.TE, TE.CL, H2)"
-            sources: [ps-request-smuggling]
+            sources: [ps-request-smuggling, rfc9112-http11, rfc9113-http2]
           - id: t-1-10-02
             title: "Атаки на HTTP Host header"
-            sources: [ps-host-header]
+            sources: [ps-host-header, rfc9110-http-semantics]
           - id: t-1-10-03
             title: "Web cache poisoning и cache deception"
-            sources: [ps-cache-poisoning, ps-cache-deception]
+            sources: [ps-cache-poisoning, ps-cache-deception, rfc9111-http-caching]
           - id: t-1-10-04
             title: "Уязвимости GraphQL: интроспекция, batching, обход rate limit"
             sources: [ps-graphql, owasp-cs-graphql, graphql-learn]
@@ -332,7 +332,7 @@ stages:
             sources: [nist-sp-800-38a, wstg-v42-cryp-04-weak-encryption, nist-sp-800-38d-gcm]
           - id: t-1-11-04
             title: "Padding oracle обзорно"
-            sources: [wstg-v42-cryp-02-padding-oracle]
+            sources: [wstg-v42-cryp-02-padding-oracle, nist-sp-800-38a]
           - id: t-1-11-05
             title: "Небезопасные генераторы случайных чисел"
             sources: [wstg-v42-sess-01-session-schema]
@@ -351,13 +351,13 @@ stages:
             sources: [cwe-636, wstg-v42-errh-01-improper-error-handling]
           - id: t-1-12-02
             title: "Утечки через сообщения об ошибках и стектрейсы"
-            sources: [owasp-cs-error-handling]
+            sources: [owasp-cs-error-handling, wstg-v42-errh-01-improper-error-handling]
           - id: t-1-12-03
             title: "Необработанные исключения как вектор DoS"
             sources: [owasp-cs-dos, wstg-v42-errh-01-improper-error-handling]
           - id: t-1-12-04
             title: "Некорректное восстановление после сбоя, частично применённые изменения"
-            sources: [wstg-v42-busl-06-workflow-circumvention]
+            sources: [wstg-v42-busl-06-workflow-circumvention, django-transactions]
   - num: 2
     title: "Инструментарий AppSec"
     excluded: false
@@ -369,44 +369,44 @@ stages:
         topics:
           - id: t-2-1-01
             title: "Принцип работы: AST, data flow, taint analysis, path sensitivity"
-            sources: [codeql-dataflow, semgrep-taint, spa-textbook]
+            sources: [semgrep-taint, nist-sp-500-268, semgrep-pattern-syntax, gosec-repo]
           - id: t-2-1-02
             title: "Причины ложных срабатываний и ложных пропусков"
-            sources: [nist-sp-500-268, semgrep-taint]
+            sources: [nist-sp-500-268, semgrep-taint, bandit-test-plugins, gosec-repo]
           - id: t-2-1-03
             title: "Semgrep: синтаксис правил, метапеременные, taint mode"
-            sources: [semgrep-rule-syntax, semgrep-pattern-syntax]
+            sources: [semgrep-rule-syntax, semgrep-pattern-syntax, semgrep-taint, semgrep-testing-rules]
           - id: t-2-1-04
             title: "Написание собственных правил Semgrep под свой стек"
-            sources: [semgrep-writing-rules, semgrep-pattern-syntax, semgrep-testing-rules]
+            sources: [semgrep-testing-rules, semgrep-rule-syntax, semgrep-ignore, semgrep-customize-ci-job]
           - id: t-2-1-05
             title: "Bandit — Python"
             sources: [bandit-docs, bandit-test-plugins, bandit-getting-started, bandit-configuration]
           - id: t-2-1-06
             title: "gosec — Go"
-            sources: [gosec-repo]
+            sources: [gosec-repo, gosec-rule-guidelines, nist-sp-500-268]
           - id: t-2-1-07
             title: "CodeQL: модель данных, базовые запросы, зачем нужен при наличии Semgrep"
             sources: [codeql-docs, codeql-dataflow, codeql-about-queries, codeql-database-create]
           - id: t-2-1-08
             title: "SonarQube: quality gates, интеграция"
-            sources: [sonarqube-quality-gates]
+            sources: [sonarqube-quality-gates, sonarqube-feature-comparison, nist-sp-500-268]
           - id: t-2-1-09
             title: "Отечественные решения — знать по назначению: Solar appScreener, PT Application Inspector, AppSec.Track"
-            sources: [solar-appscreener, appsec-solutions, pt-application-inspector]
+            sources: [solar-appscreener, appsec-solutions, pt-application-inspector, isp-ras-svace]
       - num: "2.2"
         title: "SCA и цепочка поставок (A03:2025 — новая категория)"
         sources: []
         topics:
           - id: t-2-2-01
             title: "Модель угроз цепочки поставок: typosquatting, dependency confusion, компрометация мейнтейнера, вредоносные postinstall-скрипты"
-            sources: [slsa-threats]
+            sources: [slsa-threats, pip-install-docs, pep-503]
           - id: t-2-2-02
             title: "Транзитивные зависимости, lock-файлы, пиннинг версий"
-            sources: [npm-package-lock]
+            sources: [pip-install-docs, pep-508, pip-secure-installs]
           - id: t-2-2-03
             title: "SBOM: форматы CycloneDX и SPDX, как генерируется и зачем нужен"
-            sources: [cyclonedx-spec, spdx-spec]
+            sources: [cyclonedx-spec, spdx-spec, syft-docs]
           - id: t-2-2-04
             title: "OWASP Dependency-Check, Dependency-Track"
             sources: [dependency-check-docs, dependency-track-docs]
@@ -415,13 +415,13 @@ stages:
             sources: [trivy-docs, trivy-filtering]
           - id: t-2-2-06
             title: "CodeScoring — российский аналог"
-            sources: [codescoring]
+            sources: [codescoring, codescoring-docs]
           - id: t-2-2-07
             title: "CVE, CWE, CVSS v3.1 и v4.0, EPSS, KEV"
-            sources: [cve-program, first-epss, cisa-kev, nvd-cve-process, first-cvss-v40]
+            sources: [cve-program, first-epss, cisa-kev, first-cvss-v40, first-cvss-v31, cvss-calculator-v40]
           - id: t-2-2-08
             title: "Подпись артефактов: cosign, sigstore, provenance"
-            sources: [sigstore-docs, slsa-spec, sigstore-quickstart-cosign, slsa-v12-build-provenance, slsa-v12-build-track-basics]
+            sources: [sigstore-docs, sigstore-quickstart-cosign, slsa-v12-build-provenance, slsa-v12-build-track-basics]
       - num: "2.3"
         title: "Поиск секретов"
         sources: [owasp-cs-secrets-management]
@@ -431,10 +431,10 @@ stages:
             sources: [gitleaks, trufflehog]
           - id: t-2-3-02
             title: "Поиск по истории коммитов, а не только по HEAD"
-            sources: [gh-secret-scanning]
+            sources: [gh-secret-scanning, gitleaks]
           - id: t-2-3-03
             title: "Правильная реакция на утечку: ротация, а не удаление коммита"
-            sources: [gh-remove-sensitive-data]
+            sources: [gh-remove-sensitive-data, gh-secret-scanning]
           - id: t-2-3-04
             title: "Pre-commit хуки, серверные проверки"
             sources: [pre-commit, gh-push-protection]
@@ -496,7 +496,7 @@ stages:
             sources: [gha-understanding, gha-token-permissions, gha-workflow-syntax]
           - id: t-3-0-03
             title: "GitLab CI: stages, включение шаблонов, зависимости между job"
-            sources: [gitlab-ci-yaml]
+            sources: [gitlab-ci-yaml, gitlab-pipeline-security]
           - id: t-3-0-04
             title: "Блокирующие и информационные проверки, quality gates"
             sources: [gh-protected-branches, sonarqube-quality-gates]
@@ -505,7 +505,7 @@ stages:
             sources: [owasp-devsecops-guideline, pre-commit]
           - id: t-3-0-06
             title: "Безопасность самого пайплайна: инъекции в workflow, права токенов, доверие сторонним action, pull_request_target"
-            sources: [gha-security-hardening, ghsl-pwn-requests]
+            sources: [gha-security-hardening, ghsl-pwn-requests, gitlab-pipeline-security]
           - id: t-3-0-07
             title: "Защита веток, обязательное ревью, подпись коммитов"
             sources: [gh-protected-branches, gh-commit-signing]
@@ -526,10 +526,10 @@ stages:
             sources: [man-inode, man-umask]
           - id: t-4-1-02
             title: "setuid/setgid, sticky bit"
-            sources: [man-inode, man-credentials]
+            sources: [man-inode, man-credentials, man-ld-so]
           - id: t-4-1-03
             title: "Capabilities"
-            sources: [man-capabilities]
+            sources: [man-capabilities, man-capsh]
           - id: t-4-1-04
             title: "Namespaces и cgroups"
             sources: [man-namespaces, man-cgroups, man-user-namespaces]
@@ -548,13 +548,13 @@ stages:
             sources: [man-capabilities]
           - id: t-4-2-02
             title: "Multi-stage сборки, минимальные базовые образы"
-            sources: [docker-multistage]
+            sources: [docker-multistage, docker-image-history]
           - id: t-4-2-03
             title: "Секреты в слоях образа и в build args"
             sources: [docker-build-secrets, docker-image-history]
           - id: t-4-2-04
             title: "hadolint, сканирование образов"
-            sources: [hadolint-repo, trivy-docs]
+            sources: [hadolint-repo, trivy-docs, trivy-filtering]
           - id: t-4-2-05
             title: "Реестры артефактов, Harbor"
             sources: [harbor-docs, harbor-vulnerability-scanning]
@@ -576,7 +576,7 @@ stages:
             sources: [k8s-pod-security-standards]
           - id: t-4-3-05
             title: "Admission controllers обзорно"
-            sources: [k8s-admission-controllers]
+            sources: [k8s-admission-controllers, k8s-pod-security-standards]
       - num: "4.4"
         title: "Секреты"
         sources: []
@@ -601,25 +601,25 @@ stages:
         topics:
           - id: t-5-0-01
             title: "Threat modeling: DFD, границы доверия"
-            sources: [owasp-cs-threat-modeling]
+            sources: [owasp-cs-threat-modeling, threat-modeling-manifesto]
           - id: t-5-0-02
             title: "STRIDE — по категориям угроз"
-            sources: [ms-stride, owasp-cs-threat-modeling]
+            sources: [ms-stride, owasp-cs-threat-modeling, sei-threat-modeling-methods]
           - id: t-5-0-03
             title: "Attack trees, abuse cases"
             sources: [schneier-attack-trees, owasp-cs-abuse-case]
           - id: t-5-0-04
             title: "PASTA обзорно"
-            sources: [sei-threat-modeling-methods]
+            sources: [sei-threat-modeling-methods, sei-threat-modeling-methods-paper]
           - id: t-5-0-05
             title: "OWASP ASVS: уровни, использование как чек-листа требований"
             sources: [owasp-asvs-5, owasp-asvs-5-document]
           - id: t-5-0-06
             title: "OWASP SAMM: домены, уровни зрелости"
-            sources: [owasp-samm]
+            sources: [owasp-samm, owasp-samm-about]
           - id: t-5-0-07
             title: "OWASP Top 10 — знать маппинг 2021 → 2025, в вакансиях спрашивают обе"
-            sources: [owasp-top10-2025, owasp-top10-2021, owasp-top10-2025-introduction]
+            sources: [owasp-top10-2021, owasp-top10-2025-introduction]
           - id: t-5-0-08
             title: "OWASP API Security Top 10"
             sources: [owasp-api-top10-2023, owasp-api-top10-2023-risk-list]
@@ -634,7 +634,7 @@ stages:
             sources: [owasp-top10-a09-2025, owasp-cs-logging]
           - id: t-5-0-12
             title: "Ответ на инциденты обзорно"
-            sources: [nist-sp-800-61r3]
+            sources: [nist-sp-800-61r3, nist-sp-800-61r3-pdf]
   - num: 6
     title: "Российская нормативная база"
     excluded: true
@@ -720,7 +720,7 @@ stages:
             sources: [ps-prototype-pollution, owasp-cs-prototype-pollution]
           - id: t-7-3-02
             title: "Небезопасные зависимости npm"
-            sources: [npm-audit, npm-package-lock]
+            sources: [npm-audit, npm-package-lock, node-security-best-practices]
           - id: t-7-3-03
             title: "SSR-специфика, утечки на клиент"
             sources: [nextjs-server-client-components, react-taint-api]
@@ -736,7 +736,7 @@ stages:
             sources: [java-tutorial-language, devjava-controlling-flow, devjava-summary-of-operators, devjava-creating-classes]
           - id: t-7-4-02
             title: "Небезопасная десериализация, gadget chains"
-            sources: [java-serialization-filtering, owasp-cs-deserialization]
+            sources: [java-serialization-filtering, owasp-cs-deserialization, java-objectinputfilter-api]
           - id: t-7-4-03
             title: "Spring: конфигурация безопасности, actuator"
             sources: [spring-security-docs, spring-boot-actuator]
@@ -757,13 +757,13 @@ stages:
             sources: [go-fuzzing, atheris, hypothesis-docs, aflplusplus]
           - id: t-8-0-02
             title: "Мобильный AppSec: OWASP MASVS обзорно"
-            sources: [owasp-masvs]
+            sources: [owasp-masvs, owasp-mastg]
           - id: t-8-0-03
             title: "Безопасность LLM-приложений: OWASP Top 10 for LLM"
-            sources: [owasp-llm-top10, owasp-llm01-prompt-injection, owasp-llm-top10-2025-document]
+            sources: [owasp-llm-top10, owasp-llm-top10-2025-document]
           - id: t-8-0-04
             title: "Bug bounty как практика"
-            sources: [owasp-cs-vulnerability-disclosure]
+            sources: [owasp-cs-vulnerability-disclosure, rfc9116-security-txt]
           - id: t-8-0-05
             title: "BSCP — сертификация PortSwigger, требует Burp Pro"
-            sources: [portswigger-bscp]
+            sources: [portswigger-bscp, ps-web-security-academy]

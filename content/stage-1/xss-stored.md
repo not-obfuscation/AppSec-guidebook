@@ -160,7 +160,7 @@ WSTG описывает сценарий четырьмя шагами: атак
 Ревьюер ищет не приём значения, а его выдачу.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 @app.post("/comments")
 def add_comment(text: str, user: User):
     db.comments.insert({"author": user.name, "text": text})   # (1)

@@ -185,7 +185,7 @@ Cheat sheet называет для этой задачи библиотеку D
 Ревьюер ищет очистку, написанную своими руками.
 
 ```javascript
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 const BANNED = /<script|<iframe|javascript:|onerror=|onload=/gi;
 
 export function clean(html) {

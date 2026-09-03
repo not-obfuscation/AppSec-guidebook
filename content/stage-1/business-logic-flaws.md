@@ -288,7 +288,7 @@ $ python hack.py
 справочника, и переход состояния без проверки прошлого состояния.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def add_line(order, req):
     price = Decimal(req["price"])              # (1)
     order["lines"].append((req["sku"], int(req["qty"]), price))
@@ -308,7 +308,7 @@ def confirm(order, req):
 лишь названия вызовов:
 
 ```javascript
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 app.post("/cart", (req, res) => {
   order.lines.push({ sku: req.body.sku, price: Number(req.body.price) });
   res.json({ total: sum(order.lines) });

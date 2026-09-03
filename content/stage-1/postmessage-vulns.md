@@ -188,7 +188,7 @@ WSTG перечисляет три поля события: данные соо�
 Ревьюер читает обработчик целиком: проверку, порядок и то, куда идут данные.
 
 ```javascript
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 window.addEventListener('message', (event) => {
   if (event.origin.indexOf('normal.test') === -1) return;   // (1)
   const cfg = JSON.parse(event.data);                       // (2)

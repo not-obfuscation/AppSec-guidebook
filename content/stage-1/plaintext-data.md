@@ -168,7 +168,7 @@ $ python e11-plaintext.py
 Первый признак — чувствительное значение в адресе, а не в теле запроса.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def send_reset(email: str, token: str) -> None:
     url = f"https://app.test/reset?token={token}"   # (1)
     requests.get(f"http://internal-mailer:8025/send", params={
@@ -181,7 +181,7 @@ def send_reset(email: str, token: str) -> None:
 Второй признак — кодирование, названное шифрованием.
 
 ```javascript
-// УЯЗВИМО — демонстрация, не для продакшена.
+// УЯЗВИМО — демонстрация, не для продакшена
 const encrypted = Buffer.from(JSON.stringify(profile))
   .toString('base64');                    // (3)
 localStorage.setItem('profile', encrypted); // (4)

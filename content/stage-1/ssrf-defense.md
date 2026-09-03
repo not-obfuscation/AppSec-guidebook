@@ -195,7 +195,7 @@ v5.0-13.2.5 — сам сервер настроен списком ресурс
 какой момент.
 
 ```python
-# УЯЗВИМО — демонстрация, не для продакшена.
+# УЯЗВИМО — демонстрация, не для продакшена
 def check(url):
     ip = ipaddress.ip_address(urlsplit(url).hostname)
     if ip.is_private:                 # (1)
@@ -357,7 +357,8 @@ ASVS v5.0-13.2.5). Этот слой закрывает то, что пропу�
    Reachable.
    <https://www.iana.org/assignments/iana-ipv4-special-registry>
 3. OWASP WSTG-INPV-19 «Testing for Server-Side Request Forgery», WSTG v4.2;
-   реестр `wstg-v42-inpv-19-ssrf`. Разделы: Remediation.
+   реестр `wstg-v42-inpv-19-ssrf`. Разделы: How to Test, Common Filter
+   Bypass.
    <https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/07-Input_Validation_Testing/19-Testing_for_Server-Side_Request_Forgery>
 
 Каркас этапа: `owasp-asvs-5-document` (ASVS v5.0.0), `owasp-wstg-42`,
