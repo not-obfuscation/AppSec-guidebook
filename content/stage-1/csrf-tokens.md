@@ -255,7 +255,8 @@ const sign = (sid, rnd) => createHmac('sha256', SECRET)          // (1)
 app.post('/transfer', (req, res) => {
   const [mac, rnd] = String(req.body.csrf ?? '').split('.');     // (2)
   const expected = rnd ? sign(req.sessionID, rnd) : null;
-  if (!expected || !eqConstTime(mac, expected)) {                // (3)
+  if (!expected || mac.length !== expected.length ||             // (3)
+      !timingSafeEqual(Buffer.from(mac), Buffer.from(expected))) {
     return res.status(403).end();
   }
   transfer(req.session.user, req.body.to, req.body.amount);
@@ -279,7 +280,7 @@ app.post('/transfer', (req, res) => {
 
 **Что снимает любой из них.** XSS в приложении или на родственном узле того
 же сайта. Скрипт в origin приложения читает токен со страницы. Cheat sheet
-пишет это заглавными буквами и ставит первым пунктом.
+выделяет это полужирным и ставит первым пунктом.
 
 **Что ставится рядом.** Явное значение `SameSite` у сессионной cookie
 (тема `samesite-cookies`), префикс `__Host-` у cookie с токеном

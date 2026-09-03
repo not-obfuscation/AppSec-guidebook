@@ -149,13 +149,15 @@ public class Account implements Serializable {
 
 ```java
 // Исправлено: фильтр до разбора
-ObjectInputFilter filter =
-    ObjectInputFilter.Config.createFilter("com.example.dto.*;!*");
+ObjectInputFilter filter = ObjectInputFilter.Config.createFilter(
+    "com.example.dto.*;java.base/*;!*");
 ois.setObjectInputFilter(filter);
 ```
 
-Строка-паттерн читается как список правил: разрешить пакет, запретить
-остальное. Фильтр проверяет и метрики — глубину графа, число ссылок,
+Строка-паттерн читается как список правил: разрешить свой пакет и классы
+платформы, запретить остальное. Без `java.base/*` фильтр отклонит и
+строки внутри разрешённого класса — без служебных типов не разбирается
+ни один объект. Фильтр проверяет и метрики — глубину графа, число ссылок,
 размер потока, — что закрывает и атаки на память. Глобально фильтр
 ставится свойством `-Djdk.serialFilter` для всей JVM; точечно —
 setObjectInputFilter на потоке (проверено прогоном из введения: отказ —

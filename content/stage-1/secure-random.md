@@ -168,7 +168,7 @@ const id = Math.random().toString(36).slice(2);   // (3)
 const csrf = Date.now() + '-' + userId;           // (4)
 ```
 
-3. Годная замена — `crypto.randomBytes` или `crypto.randomUUID`.
+3. Годная замена — `crypto.randomBytes` или `crypto.getRandomValues`.
 4. Собственная сборка из времени и известного значения: угадывается целиком.
 
 Ложное срабатывание того же вида — `random` там, где непредсказуемость не

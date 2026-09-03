@@ -20,9 +20,9 @@ teaches:
 prerequisites: [jwt-basics, sessions-vs-tokens]
 related: [jwt-attacks, oauth-basics, session-fixation, persistent-login-tokens]
 tags: [jwt, session, auth]
-cwe: [CWE-613, CWE-384]
-asvs: ['v5.0-7.4.1', 'v5.0-3.3.1']
-wstg: ['WSTG-v42-SESS-07']
+cwe: [CWE-613]
+asvs: ['v5.0-7.3.1', 'v5.0-7.3.2', 'v5.0-7.4.1']
+wstg: ['WSTG-v42-SESS-06', 'WSTG-v42-SESS-07']
 owasp: ['A07:2025']
 labs: []
 sources: [rfc9700-oauth-bcp, owasp-cs-jwt, wstg-v42-sess-07-session-timeout]
@@ -140,13 +140,8 @@ Cheat sheet предупреждает — по хешу токен обходи
 ## 5. Как выглядит в коде
 
 Дефект узнаётся по тому, что выход и смена пароля не трогают выданные токены.
-
-```python
-# УЯЗВИМО — демонстрация, не для продакшена.
-def logout(session):
-    response.delete_cookie("access_token")   # стёрли только у клиента
-    return "вы вышли"
-```
+Форма такого выхода — в листинге введения: стёртая cookie у клиента при тишине
+на сервере.
 
 Признаки — три. Выход, который лишь стирает cookie у клиента и ничего не
 отзывает на сервере. Access-токен с большим `exp` — часами или сутками. Смена
@@ -202,9 +197,9 @@ Refresh сюда добавляет лишь то, что при следующ�
 ## 10. Чеклист ревью
 
 1. Verify that access-токен на самодостаточном формате живёт минуты, а не часы
-   (ASVS v5.0-7.4.1).
+   (ASVS v5.0-7.3.2).
 2. Verify that выход отзывает выданные токены на сервере, а не только стирает
-   cookie у клиента (WSTG-v42-SESS-07).
+   cookie у клиента (WSTG-v42-SESS-06).
 3. Verify that смена пароля делает прежние токены недействительными.
 4. Verify that refresh-токен привязан к клиенту или ротируется при каждом обмене.
 5. Verify that ключом списка отзыва служит `jti`, а не сам токен или его хеш.

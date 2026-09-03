@@ -21,7 +21,7 @@ prerequisites: [cookies, sessions-vs-tokens]
 related: [session-fixation, password-storage, brute-force-defense, mfa-bypass]
 tags: [auth, session, cookies]
 cwe: [CWE-539, CWE-522]
-asvs: ['v5.0-7.2.2', 'v5.0-7.2.3']
+asvs: ['v5.0-7.2.1', 'v5.0-7.2.3']
 wstg: ['WSTG-v42-ATHN-05']
 owasp: ['A07:2025']
 labs: []
@@ -204,7 +204,7 @@ def check_remember(cookie):
 1. Verify that значение постоянной cookie порождается CSPRNG и не выводится из
    имени, времени или счётчика (ASVS v5.0-7.2.3).
 2. Verify that смысл токена лежит на сервере, а не разбирается из самой cookie
-   (ASVS v5.0-7.2.2).
+   (ASVS v5.0-7.2.1).
 3. Verify that cookie не содержит пароль ни в каком виде, включая хеш.
 4. Verify that у токена есть срок и его можно отозвать при смене пароля.
 5. Verify that cookie несёт `HttpOnly`, `Secure` и, где применимо, префикс

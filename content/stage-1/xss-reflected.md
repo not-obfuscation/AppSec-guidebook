@@ -325,9 +325,11 @@ const escapeHtml = (v) => String(v).replace(/[&<>"']/g, (c) => HTML[c]);
 
 export function handle(url, articles) {
   const q = url.searchParams.get('q') ?? '';           // (1)
+  const found = search(articles, q);
+  const n = found.length;
   return `
 <input name="q" value="${escapeHtml(q)}">
-<p id="msg">По запросу «${escapeHtml(q)}»</p>`;        // (2)
+<p id="msg">По запросу «${escapeHtml(q)}» найдено статей: ${n}</p>`; // (2)
 }
 ```
 
@@ -527,7 +529,7 @@ Docker не нужен.
 5. Скрипт исполняется в origin приложения, и для браузера он свой. Политика
    разделяет разные origin, а здесь origin один.
 6. Из поля формы, из значения заголовка, который приложение печатает в ответ,
-   из части пути и из значения cookie, если она отображается.
+   и из части пути.
 
 </details>
 

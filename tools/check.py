@@ -17,7 +17,10 @@
   отчёты  — `wordcount.py`, `stoplist.py`, `clones.py`, `rhythm.py`: цифры без
             вердикта. Стоп-лист связок смотрится глазами, таблица объёма нужна
             целиком — вердиктная метрика рядом со справочными, а клоны и ритм
-            — радары волн фазы 3 плана `PLAN-VOICE.md`. Такие проверки
+            — радары волн фазы 3 плана `PLAN-VOICE.md`. Сюда же
+            `validate-warnings` — сводка предупреждений `validate.py`:
+            реестровая проверка зовёт его с `--quiet` и видит только вердикт,
+            а слой предупреждений без отчёта не читается нигде. Такие проверки
             печатаются и ничего не роняют.
 
 `wordcount.py` стоит в двух местах: линтером `volume` он даёт вердикт по норме
@@ -258,6 +261,44 @@ def command(name: str, kind: str, argv: list[str]) -> Result:
     return Result(name, kind, proc.returncode == 0, output=text)
 
 
+def validate_warnings() -> Result:
+    """Сводка предупреждений `validate.py`, которых гейт иначе не видит.
+
+    Реестровая проверка зовёт валидатор с `--quiet` и смотрит только на код
+    возврата: предупреждения (СИРОТА, ГЛУБИНА, УРОВЕНЬ, …) печатаются, но не
+    читаются нигде. Отчёт запускает тот же валидатор без `--quiet` и
+    пересказывает слой по видам; вердикта у него нет и числа гейт не роняют —
+    тем более что часть СИРОТ сейчас ложная из-за разрыва topics.yaml ↔
+    frontmatter (аудит 2026-09, вопрос 3).
+    """
+    proc = run([PY, "tools/validate.py"])
+    warns = [line.removeprefix("ПРЕДУПРЕЖДЕНИЕ ")
+             for line in proc.stdout.splitlines()
+             if line.startswith("ПРЕДУПРЕЖДЕНИЕ ")]
+    by_kind: dict[str, list[str]] = {}
+    for w in warns:
+        kind, _, msg = w.partition("] ")
+        by_kind.setdefault(kind.lstrip("["), []).append(msg)
+    lines = []
+    if proc.returncode not in (0, 1):
+        lines.append(f"валидатор упал с кодом {proc.returncode}: "
+                     f"{proc.stderr.strip()[:200]}")
+    if not warns:
+        lines.append("предупреждений нет")
+    else:
+        lines.append(f"предупреждений: {len(warns)} — вердикт от них не "
+                     "зависит; полный список: `python tools/validate.py`")
+        for kind in sorted(by_kind, key=lambda k: (-len(by_kind[k]), k)):
+            msgs = by_kind[kind]
+            lines.append(f"{kind} ×{len(msgs)}")
+            for msg in msgs[:3]:
+                lines.append(f"  {msg}")
+            if len(msgs) > 3:
+                lines.append(f"  … ещё {len(msgs) - 3}")
+    return Result("validate-warnings", "report", True,
+                  output="\n".join(lines))
+
+
 # ── исключения ────────────────────────────────────────────────────────────────
 
 
@@ -359,6 +400,12 @@ REPORTS = [
     ("clones", ["tools/clones.py"]),
     ("rhythm", ["tools/rhythm.py"]),
 ]
+# Отчёты уровня реестра: список тем им не нужен (свой корпус они знают сами,
+# а позиционных аргументов у валидатора нет), поэтому запускаются не общим
+# циклом REPORTS, а своей функцией. Третий элемент — она.
+REGISTRY_REPORTS = [
+    ("validate-warnings", ["tools/validate.py"], validate_warnings),
+]
 LINTERS = ["vale", "markdownlint", "glossary", "style", "code", "model",
            "links", "volume"]
 # Кто чьи правила печатает. Нужно ровно для одного: не объявлять исключение
@@ -381,7 +428,8 @@ def owner(rule: str) -> str | None:
         if rule.startswith(prefix):
             return name
     return None
-ALL = [n for n, _ in REGISTRY] + LINTERS + [n for n, _ in REPORTS]
+ALL = ([n for n, _ in REGISTRY] + LINTERS + [n for n, _ in REPORTS]
+       + [n for n, _, _f in REGISTRY_REPORTS])
 
 
 def main() -> int:
@@ -414,6 +462,8 @@ def main() -> int:
             print(f"  линтер   {name}")
         for name, argv in REPORTS:
             print(f"  отчёт    {name:<14} {' '.join(argv)}")
+        for name, argv, _func in REGISTRY_REPORTS:
+            print(f"  отчёт    {name:<14} {' '.join(argv)} (без --quiet)")
         return 0
 
     wanted = {n.strip() for spec in args.only for n in spec.split(",") if n.strip()}
@@ -462,6 +512,9 @@ def main() -> int:
     for name, argv in REPORTS:
         if picked(name):
             results.append(command(name, "report", [PY, *argv, *paths]))
+    for name, _argv, func in REGISTRY_REPORTS:
+        if picked(name):
+            results.append(func())
 
     findings = [f for r in results for f in r.findings]
     excs = [] if args.no_exceptions else load_exceptions()

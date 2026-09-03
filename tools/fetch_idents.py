@@ -32,6 +32,7 @@
 
 from __future__ import annotations
 
+import argparse
 import io
 import json
 import os
@@ -66,10 +67,22 @@ ATTEMPTS = 5
 
 
 def cache_dir(argv: list[str]) -> Path:
-    if argv:
-        return Path(argv[0]).expanduser()
-    return Path(os.environ.get("APPSEC_IDENT_CACHE",
-                               "~/.cache/appsec-idents")).expanduser()
+    """Каталог кэша из командной строки через argparse.
+
+    Раньше каталогом считался просто первый аргумент, и запуск
+    `fetch_idents.py --help` создавал каталог `--help` с частичным кэшем.
+    """
+    parser = argparse.ArgumentParser(
+        description=__doc__.splitlines()[0],
+        epilog="переменная APPSEC_IDENT_CACHE действует, когда аргумент "
+               "не задан; без неё кэш живёт в ~/.cache/appsec-idents")
+    parser.add_argument("directory", nargs="?", metavar="КАТАЛОГ",
+                        help="каталог кэша (по умолчанию APPSEC_IDENT_CACHE "
+                             "или ~/.cache/appsec-idents)")
+    args = parser.parse_args(argv)
+    return Path(args.directory
+                or os.environ.get("APPSEC_IDENT_CACHE",
+                                  "~/.cache/appsec-idents")).expanduser()
 
 
 def fetch(url: str) -> bytes:

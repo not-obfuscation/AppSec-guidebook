@@ -194,6 +194,13 @@ def edit_step3():
 клиент не пишет.
 
 ```python
+@app.post("/admin/user/edit")
+def edit_step2():
+    require_role("admin")
+    session["pending"] = request.form["uid"]       # объект — в сессии
+    session["pending_changes"] = dict(request.form)
+    return render("confirm.html", uid=request.form["uid"])
+
 @app.post("/admin/user/confirm")
 def edit_step3():
     require_role("admin")                       # проверка на каждом шаге
@@ -201,13 +208,14 @@ def edit_step3():
     if uid is None:
         abort(409)
     with db.transaction():                      # ASVS v5.0-2.3.3
-        User.get(uid).apply(session["pending_changes"])
+        User.get(uid).apply(session.pop("pending_changes"))
         session.pop("pending")
     return redirect("/admin/users")
 ```
 
-Запрос `anna` из введения не проходит на первой же строке. Если бы роль у неё
-была, он остановился бы на второй: `session["pending"]` в её сессии пуст.
+Запрос `anna` из введения отвергнут проверкой роли в `edit_step3`. Если бы роль
+у неё была, он остановился бы строкой ниже: `session["pending"]` в её сессии
+пуст.
 
 **Границы применимости.** Приём подходит процессам, которые идут в одной сессии
 и укладываются в её срок жизни. Он не работает там, где процесс живёт дольше:

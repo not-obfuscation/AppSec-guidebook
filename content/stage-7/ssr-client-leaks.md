@@ -18,7 +18,7 @@ teaches:
   - Сузить передачу до нужных полей и поставить taint на объект
   - Прочитать директиву use client как решение о границе
 prerequisites: [information-disclosure]
-related: [information-disclosure, npm-dependencies]
+related: [information-disclosure, node-dangerous-apis]
 tags: [javascript, code-review, disclosure]
 cwe: [CWE-200]
 asvs: []

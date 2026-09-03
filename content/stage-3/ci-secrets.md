@@ -15,7 +15,7 @@ skeleton: инструмент
 time_min: 45
 teaches:
   - Доставить секрет до задания, не записав его в описание конвейера
-  - Назвать четыре способа, которыми секрет проходит мимо маскирования
+  - Назвать три способа, которыми секрет проходит мимо маскирования
   - Обменять предъявленную личность на короткоживущий доступ
   - Ограничить выданный доступ политикой и сроком и проверить оба
 prerequisites: [github-actions, secrets-in-code, secret-rotation]
@@ -100,7 +100,7 @@ base64                       czNjcjN0LWZyb20tdmF1bHQ=
 После этого раздела вы сможете:
 
 1. Доставить секрет до задания, не записав его в описание конвейера.
-2. Назвать четыре способа, которыми секрет проходит мимо маскирования.
+2. Назвать три способа, которыми секрет проходит мимо маскирования.
 3. Обменять предъявленную личность на короткоживущий доступ.
 4. Ограничить выданный доступ политикой и сроком и проверить оба.
 
@@ -179,7 +179,7 @@ $ bao write auth/approle/role/pipeline \
     token_policies=ci-read token_ttl=30s token_max_ttl=60s secret_id_ttl=60s
 $ TOK=$(bao write -field=token auth/approle/login \
       role_id=$RID secret_id=$SID)
-$ bao token lookup -format=json \
+$ bao token lookup -format=json "$TOK" \
     | jq -r '.data | "ttl=\(.ttl)s policies=\(.policies|join(","))"'
 ttl=30s policies=ci-read,default
 ```

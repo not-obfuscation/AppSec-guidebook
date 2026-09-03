@@ -11,6 +11,10 @@ ASVS v5.0.0, WSTG v4.2, OWASP Top 10 изданий 2021 и 2025. Смысл
 соответствия («тот ли это CWE») скрипт не оценивает: только существование
 и формат.
 
+Те же ключи проверяются в `metadata` каждого правила `pilot/semgrep/*.yaml`:
+там значение поля — не голый идентификатор, а строка вида «CWE-862: Missing
+Authorization», идентификатор стоит в ней первым словом.
+
 Сеть не используется: эталоны читаются из локального кэша, который заранее
 наполняет `tools/fetch_idents.py`. Каталог кэша — опция `--cache`, переменная
 `APPSEC_IDENT_CACHE`, по умолчанию `~/.cache/appsec-idents`. Если кэша нет,
@@ -37,6 +41,8 @@ import mdtext  # noqa: E402
 from paths import ROOT  # noqa: E402
 
 DEFAULT_CACHE = "~/.cache/appsec-idents"
+
+SEMGREP_DIR = ROOT / "pilot" / "semgrep"
 
 # Поле frontmatter → (файл кэша, формат идентификатора, название каталога).
 FIELDS = {
@@ -71,6 +77,35 @@ def front_values(doc, field: str) -> list[str]:
     return [str(v) for v in value]
 
 
+def semgrep_file(path: Path) -> tuple[int, list[tuple[str, str, str]]]:
+    """Файл правил → (число правил, [(поле, идентификатор, id правила)]).
+
+    В metadata semgrep-правила значение ключа — строка вида «CWE-862: Missing
+    Authorization»: идентификатор стоит первым словом, название за ним не
+    сверяется. Одно значение или список — как в frontmatter тем.
+    """
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    rules = data.get("rules") or []
+    out = []
+    for rule in rules:
+        if not isinstance(rule, dict):
+            continue
+        meta = rule.get("metadata") or {}
+        if not isinstance(meta, dict):
+            continue
+        for field in FIELDS:
+            value = meta.get(field)
+            if value is None:
+                continue
+            if not isinstance(value, list):
+                value = [value]
+            for item in value:
+                parts = str(item).split(None, 1)
+                ident = parts[0].rstrip(":") if parts else ""
+                out.append((field, ident, str(rule.get("id", "?"))))
+    return len(rules), out
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("paths", nargs="*", help="темы; по умолчанию весь корпус")
@@ -101,21 +136,42 @@ def main(argv: list[str]) -> int:
     paths = [Path(p) for p in args.paths] or mdtext.topics()
     stats: Counter = Counter()          # поле → упоминаний
     uniq: dict[str, set] = {f: set() for f in FIELDS}
-    bad_format: list[tuple[str, str, str]] = []   # тема, поле, идентификатор
-    unknown: list[tuple[str, str, str]] = []      # тема, поле, идентификатор
+    bad_format: list[tuple[str, str, str]] = []   # файл, поле, идентификатор
+    unknown: list[tuple[str, str, str]] = []      # файл, поле, идентификатор
+
+    def check_ident(where: str, field: str, ident: str) -> None:
+        stats[field] += 1
+        uniq[field].add(ident)
+        fmt = FIELDS[field][1]
+        if not fmt.match(ident):
+            bad_format.append((where, field, ident))
+        elif ident not in references[field]:
+            unknown.append((where, field, ident))
+
     for path in paths:
         doc = mdtext.load(path)
         rel = path if not path.is_absolute() else path.relative_to(ROOT)
-        for field, (_fname, fmt, _label) in FIELDS.items():
+        for field in FIELDS:
             for ident in front_values(doc, field):
-                stats[field] += 1
-                uniq[field].add(ident)
-                if not fmt.match(ident):
-                    bad_format.append((str(rel), field, ident))
-                elif ident not in references[field]:
-                    unknown.append((str(rel), field, ident))
+                check_ident(str(rel), field, ident)
+
+    # metadata правил semgrep — тот же набор ключей и тот же эталон; проверяется
+    # всегда целиком, подмножество тем на него не влияет.
+    semgrep_files = sorted(SEMGREP_DIR.glob("*.yaml"))
+    semgrep_rules = 0
+    for path in semgrep_files:
+        n_rules, rows = semgrep_file(path)
+        semgrep_rules += n_rules
+        rel = path.relative_to(ROOT)
+        for field, ident, rid in rows:
+            check_ident(f"{rel}#{rid}", field, ident)
 
     print(f"тем проверено: {len(paths)}")
+    if SEMGREP_DIR.is_dir():
+        print(f"файлов semgrep проверено: {len(semgrep_files)} "
+              f"(правил: {semgrep_rules})")
+    else:
+        print(f"ПРОПУЩЕНО: каталог {SEMGREP_DIR.relative_to(ROOT)} не найден")
     for field, (_fname, _fmt, label) in FIELDS.items():
         print(f"{field:5} упоминаний: {stats[field]:4}  "
               f"уникальных: {len(uniq[field]):4}  эталон: {label} "

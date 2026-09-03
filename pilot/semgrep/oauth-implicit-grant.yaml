@@ -21,7 +21,7 @@ rules:
     metadata:
       cwe:
         - "CWE-522: Insufficiently Protected Credentials"
-      asvs: v5.0-3.5.4
+      asvs: v5.0-10.4.4
       references:
         - https://www.rfc-editor.org/rfc/rfc9700.html
       confidence: MEDIUM

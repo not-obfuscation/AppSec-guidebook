@@ -21,7 +21,7 @@ rules:
     metadata:
       cwe:
         - "CWE-347: Improper Verification of Cryptographic Signature"
-      asvs: v5.0-9.2.1
+      asvs: v5.0-9.1.2
       references:
         - https://www.rfc-editor.org/rfc/rfc8725.html
       confidence: MEDIUM

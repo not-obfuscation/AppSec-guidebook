@@ -28,7 +28,7 @@ asvs: []
 wstg: []
 owasp: []
 labs: []
-sources: [hadolint-repo, trivy-docs]
+sources: [hadolint-repo, trivy-docs, trivy-filtering]
 reviewed: 2026-09-02
 review_interval: 6
 ---
@@ -239,9 +239,12 @@ affected без версии фикса — ждать или менять ба�
 1. hadolint — репозиторий проекта; реестр `hadolint-repo`. Разделы:
    README со списком правил DL1xxx–DL4xxx, интеграция ShellCheck.
    <https://github.com/hadolint/hadolint>
-2. Документация Trivy; реестр `trivy-docs`. Разделы: сканирование
-   образов, уровни, фильтры.
+2. Документация Trivy; реестр `trivy-docs`. Стартовая страница —
+   оглавление: сканирование образов и уровни лежат на подстраницах.
    <https://trivy.dev/latest/docs/>
+3. Trivy, «Filtering»; реестр `trivy-filtering`. Разделы: фильтр по
+   уровню и статусу фикса, подавление находок (.trivyignore).
+   <https://trivy.dev/docs/latest/configuration/filtering/>
 
 Каркас этапа: записи семейства man-* и якоря подраздела 4.2
 (docker-engine-security, owasp-cs-docker) — наследуются всеми темами

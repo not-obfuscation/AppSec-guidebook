@@ -13,9 +13,13 @@
     (`title`, `description`, `status`, `tags`); остальные на страницу не
     выносятся вовсе — со шапки они убраны решением оператора 2026-08-24
     (свод 4.1);
-  * всё от заголовка «## N. Источники» до конца файла отрезается: сноски,
-    «Каркас этапа», «Скоропортящийся слой» и «Маркеры уверенности» пишутся
-    для аудита и читателю не показываются (решение оператора 2026-08-31);
+  * всё от заголовка «## N. Источники» до конца файла отрезается: список
+    источников, «Каркас этапа», «Скоропортящийся слой» и «Маркеры уверенности»
+    пишутся для аудита и читателю не показываются (решение оператора
+    2026-08-31). Определения сносок `[^N]: …` из этого хвоста — исключение:
+    метки сносок остаются в прозе, поэтому определения переносятся в конец
+    страницы, после блока «Дальше»; теме без явного определения оно
+    собирается из пункта списка «Источников» с тем же номером;
   * в конец страницы добавляется блок «Дальше» — одна ссылка на следующую
     тему маршрута (этапы — в порядке `taxonomy.yaml`, темы внутри этапа —
     по полю `order`; у последней темы маршрута блока нет). В исходниках
@@ -37,7 +41,8 @@
 
 Что сборщик генерирует сам: страницу входа, карту тем, маппинг-индекс внешних
 каталогов (9.6 п. 24), глоссарий (из того же `glossary.yaml`, что и
-`GLOSSARY.md`) и индекс тегов. Сроки ревизии и состояние тем со страниц ушли
+`GLOSSARY.md`), индекс тегов и страницу «Атрибуции и лицензии» (PLAYBOOK 10.1
+п. 4). Сроки ревизии и состояние тем со страниц ушли
 решением оператора 2026-08-26: это журнал производства, а не материал читателя.
 Числа печатаются в отчёт сборки — тому, кто её запустил.
 
@@ -205,6 +210,80 @@ REF_NUM_RE = re.compile(r"\d+")
 # скелетов он разный, а после перенумерации на странице — третий.
 SOURCES_HEAD_RE = re.compile(r"^##[ \t]+\d+\.[ \t]+Источники[ \t]*$", re.M)
 
+# Сноска — два куска: метка `[^N]` в прозе и определение `[^N]: …` в самом
+# конце файла, за аппаратом аудита. Метки остаются на странице, а определения
+# срез с «Источников» уносил вместе с хвостом: движок не находил определения и
+# оставлял висячий литерал `[^1]` (находка X-STYLE-06). Поэтому определения
+# собираются из хвоста до среза и переносятся в конец страницы. Темам без
+# явных определений (16 штук) определение собирается из пункта списка
+# «Источников» с тем же номером — тем же коротким видом, каким автор пишет
+# явные определения: кто и что, без перечня разделов и адреса.
+FN_DEF_RE = re.compile(r"^\[\^([0-9A-Za-z_-]+)\]:[ \t]*(.*)$")
+FN_REF_RE = re.compile(r"\[\^([0-9A-Za-z_-]+)\]")
+SRC_ITEM_RE = re.compile(r"^(\d+)\.[ \t]+(.*)$")
+SRC_DETAIL_RE = re.compile(r"\.\s+Раздел[ыи]?(?::|\s)")
+
+
+def footnote_defs(tail: str) -> dict[str, str]:
+    """Явные определения сносок в хвосте: строка `[^N]: …` и её продолжения
+    с отступом — в корпусе встречаются оба вида (bscp)."""
+    defs: dict[str, str] = {}
+    cur = None
+    for line in tail.split("\n"):
+        m = FN_DEF_RE.match(line)
+        if m:
+            cur = m.group(1)
+            defs[cur] = m.group(2).strip()
+        elif cur and re.match(r"^[ \t]+\S", line):
+            defs[cur] += " " + line.strip()
+        elif line.strip():
+            cur = None
+    return defs
+
+
+def source_items(tail: str) -> dict[str, str]:
+    """Нумерованный список «Источников»: номер → текст пункта одной строкой.
+    Пункты идут подряд с единицы, продолжения — с отступом; список кончается
+    на первой строке без отступа («Каркас этапа: …»), поэтому «65.» из
+    «Маркеров уверенности» пунктом не считается."""
+    items: dict[str, str] = {}
+    expect, cur = 1, None
+    for line in tail.split("\n")[1:]:  # первой строкой стоит сам заголовок
+        m = SRC_ITEM_RE.match(line)
+        if m and int(m.group(1)) == expect:
+            cur = str(expect)
+            items[cur] = m.group(2).strip()
+            expect += 1
+        elif cur and re.match(r"^[ \t]+\S", line):
+            items[cur] += " " + line.strip()
+        elif line.strip():
+            break
+    return items
+
+
+def synth_def(item: str) -> str:
+    """Определение сноски из пункта «Источников»: первое предложение без
+    перечня разделов и адреса — так выглядят явные определения автора."""
+    text = SRC_DETAIL_RE.split(item, maxsplit=1)[0]
+    m = re.search(r"\.\s", text)
+    if m:
+        text = text[:m.start() + 1]
+    text = mdtext.AUTOLINK_RE.sub("", text).strip()
+    return text if text.endswith(".") else text + "."
+
+
+def prose_only(text: str) -> str:
+    """Текст с забитыми пробелами ограждёнными блоками и инлайн-кодом: метка
+    сноски внутри листинга — не метка, а символы примера."""
+    spans = [(m.start(), m.end()) for m in mdtext.FENCE_RE.finditer(text)]
+    chars = list(text)
+    for start, end in spans:
+        for i in range(start, end):
+            if chars[i] != "\n":
+                chars[i] = " "
+    return mdtext.CODE_SPAN_RE.sub(lambda m: " " * len(m.group(0)),
+                                   "".join(chars))
+
 
 def renumber_blocks(page: vc.Page) -> list[tuple[int, int, str]]:
     """Правки, от которых номера блоков идут подряд: заголовки и ссылки на них."""
@@ -264,9 +343,27 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
     body = apply_edits(raw, edits)
 
     # Хвост с «Источников» и до конца — аппарат аудита, а не текст страницы.
+    # Прежде чем резать, из хвоста забираются определения сносок: метки `[^N]`
+    # остаются в прозе, и без определения движок оставляет литерал как есть.
     cut = SOURCES_HEAD_RE.search(body)
+    footnotes: list[str] = []
     if cut:
+        tail_text = body[cut.start():]
         body = body[:cut.start()]
+        defs, items = footnote_defs(tail_text), source_items(tail_text)
+        seen: set[str] = set()
+        for m in FN_REF_RE.finditer(prose_only(body)):
+            ref = m.group(1)
+            if ref in seen:
+                continue
+            seen.add(ref)
+            if ref in defs:
+                footnotes.append(f"[^{ref}]: {defs[ref]}")
+            elif ref in items:
+                footnotes.append(f"[^{ref}]: {synth_def(items[ref])}")
+                report["footnotes_synth"] += 1
+            else:
+                report["footnotes_missing"].append(f"{page.id}: [^{ref}]")
 
     # «Дальше» — ссылка на следующую тему маршрута; генерируется здесь, а не
     # пишется автором (решение оператора 2026-08-31). У последней темы нет.
@@ -277,7 +374,12 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
                   f"({link_to(page_rel, index[nxt.id])})\n")
 
     tail = [body.rstrip("\n"), ""]
-    here = used_abbr(body, abbr)
+    if footnotes:
+        report["footnotes"] += len(footnotes)
+        tail += footnotes + [""]
+    # Аббревиатуры считаются по всей странице, включая перенесённые сноски:
+    # раскрытие по наведению должно работать и в тексте сноски.
+    here = used_abbr("\n".join(tail), abbr)
     if here:
         report["abbr"] += len(here)
         tail.append("")
@@ -324,6 +426,15 @@ def page_index(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
         for d in sorted(ctx.depths)
     ]
 
+    # Этап 6 исключён из скоупа, но номер в плане занят, и без пояснения скачок
+    # 5 → 7 в таблице выглядит потерянным этапом (находка X-NAV-01).
+    skip_notes = "; ".join(
+        f"этап {s['num']} «{s['title']}» исключён из скоупа, поэтому после "
+        f"этапа {int(s['num']) - 1} идёт этап {int(s['num']) + 1}"
+        for s in ctx.tax["stages"] if s.get("excluded"))
+    skip_note = (f"Нумерация этапов сохранена из плана: {skip_notes}.\n\n"
+                 if skip_notes else "")
+
     return f"""---
 title: Начало
 description: Учебник по прикладной безопасности приложений — с чего начать чтение.
@@ -336,6 +447,10 @@ description: Учебник по прикладной безопасности �
 Учебник, который пишется, чтобы уметь: читать чужой код и видеть в нём дефект,
 объяснять механизм словами и проверять утверждения по первоисточнику. Каждая
 тема самодостаточна — механизм объяснён здесь, а не по ссылке на чужую статью.
+
+Гайд учит защите и предназначен для обучения: применяйте описанные приёмы
+только к собственным системам и учебным стендам. Разборы уязвимостей ведутся
+на запатченных версиях и локальных лабораторных.
 
 ## Как читать
 
@@ -354,13 +469,22 @@ description: Учебник по прикладной безопасности �
 Времени на прочтение и разбор — {total_time} мин на {len(pages)} тем; оценка
 стоит в шапке каждой темы и там же разложена на теорию, практику и самопроверку.
 
+## Чем этот гайд не является
+
+- Не справочник по эксплуатации и не сборник пейлоадов.
+- Не курс с проверкой заданий и наставником.
+- Не юридическая консультация по нормативке РФ.
+- Не покрывает реверс-инжиниринг, AppSec встраиваемых систем и защиту сетевого
+  периметра.
+- Не гарантирует трудоустройство.
+
 ## Этапы
 
 | № | Этап | Тем | Минут | |
 |---|---|---|---|---|
 {chr(10).join(rows)}
 
-Столбец «Тем» читается как «готово из запланированного»: число справа — все
+{skip_note}Столбец «Тем» читается как «готово из запланированного»: число справа — все
 темы этапа, и оно не меняется от того, сколько из них уже написано.
 
 ## Что где лежит
@@ -466,6 +590,47 @@ description: Фасеты каталога: тема попадает в нес�
 ## Что значит каждый тег
 
 {rows}
+"""
+
+
+def page_attributions() -> str:
+    """Правовой слой сайта: лицензия гайдбука и условия чужих материалов.
+
+    Страница предписана PLAYBOOK 10.1 п. 4: формулировка про OWASP со ссылкой
+    на лицензию и указанием факта изменений, копирайт-нотис MITRE и отметка
+    про NIST. Те же две лицензии записаны в `LICENSE` в корне репозитория.
+    """
+    return f"""---
+title: Атрибуции и лицензии
+description: Лицензии гайдбука и условия использованных в нём чужих материалов.
+---
+
+{GENERATED}
+
+# Атрибуции и лицензии
+
+## Лицензия гайдбука
+
+Текст гайдбука опубликован по лицензии [CC BY-SA
+4.0](https://creativecommons.org/licenses/by-sa/4.0/): его можно копировать и
+адаптировать с указанием авторства и на тех же условиях. Код примеров и
+инструменты сборки — по лицензии [MIT](https://opensource.org/license/mit):
+их можно использовать без ограничений, сохраняя уведомление об авторских
+правах.
+
+## Использованные материалы
+
+- **OWASP.** Материалы OWASP опубликованы под [CC BY-SA
+  4.0](https://creativecommons.org/licenses/by-sa/4.0/); переводы и адаптации
+  помечаются полем `derived_from` во frontmatter темы. Оригиналы — © OWASP
+  Foundation, перевод и изменения сделаны автором гайдбука.
+- **MITRE CWE.** CWE™ — товарный знак The MITRE Corporation; условия
+  использования — на [cwe.mitre.org](https://cwe.mitre.org/about/termsofuse.html).
+  Упоминание каталога не означает одобрения со стороны MITRE.
+- **NIST.** Публикации NIST (SP 800-61r3 и другие) — общественное достояние
+  в США и используются свободно.
+- **PortSwigger.** Все права защищены; в гайде — только ссылки на материалы
+  Web Security Academy, без пересказа лабораторных заданий.
 """
 
 
@@ -653,7 +818,7 @@ def nav_for(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str]) -> list:
         nav.append({f"Этап {stage['num']}. {stage['title']}":
                     [index[p.id] for p in group]})
     nav.append({"Справочное": ["map.md", "mapping.md", "tags.md",
-                               "glossary.md"]})
+                               "glossary.md", "attributions.md"]})
     return nav
 
 
@@ -687,6 +852,7 @@ def stage_tree(today: date) -> dict:
     abbr = abbreviations(glossary)
     report = {"pages": 0, "links": 0, "abbr": 0, "diagrams": 0,
               "diagrams_failed": [], "generated": 0, "diagram_files": set(),
+              "footnotes": 0, "footnotes_synth": 0, "footnotes_missing": [],
               "notes": author_notes(ctx, pages, today)}
 
     if SRC.exists():
@@ -707,6 +873,7 @@ def stage_tree(today: date) -> dict:
         "glossary.md": page_glossary(glossary, index),
         "tags.md": page_tags(ctx),
         "mapping.md": page_mapping(ctx, pages, index),
+        "attributions.md": page_attributions(),
     }
     for name, text in generated.items():
         (SRC / name).write_text(text.rstrip("\n") + "\n", encoding="utf-8")
@@ -787,9 +954,13 @@ def main() -> int:
     report = stage_tree(date.today())
     print(f"дерево: {report['pages']} тем, {report['generated']} страниц собрано, "
           f"{report['links']} ссылок на темы, {report['abbr']} раскрытий "
-          f"аббревиатур, {report['diagrams']} схем", file=sys.stderr)
+          f"аббревиатур, {report['diagrams']} схем, "
+          f"{report['footnotes']} сносок ({report['footnotes_synth']} "
+          f"собрано из списка источников)", file=sys.stderr)
     for line in report["diagrams_failed"]:
         print(f"  схема не нарисована — {line}", file=sys.stderr)
+    for line in report["footnotes_missing"]:
+        print(f"  сноска без определения — {line}", file=sys.stderr)
     for line in report["notes"]:
         print(f"  автору: {line}", file=sys.stderr)
     print(f"конфиг: {CONFIG_OUT.relative_to(ROOT)} (наследует "

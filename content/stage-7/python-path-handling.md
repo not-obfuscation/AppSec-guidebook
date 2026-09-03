@@ -21,7 +21,7 @@ related: [path-traversal, go-filepath]
 tags: [python, code-review, files]
 cwe: [CWE-22]
 asvs: []
-wstg: []
+wstg: ['WSTG-v42-ATHZ-01']
 owasp: []
 labs: []
 sources: [python-os-path, wstg-v42-athz-01-directory-traversal]
@@ -104,7 +104,7 @@ if os.path.commonpath([root, full]) != root:
 только после realpath. Одного realpath мало без отбора по форме: вход
 `/etc/hostname` переживёт свёртку как есть. Процедура ретеста такой
 находки — кодированные формы `..` и абсолютные пути — разобрана в
-WSTG-ATHZ-01.
+WSTG-v42-ATHZ-01.
 
 Границы: у Windows свои правила разбора, и путь `c:report.txt` —
 относительный к текущему каталогу диска, а не к корню; ревью

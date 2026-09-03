@@ -58,14 +58,15 @@ review_interval: 24
 
 ```text
 read_invoice(user="anna", invoice_id=1001)
-→ {"id":1001,"org":"acme","total":12000,"email":"anna@acme.test"}
+→ {"owner":"anna","email":"anna@acme.test","sum":120,"at":"2026-08-01"}
 ```
 
 **Соседний номер**
 
 ```text
 read_invoice(user="anna", invoice_id=1002)
-→ {"id":1002,"org":"globex","total":90000,"email":"boris@globex.test"}
+→ {"owner":"boris","email":"boris@globex.test","sum":90000,
+  "at":"2026-08-02"}
 ```
 
 Подбора здесь нет: номер `1002` не угадан, он получен прибавлением единицы.
@@ -491,7 +492,7 @@ Access Control Testing для ZAP.
 1. Verify that объект ищется в выборке, доступной текущему пользователю, а не
    по всей таблице (ASVS v5.0-8.2.2).
 2. Verify that проверка прав на объект стоит и на изменяющих операциях, а не
-   только на читающих (ASVS v5.0-8.2.1).
+   только на читающих (ASVS v5.0-8.2.2).
 3. Verify that проверка не сводится к сравнению идентификатора из токена с
    идентификатором из запроса.
 4. Verify that ответ на чужой объект не отличается от ответа на

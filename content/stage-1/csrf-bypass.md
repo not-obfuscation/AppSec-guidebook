@@ -131,12 +131,12 @@ cookie на этот сайт. Академия оговаривает, что �
 что приложение получает при разных способах отправки запроса.
 
 ```text
-способ отправки          Origin              Referer
-свой POST-формой         bank.example:8131   bank.example:8131/
-чужой POST-формой        evil.test:8132      evil.test:8132/
-родственный POST-формой  blog.bank.example   blog.bank.example/
-чужой GET-навигацией     —                   evil.test:8132/
-чужой POST, referrer=no  null                —
+способ отправки          Origin                   Referer
+свой POST-формой         bank.example:8131        bank.example:8131/
+чужой POST-формой        evil.test:8132           evil.test:8132/
+родственный POST-формой  blog.bank.example:8133   blog.bank.example:8133/
+чужой GET-навигацией     —                        evil.test:8132/
+чужой POST, referrer=no  null                     —
 ```
 
 Схема `https://` у всех значений опущена, чтобы строки помещались по ширине.
