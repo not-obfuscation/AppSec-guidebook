@@ -353,6 +353,23 @@ sources:
       с явным сравнением: где выполняется код и что уезжает на клиент. Даёт
       ту часть «модели современного приложения», которой нет в спецификациях.
 
+  - id: webdev-same-origin-policy
+    url: https://web.dev/articles/same-origin-policy
+    title: Same-origin policy
+    type: official-docs
+    level: 3
+    publisher: web.dev (Google); Rowan Merewood
+    version_or_date: живой сайт, даты страницы нет
+    volatility: medium
+    license: CC BY 4.0 (текст), Apache 2.0 (код)
+    checked: 2026-09-03
+    status: ok
+    notes: >
+      Учебный разбор SOP: что считается одним источником, что разрешено и
+      что ограничено (встраивание, чтение, запись), сценарий «сайт из
+      интернета читает чужую веб-почту в iframe». Канва для темы
+      same-origin-policy; нормативную силу несут спецификации, не статья.
+
   - id: mdn-proxy-tunneling
     url: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Proxy_servers_and_tunneling
     title: Proxy servers and tunneling
