@@ -40,8 +40,8 @@ review_interval: 12
 распаковывают и разбирают. Стандарт, который собирает требования под эту
 модель, — OWASP MASVS (Mobile Application Security Verification Standard).
 Это мобильный аналог стандарта ASVS (Application Security Verification Standard),
-разобранного в теме `owasp-asvs`. Дальше — из чего он состоит и чего от
-него ждать не стоит.
+разобранного в теме `owasp-asvs`. Из чего он состоит и чего от
+него ждать не стоит?
 
 ## 0. Коротко
 
