@@ -28,10 +28,13 @@
     по полю `order`; у последней темы маршрута блока нет). В исходниках
     блока нет: руками ведённый список был второй записью того же маршрута
     (решение оператора 2026-08-31);
-  * `` `topic-id` `` в обратных кавычках становится ссылкой на страницу темы.
-    В исходниках markdown-ссылок между темами нет и не будет: 9.1 п. 6 требует
-    ссылаться идентификатором, а не путём, чтобы переименование каталога не
-    ломало текст. Превращение делает сборка;
+  * `` `topic-id` `` в обратных кавычках становится ссылкой на страницу темы,
+    подписанной названием темы, а не идентификатором (решение оператора
+    2026-10-01, А1). В исходниках markdown-ссылок между темами нет и не будет:
+    9.1 п. 6 требует ссылаться идентификатором, а не путём, чтобы
+    переименование каталога не ломало текст. Превращение делает сборка;
+  * в конец блока «Лаба» дописывается строка запуска: `cd` в каталог лабы и
+    команды прогона из её README, со ссылкой на страницу лабы (А8);
   * ограждённый блок `mermaid` заменяется на нарисованный SVG
     (`tools/render_diagrams.py`), потому что сайт открывается с диска и скрипт
     из сети загрузить не может;
@@ -62,7 +65,9 @@
     «Проверь себя» пройденных тем плюс функции из лабораторных без подписей)
     и сводка этапа (блоки «Коротко» всех тем подряд и общий чеклист ревью);
   * страница «На чём проверено» — версии инструментов и каталогов из
-    «Маркеров уверенности» тем, без дат.
+    «Маркеров уверенности» тем, без дат;
+  * страница «Лабы» из `labs.yaml` и страница на каждую лабораторную из её
+    README (тем же решением, пункт А8).
 
 Сроки ревизии и состояние тем со страниц ушли
 решением оператора 2026-08-26: это журнал производства, а не материал читателя.
@@ -106,6 +111,11 @@ CONFIG_OUT = BUILD_DIR / "mkdocs.yml"
 MKDOCS = ROOT / ".venv-site" / "bin" / "mkdocs"
 SHIM_SRC = ROOT / "tools" / "vendor" / "iframe-worker-shim.js"
 SHIM_REL = "assets/iframe-worker-shim.js"
+
+# JetBrains Mono (OFL 1.1) для листингов и кода: обычное и жирное начертания —
+# других на страницах не встречается. Скачаны с релиза v2.304
+# (github.com/JetBrains/JetBrainsMono), текст лицензии лежит рядом.
+FONTS_SRC = ROOT / "tools" / "vendor" / "fonts"
 
 # Плагин `offline` вставляет в каждую страницу шим WebWorker с unpkg: браузер не
 # создаёт воркер из `file://`, а поиск Material живёт в воркере. Ссылка в сеть
@@ -467,11 +477,50 @@ def insert_skip_note(body: str, condition: str) -> str:
     return body[:end] + "\n\n" + note + body[end:]
 
 
+# ── блок «Лаба»: строка запуска ──────────────────────────────────────────────
+#
+# Решение оператора 2026-10-01 (А8): строка `cd pilot/lab/…` была на одной
+# странице из 37 с лабой, и читатель должен был сам догадаться, что каталог —
+# это путь в репозитории рядом с `site/`. Сборка дописывает в конец блока
+# «Лаба» команду перехода и команды прогона (из README лабы) со ссылкой на
+# страницу лабы, где инструкция лежит целиком.
+
+LAB_BLOCK_HEAD_RE = re.compile(r"^##[ \t]+\d+\.[ \t]+Лаба[ \t]*$", re.M)
+NEXT_HEAD_RE = re.compile(r"^## ", re.M)
+
+
+def lab_run_edit(page_rel: str, raw: str,
+                 labs: list[dict]) -> tuple[int, int, str] | None:
+    """Точечная вставка в конец блока «Лаба»: как лабу запустить."""
+    m = LAB_BLOCK_HEAD_RE.search(raw)
+    if not m:
+        return None
+    nxt = NEXT_HEAD_RE.search(raw, m.end())
+    at = nxt.start() if nxt else len(raw)
+    parts = []
+    for lab in labs:
+        text = f"`cd {lab['path']}`"
+        run = lab["run"]
+        if run:
+            text += ", затем `" + "`, `".join(run[:2]) + "`"
+            if len(run) > 2:
+                text += " и дальше по инструкции"
+        text += (". Полная инструкция — на странице лабы "
+                 f"[{lab['name']}]({link_to(page_rel, 'labs/' + lab['slug'] + '.md')}).")
+        parts.append(text)
+    para = "**Запуск — из корня репозитория.** " + "\n".join(parts)
+    pad = "" if raw[:at].endswith("\n\n") else "\n"
+    end = "\n\n" if nxt else "\n"
+    return (at, at, pad + para + end)
+
+
 def transform(page: vc.Page, page_rel: str, index: dict[str, str],
               abbr: dict[str, str], report: dict,
               nxt: vc.Page | None = None, today: date | None = None,
               gloss: tuple[re.Pattern, dict[str, str]] | None = None,
-              sources_reg: dict[str, dict] | None = None) -> str:
+              sources_reg: dict[str, dict] | None = None,
+              titles: dict[str, str] | None = None,
+              labs: list[dict] | None = None) -> str:
     """Тема как страница сайта. Исходник не меняется — меняется копия."""
     raw = page.doc.raw
     edits: list[tuple[int, int, str]] = [(0, page.doc.front_end, front_block(page))]
@@ -498,9 +547,19 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
         target_id = m.group(2).strip()
         if target_id == page.id or target_id not in index:
             continue
+        # Подпись ссылки — название темы, а не её идентификатор (WCAG 2.4.4,
+        # решение оператора 2026-10-01, А1): из «`idor`» назначение ссылки не
+        # читается, из «Горизонтальная эскалация, IDOR» — читается.
+        label = (titles or {}).get(target_id) or m.group(2).strip()
         edits.append((m.start(), m.end(),
-                      f"[{m.group(0)}]({link_to(page_rel, index[target_id])})"))
+                      f"[{label}]({link_to(page_rel, index[target_id])})"))
         report["links"] += 1
+
+    if labs:
+        run_edit = lab_run_edit(page_rel, raw, labs)
+        if run_edit:
+            edits.append(run_edit)
+            report["lab_run"] += 1
 
     if gloss is not None:
         edits += glossary_links(page, page_rel, raw, gloss, edits, report)
@@ -676,6 +735,9 @@ description: Учебник по прикладной безопасности �
 
 - [Карта тем]({link_to('index.md', 'map.md')}) — все темы с уровнем, временем и
   предпосылками; там же видно, каких тем ещё нет.
+- [Лабы]({link_to('index.md', 'labs.md')}) — {len(ctx.labs)} практических работ:
+  каждая привязана к своей теме и запускается локально, из каталога `pilot/lab/`
+  репозитория.
 - [Маппинг-индекс]({link_to('index.md', 'mapping.md')}) — обратный ход: номер
   CWE, ASVS, WSTG или Top 10 — темы, которые его разбирают.
 - [Глоссарий]({link_to('index.md', 'glossary.md')}) — термины и одно написание
@@ -691,10 +753,11 @@ description: Учебник по прикладной безопасности �
 
 
 def page_map(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
-             report: dict) -> str:
+             report: dict, titles: dict[str, str],
+             topic_labs: dict[str, list[dict]]) -> str:
     out = [f"""---
 title: Карта тем
-description: Все темы гайдбука с уровнем, временем и предпосылками.
+description: Все темы гайдбука с уровнем, временем, предпосылками и лабами.
 ---
 
 {GENERATED}
@@ -706,7 +769,8 @@ description: Все темы гайдбука с уровнем, времене�
 механизм объяснён своими словами и со своим примером.
 
 Столбец «Требует» и есть карта связей: он называет темы, без которых эта не
-читается.
+читается. Столбец «Лаба» ведёт на практическую работу темы — цель, файлы и
+запуск разобраны на странице лабы.
 """]
 
     by_stage: dict[str, list[vc.Page]] = {}
@@ -725,18 +789,25 @@ description: Все темы гайдбука с уровнем, времене�
             continue
         out.append(f"## Этап {num}. {stage['title']}\n")
         if group:
-            out.append("| Тема | Уровень | Мин | Статус | Требует |")
-            out.append("|---|---|---|---|---|")
+            out.append("| Тема | Уровень | Мин | Статус | Требует | Лаба |")
+            out.append("|---|---|---|---|---|---|")
             for p in group:
+                # Подпись предпосылки — название темы, а не идентификатор (А1);
+                # тема вне корпуса остаётся кодом: сослаться не на что.
                 prereqs = ", ".join(
-                    f"[`{q}`]({link_to('map.md', index[q])})" if q in index else f"`{q}`"
+                    f"[{titles[q]}]({link_to('map.md', index[q])})" if q in index
+                    else f"`{q}`"
                     for q in (p.front.get("prerequisites") or [])) or "—"
+                lab_cell = ", ".join(
+                    f"[{short_title(lab['name'])}]"
+                    f"({link_to('map.md', 'labs/' + lab['slug'] + '.md')})"
+                    for lab in topic_labs.get(p.id, [])) or "—"
                 out.append(
                     f"| [{one_line(p.front.get('title'))}]"
                     f"({link_to('map.md', index[p.id])}) "
                     f"| {p.depth} | {p.front.get('time_min')} "
                     f"| {STATUS_WORD.get(str(p.front.get('status')), '—')} "
-                    f"| {prereqs} |")
+                    f"| {prereqs} | {lab_cell} |")
             out.append("")
         if pending:
             out.append("Ещё не написаны:\n")
@@ -746,10 +817,19 @@ description: Все темы гайдбука с уровнем, времене�
     return "\n".join(out)
 
 
-def page_glossary(glossary: dict, index: dict[str, str]) -> str:
-    """Тот же глоссарий, что `GLOSSARY.md`, только ссылки ведут на страницы."""
+def page_glossary(glossary: dict, index: dict[str, str],
+                  titles: dict[str, str]) -> str:
+    """Тот же глоссарий, что `GLOSSARY.md`, только ссылки ведут на страницы.
+
+    `gen_glossary` подписывает ссылки «вводится в …» идентификатором темы;
+    здесь подпись заменяется названием темы (решение оператора 2026-10-01,
+    А1) — из текста ссылки должно читаться, куда она ведёт.
+    """
     link = {tid: link_to("glossary.md", rel) for tid, rel in index.items()}
     text = gen_glossary.render(glossary, link=link)
+    for tid, href in link.items():
+        if tid in titles:
+            text = text.replace(f"[{tid}]({href})", f"[{titles[tid]}]({href})")
     # У страницы своя мета: заголовок для оглавления и описание для поиска.
     return ("---\ntitle: Глоссарий\ndescription: Термины гайдбука; "
             "одно написание термина на весь сайт.\n---\n\n" + text)
@@ -817,6 +897,10 @@ description: Лицензии гайдбука и условия использ�
   в США и используются свободно.
 - **PortSwigger.** Все права защищены; в гайде — только ссылки на материалы
   Web Security Academy, без пересказа лабораторных заданий.
+- **JetBrains Mono.** Шрифт листингов и кода; файлы лежат в самой сборке,
+  в сеть сайт за ними не ходит. © 2020 The JetBrains Mono Project Authors;
+  лицензия [SIL Open Font License 1.1](https://openfontlicense.org), её текст —
+  в репозитории рядом со шрифтами (`tools/vendor/fonts/OFL.txt`).
 """
 
 
@@ -1028,6 +1112,58 @@ EXTRA_CSS = """/* Собрано `tools/build_site.py`; правки — в сб
   position: sticky;
   top: 0;
 }
+
+/* Кегль текста 18 px (PLAYBOOK 7.7, норма 17–19 px). Тема задаёт корень в
+   процентах ступенями — 125 % (20 px), от 100 em 137,5 % (22 px), от 125 em
+   150 % (24 px) — поэтому кегль перезадаётся на каждой ступени. Кегль кода
+   тема считает сама как 0,85em от текста: выходит 15,3 px, норма «не меньше
+   15 px» держится без отдельного правила. Печатная ступень повторяет тему:
+   без неё базовое правило ниже (оно позже в каскаде при той же специфичности)
+   затирало бы печатный кегль. */
+.md-typeset { font-size: 0.9rem; }
+@media screen and (min-width: 100em) {
+  .md-typeset { font-size: 0.82rem; }
+}
+@media screen and (min-width: 125em) {
+  .md-typeset { font-size: 0.75rem; }
+}
+@media print {
+  .md-typeset { font-size: 0.68rem; }
+}
+
+/* Интерлиньяж листинга 1,45 (тема даёт 1,4). */
+.md-typeset pre > code { line-height: 1.45; }
+
+/* Код и листинги — JetBrains Mono: ноль с точкой не спутаешь с «O», кириллица
+   в комплекте. Файлы лежат в `assets/fonts/`, в сеть сайт не ходит (OFL 1.1,
+   см. страницу «Атрибуции и лицензии»). Переменная `--md-code-font` — первое
+   звено цепочки `--md-code-font-family`: за ним остаются системные запасные
+   гарнитуры темы. */
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("fonts/JetBrainsMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("fonts/JetBrainsMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+:root { --md-code-font: "JetBrains Mono"; }
+
+/* Лигатур в коде быть не должно: стрелка вместо `->` — это уже другой текст.
+   У темы правило есть; здесь оно продублировано, потому что гарнитура сменилась
+   на ту, где лигатуры реально нарисованы. */
+.md-typeset code,
+.md-typeset kbd,
+.md-typeset pre {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
 """
 
 
@@ -1158,15 +1294,17 @@ def carry_footnotes(text: str, page: vc.Page, defs: dict[str, str],
 
 
 def embed_links(text: str, page_rel: str, index: dict[str, str],
-                report: dict) -> str:
+                report: dict, titles: dict[str, str] | None = None) -> str:
     """`` `topic-id` `` → ссылка на тему: то же превращение, что на страницах
-    тем, но для текста, заимствованного собранными страницами. Ограждённые
-    блоки пропускаются — в коде ссылка не работает."""
+    тем (подпись — название темы, А1), но для текста, заимствованного
+    собранными страницами. Ограждённые блоки пропускаются — в коде ссылка не
+    работает."""
     def repl(m: re.Match) -> str:
         tid = m.group(2).strip()
         if "\n" not in tid and tid in index:
             report["links"] += 1
-            return f"[{m.group(0)}]({link_to(page_rel, index[tid])})"
+            label = (titles or {}).get(tid) or tid
+            return f"[{label}]({link_to(page_rel, index[tid])})"
         return m.group(0)
     out, last = [], 0
     for fence in mdtext.FENCE_RE.finditer(text):
@@ -1353,7 +1491,7 @@ def pick_tasks(labs: list[dict], by_id: dict[str, vc.Page],
 def page_stage_review(stage: dict, upto: int, ctx: vc.Ctx,
                       pages: list[vc.Page], labs: list[dict],
                       fn_of, index: dict[str, str], rel: str,
-                      report: dict) -> str:
+                      report: dict, titles: dict[str, str] | None = None) -> str:
     """Страница «Повторение» этапа: вопросы на пройденное и смешанные задачи."""
     num, title = int(stage["num"]), stage["title"]
     stage_order = {s["slug"]: i for i, s in enumerate(ctx.tax["stages"])}
@@ -1362,7 +1500,7 @@ def page_stage_review(stage: dict, upto: int, ctx: vc.Ctx,
 
     def adopt(text: str, owner: vc.Page) -> str:
         return embed_links(carry_footnotes(text, owner, fn_of(owner), needed),
-                           rel, index, report)
+                           rel, index, report, titles)
 
     parts = [f"""---
 title: Этап {num}. Повторение
@@ -1430,14 +1568,15 @@ description: Вопросы на пройденные темы и задачи �
 
 def page_stage_summary(stage: dict, group: list[vc.Page], ctx: vc.Ctx,
                        sub_titles: dict[tuple[int, str], str], fn_of,
-                       index: dict[str, str], rel: str, report: dict) -> str:
+                       index: dict[str, str], rel: str, report: dict,
+                       titles: dict[str, str] | None = None) -> str:
     """Сводка этапа: блоки «Коротко» всех тем подряд и общий чеклист ревью."""
     num, title = int(stage["num"]), stage["title"]
     needed: dict[str, str] = {}
 
     def adopt(text: str, owner: vc.Page) -> str:
         return embed_links(carry_footnotes(text, owner, fn_of(owner), needed),
-                           rel, index, report)
+                           rel, index, report, titles)
 
     # Подразделы есть не у всех этапов: где план их задаёт, сводка резана по
     # ним; где этап единым списком — темы идут подряд.
@@ -1598,11 +1737,185 @@ description: Версии инструментов, каталогов и обр
     return "\n".join(parts), len(entries)
 
 
+# ── лабораторные: страница «Лабы» и страницы лаб ─────────────────────────────
+#
+# Решение оператора 2026-10-01 (А8). До него лабы существовали только в
+# репозитории: `pilot/` в сайт не попадал, страницы лаб в сборке не было, на
+# карте — колонки, в блоке «Лаба» — команды запуска. Всё ниже собирается из
+# `labs.yaml` и `pilot/lab/*/README.md`; исходники лаб не меняются.
+
+LAB_H1_RE = re.compile(r"^#[ \t]+(.+)$", re.M)
+LAB_RUN_HEAD_RE = re.compile(r"^##[ \t]+(?:Запуск|Как запускать)[ \t]*$", re.M)
+FENCE_BODY_RE = re.compile(r"```\w*[ \t]*\n(.*?)```", re.S)
+# Заголовки README двух видов: «Лаба: горизонтальная эскалация и IDOR» и
+# «Лаба zap-scanning: разверни, …» — служебное слово и id срезаются в обоих.
+LAB_NAME_PREFIX_RE = re.compile(r"^Лаба(?:[ \t]+[a-z0-9-]+)?:[ \t]*")
+
+
+def lab_human_name(h1: str, fallback: str) -> str:
+    """Название лабы для читателя — из заголовка её README, без служебного id."""
+    name = LAB_NAME_PREFIX_RE.sub("", h1).strip()
+    if not name:
+        return fallback
+    return name[0].upper() + name[1:]
+
+
+def lab_commands(text: str) -> list[str]:
+    """Команды прогона из раздела «Запуск»/«Как запускать» README. Строка `cd`
+    пропускается — её страница строит из реестра; пояснения-комментарии
+    срезаются; переносы строки по `\\` склеиваются."""
+    m = LAB_RUN_HEAD_RE.search(text)
+    fence = FENCE_BODY_RE.search(text, m.end()) if m else None
+    if not fence:
+        return []
+    cmds, cur = [], ""
+    for ln in fence.group(1).split("\n"):
+        cur = (cur + " " + ln.strip()) if cur else ln.strip()
+        if cur.endswith("\\"):
+            cur = cur[:-1].rstrip()
+            continue
+        if cur and not cur.startswith("#"):
+            cmds.append(re.sub(r"[ \t]+#.*$", "", cur).strip())
+        cur = ""
+    if cur and not cur.startswith("#"):
+        cmds.append(re.sub(r"[ \t]+#.*$", "", cur).strip())
+    return [c for c in cmds if not c.startswith("cd ")]
+
+
+def lab_docs(ctx: vc.Ctx, route_pos: dict[str, int]) -> list[dict]:
+    """Лабы с названием, командами и slug страницы. Порядок — порядок маршрута
+    тем-владельцев: лаба идёт вслед за своей темой, а не по алфавиту id."""
+    out = []
+    for lab in ctx.labs.values():
+        text = (ROOT / lab["path"] / "README.md").read_text(encoding="utf-8")
+        m = LAB_H1_RE.search(text)
+        h1 = m.group(1).strip() if m else lab["id"]
+        out.append({**lab,
+                    "slug": Path(lab["path"]).name,
+                    "name": lab_human_name(h1, lab["id"]),
+                    "readme": text,
+                    "run": lab_commands(text)})
+    out.sort(key=lambda lab: (route_pos.get(str(lab["topic"]), 10 ** 6),
+                              lab["slug"]))
+    return out
+
+
+def page_labs(labs: list[dict], by_id: dict[str, vc.Page],
+              index: dict[str, str]) -> str:
+    """Страница «Лабы»: все лабораторные одной таблицей."""
+    rows = []
+    for lab in labs:
+        topic = by_id.get(lab["topic"])
+        topic_cell = "—"
+        if topic:
+            topic_cell = (f"[{short_title(one_line(topic.front.get('title')))}]"
+                          f"({link_to('labs.md', index[topic.id])})")
+        run = f"`cd {lab['path']}`"
+        if lab["run"]:
+            run += ", затем `" + "`, `".join(lab["run"][:2]) + "`"
+            if len(lab["run"]) > 2:
+                run += " и дальше по инструкции"
+        cells = [f"[{lab['name']}](labs/{lab['slug']}.md)", topic_cell,
+                 f"«{lab['kind']}»", run]
+        rows.append("| " + " | ".join(c.replace("|", "\\|") for c in cells) + " |")
+
+    return f"""---
+title: Лабы
+description: Все лабораторные гайдбука — к какой теме привязана, что задано, как запустить.
+---
+
+{GENERATED}
+
+# Лабы
+
+Темы читаются, лабы делаются: {len(labs)} практических работ, каждая привязана
+к своей теме. Всё запускается локально, без сети: из корня репозитория — `cd`
+в каталог лабы, затем команды из таблицы. Цель, состав файлов, подсказка и
+сброс — на странице самой лабы.
+
+Колонка «Формат» — что задано: «почини» — убрать дефект, не сломав
+функциональность; «найди-дефект» — дефект не подписан, его надо найти и
+объяснить; «напиши-правило» — довести заготовку SAST-правила до схождения с
+разметкой; «разверни-и-проверь» — поднять стенд и проверить его инструментом.
+
+| Лаба | Тема | Формат | Запуск |
+|---|---|---|---|
+{chr(10).join(rows)}
+"""
+
+
+def page_lab(lab: dict, topic: vc.Page | None, index: dict[str, str]) -> str:
+    """Страница лабы: её README целиком плюс обратная ссылка на тему."""
+    rel = f"labs/{lab['slug']}.md"
+    topic_title = one_line(topic.front.get("title")) if topic else ""
+    meta = yaml.safe_dump(
+        {"title": lab["name"],
+         "description": (f"Лабораторная к теме «{topic_title}»: цель, файлы, "
+                         f"запуск." if topic else
+                         "Лабораторная гайдбука: цель, файлы, запуск.")},
+        allow_unicode=True, sort_keys=False, width=10 ** 6)
+    lead = f"Формат: «{lab['kind']}». Каталог в репозитории: `{lab['path']}`."
+    if topic:
+        lead = (f"Тема: [{topic_title}]({link_to(rel, index[topic.id])}). "
+                + lead)
+    # README начинается с h1 «Лаба …»: на странице заголовок уже стоит,
+    # второй не нужен.
+    body = LAB_H1_RE.sub("", lab["readme"], count=1).strip("\n")
+    return (f"---\n{meta}---\n\n{GENERATED}\n\n# {lab['name']}\n\n{lead}\n\n"
+            f"{body}\n")
+
+
 # ── сборка ───────────────────────────────────────────────────────────────────
 
 
+def subsections_of(topics_cfg: dict, stage: dict) -> list[dict]:
+    """Подразделы этапа из `topics.yaml` (план обучения), в порядке плана."""
+    for s in (topics_cfg or {}).get("stages") or []:
+        if int(s["num"]) == int(stage["num"]):
+            return list(s.get("subsections") or [])
+    return []
+
+
+def nav_sub_label(sub: dict) -> str:
+    """Подпись подраздела в меню: «1.1 Broken Access Control» — номер и
+    название без скобочного хвоста: каталожные номера и пометки плана в меню
+    не нужны, полное название стоит заголовком в сводке этапа."""
+    title = re.sub(r"[ \t]*\([^()]*\)[ \t]*$", "", str(sub.get("title") or ""))
+    title = title.strip()
+    return f"{sub['num']} {title}".strip()
+
+
+def stage_nav(stage: dict, group: list[vc.Page], ctx: vc.Ctx,
+              topics_cfg: dict, index: dict[str, str]) -> list:
+    """Пункты меню этапа. Этап с подразделами в плане (этапы 1, 2, 4, 7)
+    строится деревом по подразделам — решение оператора 2026-10-01 (А7):
+    плоский список из 83 тем первого этапа не читается. Этап без подразделов
+    в плане остаётся плоским списком."""
+    subs = subsections_of(topics_cfg, stage)
+    if len(subs) < 2:
+        return [index[p.id] for p in group]
+    known = {str(sub["num"]) for sub in subs}
+    by_sub: dict[str, list[vc.Page]] = {}
+    loose: list[vc.Page] = []
+    for p in group:
+        meta = ctx.plan.get(str(p.front.get("plan_id") or "")) or {}
+        sub = str(meta.get("sub") or "")
+        if sub in known:
+            by_sub.setdefault(sub, []).append(p)
+        else:
+            loose.append(p)
+    items: list = [index[p.id] for p in loose]
+    for sub in subs:
+        bucket = by_sub.get(str(sub["num"]))
+        if bucket:
+            items.append({nav_sub_label(sub): [index[p.id] for p in bucket]})
+    return items
+
+
 def nav_for(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
-            stage_extras: dict[str, list[str]] | None = None) -> list:
+            stage_extras: dict[str, list[str]] | None = None,
+            topics_cfg: dict | None = None,
+            labs: list[dict] | None = None) -> list:
     by_stage: dict[str, list[vc.Page]] = {}
     for p in pages:
         by_stage.setdefault(str(p.front.get("stage")), []).append(p)
@@ -1611,9 +1924,12 @@ def nav_for(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
         group = by_stage.get(stage["slug"], [])
         if not group:
             continue
-        nav.append({f"Этап {stage['num']}. {stage['title']}":
-                    [index[p.id] for p in group]
-                    + list((stage_extras or {}).get(stage["slug"], []))})
+        items = stage_nav(stage, group, ctx, topics_cfg or {}, index)
+        items += list((stage_extras or {}).get(stage["slug"], []))
+        nav.append({f"Этап {stage['num']}. {stage['title']}": items})
+    if labs:
+        nav.append({"Лабы": ["labs.md"]
+                    + [{lab["name"]: f"labs/{lab['slug']}.md"} for lab in labs]})
     nav.append({"Справочное": ["map.md", "mapping.md", "tags.md",
                                "glossary.md", "verified.md", "attributions.md"]})
     return nav
@@ -1649,13 +1965,24 @@ def stage_tree(today: date) -> dict:
     abbr = abbreviations(glossary)
     gloss = glossary_matcher(glossary)
     sources_reg = load_sources_registry()
+    # Подписи межтемных ссылок (А1): id темы → её название для ссылки.
+    titles = {p.id: short_title(one_line(p.front.get("title") or p.id))
+              for p in pages}
+    # Лабораторные (А8): README прочитаны один раз, порядок — по маршруту тем.
+    by_id = {p.id: p for p in pages}
+    route_pos = {p.id: i for i, p in enumerate(route)}
+    labs = lab_docs(ctx, route_pos)
+    topic_labs: dict[str, list[dict]] = {}
+    for lab in labs:
+        topic_labs.setdefault(str(lab["topic"]), []).append(lab)
     report = {"pages": 0, "links": 0, "gloss": 0, "stale": 0, "skip": 0,
               "abbr": 0,
               "diagrams": 0, "diagrams_failed": [], "generated": 0,
               "diagram_files": set(), "footnotes": 0, "footnotes_synth": 0,
               "footnotes_missing": [], "notes": author_notes(ctx, pages, today),
               "primary_sources": 0, "primary_links": 0, "review_pages": 0,
-              "review_q": 0, "mixed": 0, "verified": 0}
+              "review_q": 0, "mixed": 0, "verified": 0,
+              "labs": len(labs), "lab_run": 0}
 
     if SRC.exists():
         shutil.rmtree(SRC)
@@ -1667,15 +1994,18 @@ def stage_tree(today: date) -> dict:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(transform(p, rel, index, abbr, report,
                                     next_of.get(p.id), today=today,
-                                    gloss=gloss, sources_reg=sources_reg),
+                                    gloss=gloss, sources_reg=sources_reg,
+                                    titles=titles,
+                                    labs=topic_labs.get(p.id)),
                           encoding="utf-8")
         report["pages"] += 1
 
     verified_text, report["verified"] = page_verified(route, index)
     generated = {
         "index.md": page_index(ctx, pages, index, today),
-        "map.md": page_map(ctx, pages, index, report),
-        "glossary.md": page_glossary(glossary, index),
+        "map.md": page_map(ctx, pages, index, report, titles, topic_labs),
+        "labs.md": page_labs(labs, by_id, index),
+        "glossary.md": page_glossary(glossary, index, titles),
         "tags.md": page_tags(ctx),
         "mapping.md": page_mapping(ctx, pages, index),
         "verified.md": verified_text,
@@ -1685,12 +2015,20 @@ def stage_tree(today: date) -> dict:
         (SRC / name).write_text(text.rstrip("\n") + "\n", encoding="utf-8")
         report["generated"] += 1
 
+    # Страницы лаб (А8): README каждой лабораторной с обратной ссылкой на тему.
+    (SRC / "labs").mkdir(exist_ok=True)
+    for lab in labs:
+        rel = f"labs/{lab['slug']}.md"
+        (SRC / rel).write_text(page_lab(lab, by_id.get(lab["topic"]), index)
+                               .rstrip("\n") + "\n", encoding="utf-8")
+        report["generated"] += 1
+
     # Страницы этапов — решения оператора 2026-10-01: «Повторение» (вопросы
     # пройденного и смешанные задачи) и сводка этапа. Собираются из самих тем
     # и лабораторных, поэтому разойтись с корпусом им нечем.
-    labs = list(ctx.labs.values())
+    topics_cfg = vc.load_yaml(TOPICS_YAML)
     sub_titles = {(int(s["num"]), str(sub["num"])): str(sub.get("title") or sub["num"])
-                  for s in (vc.load_yaml(TOPICS_YAML).get("stages") or [])
+                  for s in (topics_cfg.get("stages") or [])
                   for sub in (s.get("subsections") or [])}
     fn_cache: dict[str, dict[str, str]] = {}
 
@@ -1714,11 +2052,11 @@ def stage_tree(today: date) -> dict:
         rel_s = f"{stage_dir}/svodka.md"
         (SRC / rel_r).write_text(
             page_stage_review(stage, upto, ctx, pages, labs, footnotes_of,
-                              index, rel_r, report).rstrip("\n") + "\n",
+                              index, rel_r, report, titles).rstrip("\n") + "\n",
             encoding="utf-8")
         (SRC / rel_s).write_text(
             page_stage_summary(stage, group, ctx, sub_titles, footnotes_of,
-                               index, rel_s, report).rstrip("\n") + "\n",
+                               index, rel_s, report, titles).rstrip("\n") + "\n",
             encoding="utf-8")
         stage_extras[stage["slug"]] = [rel_r, rel_s]
         report["review_pages"] += 2
@@ -1732,8 +2070,12 @@ def stage_tree(today: date) -> dict:
         shutil.copy2(render_diagrams.OUT / name, assets / "diagrams" / name)
     (assets / "extra.css").write_text(EXTRA_CSS, encoding="utf-8")
     shutil.copy2(SHIM_SRC, assets / "iframe-worker-shim.js")
+    # Шрифт листингов (А5): локальные woff2, сайт за ними в сеть не ходит.
+    (assets / "fonts").mkdir(exist_ok=True)
+    for font in sorted(FONTS_SRC.glob("*.woff2")):
+        shutil.copy2(font, assets / "fonts" / font.name)
 
-    write_config(nav_for(ctx, pages, index, stage_extras))
+    write_config(nav_for(ctx, pages, index, stage_extras, topics_cfg, labs))
     return report
 
 
@@ -1808,7 +2150,9 @@ def main() -> int:
           f"страницах ({report['primary_links']} ссылок), "
           f"{report['review_pages']} страниц этапов ({report['review_q']} "
           f"вопросов повторения, {report['mixed']} смешанных задач), "
-          f"«на чём проверено»: {report['verified']} записей", file=sys.stderr)
+          f"«на чём проверено»: {report['verified']} записей, "
+          f"{report['labs']} лаб (строка запуска дописана в "
+          f"{report['lab_run']} тем)", file=sys.stderr)
     for line in report["diagrams_failed"]:
         print(f"  схема не нарисована — {line}", file=sys.stderr)
     for line in report["footnotes_missing"]:
