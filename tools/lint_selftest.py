@@ -567,6 +567,17 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
              f"derived_from: [python-hashlib]\nupdated: {REV}\n"
              f"reviewed: {REV}\nreview_interval", 1),
          "`derived_from` и `updated` — условные поля 9.3 и 9.6 п. 19"),
+        ("маркер «можно отложить» на своём месте", ANY, SILENT,
+         sub("related: [sessions-vs-tokens, tls-and-proxy]\ntags:",
+             "related: [sessions-vs-tokens, tls-and-proxy]\n"
+             "skip_if: 'пароли в базе не храните: вход через SSO'\ntags:"),
+         "`skip_if` — необязательная строка между `related` и `fixes_in` "
+         "(`SCHEMA.md` § 3, решение оператора 2026-10-01): ни неизвестного "
+         "поля, ни сбоя порядка, ни замечания о типе быть не должно"),
+        ("маркер «можно отложить» не строкой", "C-FM-TYPE", CATCH,
+         sub("related: [sessions-vs-tokens, tls-and-proxy]\ntags:",
+             "related: [sessions-vs-tokens, tls-and-proxy]\n"
+             "skip_if: [sso, mfa]\ntags:")),
         ("не тот тип значения", "C-FM-TYPE", CATCH,
          sub("time_min: 90", "time_min: девяносто")),
         ("id не kebab-case", "C-FM-ID", CATCH,
@@ -684,17 +695,29 @@ def model_cases(tmp: Path) -> list[tuple[str, str, str, list]]:
          sub("  - Назвать, что даёт соль и чего она не даёт\n",
              "  - Назвать, что соль даёт и чего не даёт\n"),
          "`teaches` — короткая форма, блок 1 — фраза для читателя (`SCHEMA.md` § 6)"),
-        ("пункт чеклиста не в залоге", "C-BODY-CHECKLIST", CATCH,
-         sub("1. Verify that", "1. Убедитесь, что", 1)),
+        ("пункт чеклиста не в залоге", "C-BODY-CHECKLIST", SILENT,
+         sub("1. Verify that", "1. Убедитесь, что", 1),
+         "формула «Verify that…» снята решением оператора 2026-10-01 (RN-10): "
+         "машина следит за числом пунктов, залог — дело автора"),
         ("нет ответов под раскрытием", "C-BODY-SELFCHECK", CATCH,
          sub("<details", "<detailz")),
-        # Возврат на смежную тему вместо предпосылки: `tls-and-proxy` стоит в
-        # `related` настоящей темы, но не в её `prerequisites` (X-PREREQ-12).
-        ("возврат ведёт на смежную тему", "C-BODY-RETURN", CATCH,
+        # Возврат целит любую более раннюю тему маршрута (правило 35
+        # research/09, решение оператора 2026-10-01). Ошибка — цель позже по
+        # маршруту или вне корпуса: `sast-principles` стоит этапом позже
+        # настоящей темы.
+        ("возврат ведёт на более позднюю тему", "C-BODY-RETURN", CATCH,
          sub("Возврат к теме `sessions-vs-tokens`",
-             "Возврат к теме `tls-and-proxy`", 1)),
+             "Возврат к теме `sast-principles`", 1)),
+        ("возврат ведёт в никуда", "C-BODY-RETURN", CATCH,
+         sub("Возврат к теме `sessions-vs-tokens`",
+             "Возврат к теме `net-takoy-temy`", 1)),
+        ("возврат ведёт на раннюю тему вне предпосылок", "C-BODY-RETURN", SILENT,
+         sub("Возврат к теме `sessions-vs-tokens`",
+             "Возврат к теме `http-basics`", 1),
+         "правило 35: законна любая тема раньше по маршруту, не только "
+         "предпосылка"),
         ("возврат ведёт на предпосылку", "C-BODY-RETURN", SILENT, clean,
-         "оба возврата настоящей темы целят `prerequisites` (5.2 п. 10)"),
+         "предпосылки стоят раньше по маршруту — законные цели (правило 35)"),
         ("сноска и sources расходятся", "C-BODY-SOURCES", CATCH,
          sub("`python-hashlib`", "`mdn-csp`")),
         ("каркас этапа не в sources", "C-BODY-SOURCES", SILENT, clean,

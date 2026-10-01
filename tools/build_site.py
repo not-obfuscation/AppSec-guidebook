@@ -9,14 +9,17 @@
 
 Что сборщик делает с темой
 
-  * frontmatter из 24 полей сводится к четырём, которые понимает движок
-    (`title`, `description`, `status`, `tags`); остальные на страницу не
-    выносятся вовсе — со шапки они убраны решением оператора 2026-08-24
-    (свод 4.1);
-  * всё от заголовка «## N. Источники» до конца файла отрезается: список
-    источников, «Каркас этапа», «Скоропортящийся слой» и «Маркеры уверенности»
-    пишутся для аудита и читателю не показываются (решение оператора
-    2026-08-31). Определения сносок `[^N]: …` из этого хвоста — исключение:
+  * frontmatter из 27 полей сводится к четырём, которые понимает движок
+    (`title`, `description`, `status`, `tags`); остальные со шапки убраны
+    решением оператора 2026-08-24 (свод 4.1) и на страницу не попадают.
+    Исключение одно — условие `skip_if`, о нём свой пункт ниже;
+  * всё от заголовка «## N. Источники» до конца файла отрезается: «Каркас
+    этапа», «Скоропортящийся слой» и «Маркеры уверенности» пишутся для аудита
+    и читателю не показываются (решение оператора 2026-08-31). Сам список
+    источников с 2026-10-01 возвращён на страницу в другом виде: блок
+    «Первоисточники» собирается из поля `sources` темы и реестра
+    `sources.yaml` — название, издатель, версия и адрес каждого документа.
+    Определения сносок `[^N]: …` из этого хвоста — исключение:
     метки сносок остаются в прозе, поэтому определения переносятся в конец
     страницы, после блока «Дальше»; теме без явного определения оно
     собирается из пункта списка «Источников» с тем же номером;
@@ -37,12 +40,31 @@
     наведению, а канон написания остаётся один (6.3);
   * номера блоков пересчитываются подряд с единицы: в исходнике стоит номер
     слота канона, и пропущенный слот оставлял на странице дыру («0, 1, 3»).
-    Вместе с заголовками переписываются ссылки на номер блока в прозе.
+    Вместе с заголовками переписываются ссылки на номер блока в прозе;
+  * первое вхождение термина глоссария на странице становится ссылкой на его
+    статью в глоссарии (9.5 п. 14). Ищется в прозе вне кода, заголовков и
+    цитат — теми же написаниями и тем же стеммингом, что `glossary_lint.py`;
+  * тема, чья ревизия просрочена более чем вдвое, получает плашку «может
+    быть устаревшим» (9.6 п. 20). Считается в календарных месяцах — так же,
+    как линтер `validate_content.py`: единицы у сборки и проверки одни;
+  * тема с полем `skip_if` получает под шапкой, после абзаца «Уровень …»,
+    строку «можно отложить, если …» (9.5 п. 10): маркер подсказывает, когда
+    тему законно отложить, сам маршрут от него не меняется. Поля нет —
+    строки нет.
 
 Что сборщик генерирует сам: страницу входа, карту тем, маппинг-индекс внешних
 каталогов (9.6 п. 24), глоссарий (из того же `glossary.yaml`, что и
 `GLOSSARY.md`), индекс тегов и страницу «Атрибуции и лицензии» (PLAYBOOK 10.1
-п. 4). Сроки ревизии и состояние тем со страниц ушли
+п. 4). С 2026-10-01 к ним добавлены (решения оператора по реестру
+`journal/RESEARCH-NOVICE-2026-10.md`, пункты 5 и 7):
+
+  * на каждый этап — страница «Повторение» (вопросы из «Предвопросов» и
+    «Проверь себя» пройденных тем плюс функции из лабораторных без подписей)
+    и сводка этапа (блоки «Коротко» всех тем подряд и общий чеклист ревью);
+  * страница «На чём проверено» — версии инструментов и каталогов из
+    «Маркеров уверенности» тем, без дат.
+
+Сроки ревизии и состояние тем со страниц ушли
 решением оператора 2026-08-26: это журнал производства, а не материал читателя.
 Числа печатаются в отчёт сборки — тому, кто её запустил.
 
@@ -58,12 +80,14 @@
 from __future__ import annotations
 
 import argparse
+import ast
+import hashlib
 import os
 import re
 import shutil
 import subprocess
 import sys
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
 import yaml
@@ -74,7 +98,7 @@ import mdtext  # noqa: E402
 import render_diagrams  # noqa: E402
 import validate_content as vc  # noqa: E402
 import wordcount  # noqa: E402
-from paths import BUILD_DIR, GLOSSARY_YAML, ROOT, SITE_DIR  # noqa: E402
+from paths import BUILD_DIR, GLOSSARY_YAML, ROOT, SITE_DIR, TOPICS_YAML  # noqa: E402
 
 SRC = BUILD_DIR / "site-src"
 CONFIG_IN = ROOT / "mkdocs.yml"
@@ -165,11 +189,105 @@ def used_abbr(prose: str, table: dict[str, str]) -> dict[str, str]:
             if re.search(rf"(?<![A-Za-z0-9]){re.escape(k)}(?![A-Za-z0-9])", prose)}
 
 
+# ── ссылки на глоссарий ──────────────────────────────────────────────────────
+#
+# 9.5 п. 14: первое вхождение термина на странице — ссылка на глоссарий.
+# Написания и стемминг те же, что у `glossary_lint.py` (термин, английский
+# оригинал, аббревиатура, синонимы), поэтому «первое вхождение» здесь и в
+# проверке G-FIRST совпадает. Ссылку получает только первое вхождение термина
+# на странице, в любом из его написаний.
+
+
+def glossary_spellings(t: dict) -> list[str]:
+    """Все написания записи глоссария: термин, оригинал, аббревиатура, синонимы."""
+    out = [t["term"]]
+    for f in ("en", "abbr"):
+        if t.get(f):
+            out.append(t[f])
+    out += list(t.get("aliases") or [])
+    return out
+
+
+def glossary_matcher(glossary: dict) -> tuple[re.Pattern, dict[str, str]]:
+    """Одно выражение на все написания всех терминов. Имя группы совпадения
+    знает id термина — по нему строится якорь `glossary.md#id`.
+
+    Написание, заявленное двумя терминами, из выражения убирается: угадать,
+    куда ссылка, нельзя, а молча вести не туда хуже, чем не вести.
+    """
+    seen: dict[str, str] = {}
+    forms: list[tuple[str, str]] = []
+    for t in glossary["terms"]:
+        for sp in glossary_spellings(t):
+            key = sp.lower()
+            if key in seen and seen[key] != t["id"]:
+                continue
+            seen[key] = t["id"]
+            forms.append((sp, t["id"]))
+    owner: dict[str, str] = {}
+    branches = []
+    for i, (sp, tid) in enumerate(sorted(forms, key=lambda x: -len(x[0]))):
+        name = f"g{i}"
+        owner[name] = tid
+        branches.append(f"(?P<{name}>{mdtext.stem_pattern(sp)})")
+    return re.compile("|".join(branches), re.I), owner
+
+
+HEADING_LINE_RE = re.compile(r"^#{1,6}[ \t].*$", re.M)
+MD_LINK_RE = re.compile(r"!?\[[^\]\n]*\]\([^)\n]*\)")
+QUOTED_RE = re.compile(r"«[^»]*»", re.S)
+# Перенос строки, за которым строка начинается с разметки: ссылка с таким
+# переносом внутри разорвётся, поэтому совпадение пропускается.
+WRAP_MARKUP_RE = re.compile(r"\n[ \t]*(?:[>\-*+#|]|\d+[.)])")
+
+
+def blank_out(text: str) -> str:
+    return "".join("\n" if ch == "\n" else " " for ch in text)
+
+
+def glossary_links(page: vc.Page, page_rel: str, raw: str,
+                   gloss: tuple[re.Pattern, dict[str, str]],
+                   taken: list[tuple[int, int, str]], report: dict
+                   ) -> list[tuple[int, int, str]]:
+    """Правки «термин → ссылка на глоссарий» для первых вхождений на странице.
+
+    Поиск идёт по прозе (`doc.prose` уже без кода и адресов), обрезанной на
+    блоке «Источники» — хвост для аудита на страницу не попадает. Гасятся
+    заголовки, чужие слова в «ёлочках» и готовые ссылки: ссылку в ссылку
+    markdown не завернёт.
+    """
+    rx, owner = gloss
+    zone = page.doc.prose
+    cut = SOURCES_HEAD_RE.search(zone)
+    if cut:
+        zone = zone[:cut.start()]
+    for mask_re in (HEADING_LINE_RE, MD_LINK_RE, QUOTED_RE):
+        zone = mask_re.sub(lambda m: blank_out(m.group(0)), zone)
+
+    first: dict[str, tuple[int, int]] = {}
+    for m in rx.finditer(zone):
+        first.setdefault(owner[m.lastgroup], (m.start(), m.end()))
+
+    href = link_to(page_rel, "glossary.md")
+    out = []
+    for tid, (a, b) in first.items():
+        if any(a < e and s < b for s, e, _ in taken):
+            continue
+        text = raw[a:b]
+        if "\n" in text:
+            if WRAP_MARKUP_RE.search(text):
+                continue
+            text = text.replace("\n", " ")
+        out.append((a, b, f"[{text}]({href}#{tid})"))
+    report["gloss"] += len(out)
+    return out
+
+
 # ── тема → страница ──────────────────────────────────────────────────────────
 
 
 def front_block(page: vc.Page) -> str:
-    """Мета для движка: четыре поля вместо двадцати четырёх."""
+    """Мета для движка: четыре поля вместо двадцати семи."""
     meta = {
         "title": one_line(page.front.get("title") or page.id),
         "description": one_line(page.front.get("summary") or ""),
@@ -307,9 +425,53 @@ def renumber_blocks(page: vc.Page) -> list[tuple[int, int, str]]:
     return out
 
 
+# Шапка темы — абзац «Уровень **L2** · время…» сразу под заголовком. Класс
+# ставит сборка: CSS приглушает шапку темы и только её (раньше селектор
+# `h1 + p` гасил первый абзац любой страницы, включая главную и глоссарий).
+LEAD_START_RE = re.compile(r"^Уровень \*\*", re.M)
+
+
+def mark_lead(body: str) -> str:
+    m = LEAD_START_RE.search(body)
+    if not m:
+        return body
+    end = body.find("\n\n", m.start())
+    if end < 0:
+        end = len(body)
+    return body[:end] + "\n{ .topic-lead }" + body[end:]
+
+
+def insert_stale_note(body: str) -> str:
+    """Плашка 9.6 п. 20 — сразу под заголовком, до шапки."""
+    m = re.search(r"^# [^\n]*$", body, re.M)
+    at = m.end() if m else 0
+    return body[:at] + "\n\n" + STALE_NOTE + body[at:]
+
+
+def insert_skip_note(body: str, condition: str) -> str:
+    """Строка «можно отложить» (9.5 п. 10) — под шапкой, после lead-абзаца.
+
+    Поле `skip_if` держит условие одной фразой, которое читатель проверяет на
+    себе (SCHEMA § 3.1); маршрут от маркера не ветвится. Печатается той же
+    приглушённой строкой, что шапка, — со своим классом и засечкой слева,
+    иначе две строки подряд сливаются. Темы без lead-абзаца в корпусе нет
+    (C-HEAD-TIME), но если он не нашёлся, страницу ломать незачем.
+    """
+    m = LEAD_START_RE.search(body)
+    if not m:
+        return body
+    end = body.find("\n\n", m.start())
+    if end < 0:
+        end = len(body)
+    note = f"**Можно отложить, если** {condition}.\n{{ .topic-skip }}"
+    return body[:end] + "\n\n" + note + body[end:]
+
+
 def transform(page: vc.Page, page_rel: str, index: dict[str, str],
               abbr: dict[str, str], report: dict,
-              nxt: vc.Page | None = None) -> str:
+              nxt: vc.Page | None = None, today: date | None = None,
+              gloss: tuple[re.Pattern, dict[str, str]] | None = None,
+              sources_reg: dict[str, dict] | None = None) -> str:
     """Тема как страница сайта. Исходник не меняется — меняется копия."""
     raw = page.doc.raw
     edits: list[tuple[int, int, str]] = [(0, page.doc.front_end, front_block(page))]
@@ -340,7 +502,20 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
                       f"[{m.group(0)}]({link_to(page_rel, index[target_id])})"))
         report["links"] += 1
 
+    if gloss is not None:
+        edits += glossary_links(page, page_rel, raw, gloss, edits, report)
+
     body = apply_edits(raw, edits)
+    body = mark_lead(body)
+    skip_if = one_line(str(page.front.get("skip_if") or "")).removesuffix(".")
+    if skip_if:
+        body = insert_skip_note(body, skip_if)
+        report["skip"] += 1
+    if today is not None:
+        state = review_elapsed(page.front, today)
+        if state and state[0] > 2 * state[1]:
+            body = insert_stale_note(body)
+            report["stale"] += 1
 
     # Хвост с «Источников» и до конца — аппарат аудита, а не текст страницы.
     # Прежде чем резать, из хвоста забираются определения сносок: метки `[^N]`
@@ -364,6 +539,17 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
                 report["footnotes_synth"] += 1
             else:
                 report["footnotes_missing"].append(f"{page.id}: [^{ref}]")
+
+    # «Первоисточники» — решение оператора 2026-10-01 (реестр RN-13): список
+    # документов с адресами, по которым сверена тема. Срезанный хвост аудита
+    # он не возвращает: блок собирается из поля `sources` и реестра, а не из
+    # текста «Источников».
+    if sources_reg:
+        block, n_sources = primary_sources(page, sources_reg)
+        if block:
+            body = body.rstrip("\n") + "\n\n" + block + "\n"
+            report["primary_sources"] += 1
+            report["primary_links"] += n_sources
 
     # «Дальше» — ссылка на следующую тему маршрута; генерируется здесь, а не
     # пишется автором (решение оператора 2026-08-31). У последней темы нет.
@@ -398,14 +584,6 @@ def page_index(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
     for p in pages:
         by_stage.setdefault(str(p.front.get("stage")), []).append(p)
 
-    written_by_stage_num: dict[int, int] = {}
-    for slug, group in by_stage.items():
-        written_by_stage_num[int(ctx.stages[slug]["num"])] = len(group)
-    planned: dict[int, int] = {}
-    for meta in ctx.plan.values():
-        if not meta["excluded"]:
-            planned[meta["stage"]] = planned.get(meta["stage"], 0) + 1
-
     rows = []
     for stage in ctx.tax["stages"]:
         if stage.get("excluded"):
@@ -414,8 +592,8 @@ def page_index(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
         group = by_stage.get(stage["slug"], [])
         first = f"[к темам]({link_to('index.md', index[group[0].id])})" if group else "—"
         time = sum(int(p.front.get("time_min") or 0) for p in group)
-        rows.append(f"| {num} | {stage['title']} | {len(group)} из "
-                    f"{planned.get(num, 0)} | {time or '—'} | {first} |")
+        rows.append(f"| {num} | {stage['title']} | {len(group)} | "
+                    f"{time or '—'} | {first} |")
 
     total_time = sum(int(p.front.get("time_min") or 0) for p in pages)
     # Столбец «Написано» убран 2026-08-24: сколько тем каждого уровня успело
@@ -452,13 +630,23 @@ description: Учебник по прикладной безопасности �
 только к собственным системам и учебным стендам. Разборы уязвимостей ведутся
 на запатченных версиях и локальных лабораторных.
 
-## Как читать
+## Как читать тему
 
 Тема идёт по одному и тому же скелету: «Коротко» → механизм → код → как чинится
 → как проверить → чеклист ревью → «Проверь себя», а в конце страницы — ссылка
 «Дальше» на следующую тему маршрута. Порядок блоков не меняется; на коротких
 уровнях часть из них не пишется. Читать сплошь не нужно: «Коротко» и «Чеклист
 ревью» работают отдельно.
+
+Сразу после «Коротко» тема задаёт два-три предвопроса по главному из того, что
+впереди. Ответьте на них до чтения, даже если не уверены: нужна собственная
+догадка, с которой текст дальше сравнится, а неверный ответ ничего не портит.
+Ответ на каждый предвопрос прямо сказан в тексте темы, и вопрос ещё вернётся —
+в «Проверь себя» и на странице «Повторение» этапа.
+
+В конце каждого этапа стоят две страницы, которые сборка собирает из самих
+тем: «Повторение» — вопросы на пройденное и задачи без подписей, «Этап
+коротко» — все «Коротко» подряд и общий чеклист ревью.
 
 Уровень темы стоит в её шапке и говорит, до чего доводит чтение.
 
@@ -484,10 +672,7 @@ description: Учебник по прикладной безопасности �
 |---|---|---|---|---|
 {chr(10).join(rows)}
 
-{skip_note}Столбец «Тем» читается как «готово из запланированного»: число справа — все
-темы этапа, и оно не меняется от того, сколько из них уже написано.
-
-## Что где лежит
+{skip_note}## Что где лежит
 
 - [Карта тем]({link_to('index.md', 'map.md')}) — все темы с уровнем, временем и
   предпосылками; там же видно, каких тем ещё нет.
@@ -496,6 +681,9 @@ description: Учебник по прикладной безопасности �
 - [Глоссарий]({link_to('index.md', 'glossary.md')}) — термины и одно написание
   на весь сайт.
 - [Теги]({link_to('index.md', 'tags.md')}) — фасеты: тема попадает в несколько.
+- [На чём проверено]({link_to('index.md', 'verified.md')}) — версии инструментов,
+  на которых темы проверялись прогоном: по списку видно, что перечитать при
+  выходе новой версии.
 
 Сайт собран {today.isoformat()} и открывается с диска: ни одна страница не ходит
 в сеть, поиск тоже работает офлайн.
@@ -518,9 +706,7 @@ description: Все темы гайдбука с уровнем, времене�
 механизм объяснён своими словами и со своим примером.
 
 Столбец «Требует» и есть карта связей: он называет темы, без которых эта не
-читается. Схема тех же связей со страницы убрана решением оператора
-2026-08-26 — на 139 темах она давала клубок, по которому ничего не найти, а
-7.4 разрешает схему только там, где она объясняет то, чего не объясняет текст.
+читается.
 """]
 
     by_stage: dict[str, list[vc.Page]] = {}
@@ -727,6 +913,30 @@ description: Номер внешнего каталога — темы, кото
     return "\n".join(out)
 
 
+def review_months(seen: date, today: date) -> int:
+    """Календарные месяцы между датами. Формула та же, что у линтера
+    (`tools/validate_content.py`, C-FM-REVIEW): `review_interval` задан в
+    месяцах (`SCHEMA.md`, 9.6 п. 20), и единицы у сборки с проверкой одни."""
+    return (today.year - seen.year) * 12 + today.month - seen.month
+
+
+def review_elapsed(front: dict, today: date) -> tuple[int, int] | None:
+    """(Месяцев с ревизии, интервал) по frontmatter; None, если ревизии нет."""
+    reviewed = front.get("reviewed")
+    interval = int(front.get("review_interval") or 0)
+    if not reviewed or not interval:
+        return None
+    seen = reviewed if isinstance(reviewed, date) else date.fromisoformat(str(reviewed))
+    return review_months(seen, today), interval
+
+
+STALE_NOTE = """!!! warning "Может быть устаревшим"
+    Материал этой темы давно не пересматривался и может быть устаревшим:
+    версии инструментов и номера стандартов сверяйте с первоисточниками,
+    прежде чем применять описанное.
+"""
+
+
 def author_notes(ctx: vc.Ctx, pages: list[vc.Page], today: date) -> list[str]:
     """Авторская бухгалтерия: просрочка ревизии и перекос объёма.
 
@@ -734,18 +944,17 @@ def author_notes(ctx: vc.Ctx, pages: list[vc.Page], today: date) -> list[str]:
     убрана: сроки ревизии и состояние тем — журнал производства, а читателю на
     них смотреть незачем (тем же решением 4.1 убрало статус из шапки темы).
     Данные не потеряны — они лежат во frontmatter, и сборка печатает их тому,
-    кто её запустил.
+    кто её запустил. Читатель видит только плашку 9.6 п. 20, когда просрочка
+    больше интервала вдвое.
     """
     overdue, on_time = [], 0
     for p in pages:
-        reviewed = p.front.get("reviewed")
-        interval = int(p.front.get("review_interval") or 0)
-        if not reviewed or not interval:
+        state = review_elapsed(p.front, today)
+        if state is None:
             continue
-        seen = reviewed if isinstance(reviewed, date) else date.fromisoformat(str(reviewed))
-        late = (today - (seen + timedelta(weeks=interval))).days
-        if late > 0:
-            overdue.append((late, p.id))
+        months, interval = state
+        if months > interval:
+            overdue.append((months - interval, p.id))
         else:
             on_time += 1
 
@@ -754,7 +963,7 @@ def author_notes(ctx: vc.Ctx, pages: list[vc.Page], today: date) -> list[str]:
         overdue.sort(reverse=True)
         notes.append(f"ревизия просрочена у {len(overdue)} тем из "
                      f"{len(overdue) + on_time} с датой: " + head_tail(
-                         f"{tid} на {late} дн." for late, tid in overdue))
+                         f"{tid} на {late} мес." for late, tid in overdue))
     else:
         notes.append(f"ревизия в срок у всех {on_time} тем с датой")
 
@@ -788,11 +997,30 @@ EXTRA_CSS = """/* Собрано `tools/build_site.py`; правки — в сб
 }
 
 /* Шапка темы — вторая копия frontmatter для человека. Она стоит сразу под
-   заголовком и не должна спорить с ним весом. */
-.md-typeset h1 + p {
+   заголовком и не должна спорить с ним весом. Класс ставит сборка: селектор
+   вида `h1 + p` гасил первый абзац любой страницы, включая главную. */
+.md-typeset p.topic-lead {
   font-size: 0.8rem;
   line-height: 1.5;
   color: var(--md-default-fg-color--light);
+}
+
+/* Маркер «можно отложить» (9.5 п. 10) — строка сразу под шапкой темы. Та же
+   приглушённость, что у шапки, плюс засечка слева: без неё строка сливается
+   со строкой уровня в один абзац. */
+.md-typeset p.topic-skip {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--md-default-fg-color--light);
+  border-left: 0.15rem solid var(--md-accent-fg-color);
+  padding-left: 0.6rem;
+}
+
+/* Код внутри ссылки в тёмной теме: штатный #5e8bde на фоне кода даёт 4,2:1
+   при норме 4,5:1 (WCAG 1.4.3). Светлее, из той же ссылочной гаммы: на фоне
+   кода slate выходит около 5,4:1. */
+[data-md-color-scheme="slate"] .md-typeset a code {
+  color: #7ba0e8;
 }
 
 /* Таблицы карты тем длинные: заголовок остаётся видимым. */
@@ -803,10 +1031,578 @@ EXTRA_CSS = """/* Собрано `tools/build_site.py`; правки — в сб
 """
 
 
+# ── «Первоисточники», «Повторение», сводки этапов, «На чём проверено» ────────
+#
+# Решения оператора 2026-10-01 (реестр `journal/RESEARCH-NOVICE-2026-10.md`,
+# пункты 5 и 7). Всё ниже собирается из данных, которые уже есть: вопросы — из
+# блоков «Предвопросы» и «Проверь себя» тем, функции — из файлов `code.*`
+# лабораторных, сводки — из блоков «Коротко» и «Чеклист ревью», версии — из
+# «Маркеров уверенности». Исходники тем при этом не меняются.
+
+
+def load_sources_registry() -> dict[str, dict]:
+    """Реестр источников по `id`: адрес, название, издатель, версия."""
+    data = vc.load_yaml(vc.SOURCES_YAML)
+    return {str(s["id"]): s for s in (data.get("sources") or [])
+            if isinstance(s, dict)}
+
+
+def primary_sources(page: vc.Page, registry: dict[str, dict]) -> tuple[str, int]:
+    """Блок «Первоисточники» для страницы темы и число документов в нём."""
+    items = []
+    for sid in (page.front.get("sources") or []):
+        src = registry.get(str(sid)) or {}
+        url, title = src.get("url"), one_line(src.get("title") or "")
+        if not url or not title:
+            continue
+        extra = ", ".join(x for x in (one_line(src.get("publisher") or ""),
+                                      one_line(src.get("version_or_date") or ""))
+                          if x)
+        items.append(f"- [{title}]({url})" + (f" — {extra}." if extra else "."))
+    if not items:
+        return "", 0
+    return ("## Первоисточники\n\n"
+            "Тема сверена по этим документам; если текст и документ расходятся, "
+            "верен документ.\n\n" + "\n".join(items)), len(items)
+
+
+# ── заимствование текста тем ─────────────────────────────────────────────────
+
+NUM_ITEM_RE = re.compile(r"^(\d+)\.[ \t]+")
+
+
+def block_titled(page: vc.Page, word: str) -> vc.Block | None:
+    return next((b for b in page.blocks if word in b.title), None)
+
+
+def numbered_items(lines: list[str]) -> list[str]:
+    """Пункты нумерованного списка без номеров, с продолжениями.
+
+    Продолжение пункта — строка с отступом или пустая; первая строка без
+    отступа и не «N.» список заканчивает (так список вопросов отрезается от
+    следующего за ним `<details>`, а список ответов — от `</details>`).
+    """
+    items, cur = [], []
+    for ln in lines:
+        if NUM_ITEM_RE.match(ln):
+            if cur:
+                items.append("\n".join(cur).rstrip())
+            cur = [NUM_ITEM_RE.sub("", ln, count=1)]
+        elif cur and (not ln.strip() or ln[:1] in (" ", "\t")):
+            cur.append(ln)
+        elif cur:
+            items.append("\n".join(cur).rstrip())
+            cur = []
+            break
+    if cur:
+        items.append("\n".join(cur).rstrip())
+    return [it for it in items if it.strip()]
+
+
+def selfcheck_qa(page: vc.Page) -> list[tuple[str, str | None]]:
+    """Пары «вопрос, ответ» из блока «Проверь себя». Нумерация в корпусе
+    сплошная и совпадающая у вопросов и ответов (проверено по 160 блокам),
+    поэтому пары ставятся по позиции."""
+    block = block_titled(page, "Проверь себя")
+    if not block:
+        return []
+    q_lines, a_lines, inside = [], [], False
+    for ln in page.text_of(block):
+        tag = ln.strip()
+        if tag.startswith("<details"):
+            inside = True
+            continue
+        if tag.startswith("</details"):
+            inside = False
+            continue
+        if tag.startswith("<summary"):
+            continue
+        (a_lines if inside else q_lines).append(ln)
+    questions, answers = numbered_items(q_lines), numbered_items(a_lines)
+    return [(q, answers[i] if i < len(answers) else None)
+            for i, q in enumerate(questions)]
+
+
+def prequestions(page: vc.Page) -> list[str]:
+    """Предвопросы темы без вводной фразы о методе."""
+    block = block_titled(page, "Предвопросы")
+    return numbered_items(page.text_of(block)) if block else []
+
+
+def topic_footnotes(page: vc.Page) -> dict[str, str]:
+    """Определения сносок темы: явные из хвоста, а где их нет — собранные из
+    пунктов «Источников» (тем же способом, что на странице самой темы)."""
+    cut = SOURCES_HEAD_RE.search(page.doc.raw)
+    if not cut:
+        return {}
+    tail = page.doc.raw[cut.start():]
+    defs, items = footnote_defs(tail), source_items(tail)
+    for ref, item in items.items():
+        defs.setdefault(ref, synth_def(item))
+    return defs
+
+
+def carry_footnotes(text: str, page: vc.Page, defs: dict[str, str],
+                    needed: dict[str, str]) -> str:
+    """Метки сносок в заимствованном тексте получают приставку темы, а
+    определения переезжают на собранную страницу: чужой `[^1]` иначе
+    столкнулся бы с нашим или остался бы висеть литералом."""
+    def repl(m: re.Match) -> str:
+        ref = m.group(1)
+        if ref not in defs:
+            return m.group(0)
+        label = f"{page.id}-{ref}"
+        needed.setdefault(label, defs[ref])
+        return f"[^{label}]"
+    return FN_REF_RE.sub(repl, text)
+
+
+def embed_links(text: str, page_rel: str, index: dict[str, str],
+                report: dict) -> str:
+    """`` `topic-id` `` → ссылка на тему: то же превращение, что на страницах
+    тем, но для текста, заимствованного собранными страницами. Ограждённые
+    блоки пропускаются — в коде ссылка не работает."""
+    def repl(m: re.Match) -> str:
+        tid = m.group(2).strip()
+        if "\n" not in tid and tid in index:
+            report["links"] += 1
+            return f"[{m.group(0)}]({link_to(page_rel, index[tid])})"
+        return m.group(0)
+    out, last = [], 0
+    for fence in mdtext.FENCE_RE.finditer(text):
+        out.append(mdtext.CODE_SPAN_RE.sub(repl, text[last:fence.start()]))
+        out.append(fence.group(0))
+        last = fence.end()
+    out.append(mdtext.CODE_SPAN_RE.sub(repl, text[last:]))
+    return "".join(out)
+
+
+def stable_key(*parts: str) -> str:
+    """Порядок выборки, одинаковый от сборки к сборке: меняется только вместе
+    с самими данными, а не от запуска к запуску."""
+    return hashlib.sha1("\x00".join(parts).encode("utf-8")).hexdigest()
+
+
+# ── «Повторение»: вопросы пройденного и смешанные задачи ─────────────────────
+
+
+def review_pool(pages: list[vc.Page], stage_order: dict[str, int],
+                upto: int) -> list[tuple[vc.Page, str, str | None]]:
+    """Вопросы тем до конца этапа `upto` включительно. Сначала самопроверка
+    (у неё есть ответы), предвопросом заполненный дубликат не вытесняет."""
+    pool = []
+    for p in pages:
+        if stage_order[str(p.front.get("stage"))] > upto:
+            continue
+        seen: set[str] = set()
+        for q, a in selfcheck_qa(p) + [(q, None) for q in prequestions(p)]:
+            key = re.sub(r"\s+", " ", q.lower())[:100]
+            if key in seen:
+                continue
+            seen.add(key)
+            pool.append((p, q, a))
+    return pool
+
+
+def pick_review(pool: list[tuple[vc.Page, str, str | None]],
+                stage_order: dict[str, int], limit: int = 10
+                ) -> list[tuple[vc.Page, str, str | None]]:
+    """Выборка с разносом по этапам: по кругу от самого раннего, не больше
+    одного вопроса на тему, пока хватает кандидатов."""
+    buckets: dict[str, list] = {}
+    for cand in pool:
+        buckets.setdefault(str(cand[0].front.get("stage")), []).append(cand)
+    for bucket in buckets.values():
+        bucket.sort(key=lambda c: stable_key(c[0].id, c[1]))
+    picked, taken, per_topic = [], set(), {}
+    cap = 1
+    while len(picked) < limit and cap <= 2:
+        progressed = False
+        for slug in sorted(buckets, key=lambda s: stage_order[s]):
+            for cand in buckets[slug]:
+                key = stable_key(cand[0].id, cand[1])
+                if key in taken or per_topic.get(cand[0].id, 0) >= cap:
+                    continue
+                picked.append(cand)
+                taken.add(key)
+                per_topic[cand[0].id] = per_topic.get(cand[0].id, 0) + 1
+                progressed = True
+                break
+            if len(picked) >= limit:
+                break
+        if not progressed:
+            cap += 1
+    picked.sort(key=lambda c: (stage_order[str(c[0].front.get("stage"))],
+                               int(c[0].front.get("order") or 0)))
+    return picked
+
+
+VULN_MARK = "УЯЗВИМО"
+JS_FN_RE = re.compile(r"^(?:export[ \t]+)?(?:async[ \t]+)?function[ \t]+\w+")
+
+
+def py_units(text: str) -> list[str]:
+    """Функции верхнего уровня с пометкой «УЯЗВИМО» в строках над `def`."""
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return []
+    lines = text.split("\n")
+    out = []
+    for node in tree.body:
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        start = min([node.lineno] + [d.lineno for d in node.decorator_list])
+        above = "\n".join(lines[max(0, start - 4):start - 1])
+        if VULN_MARK not in above:
+            continue
+        out.append("\n".join(lines[start - 1:node.end_lineno]))
+    return out
+
+
+def js_units(text: str) -> list[str]:
+    """Обработчики верхнего уровня по балансу скобок; если функций нет —
+    файл целиком (так устроен `same-origin-policy/code.js`)."""
+    lines = text.split("\n")
+    units, i = [], 0
+    while i < len(lines):
+        if JS_FN_RE.match(lines[i]):
+            depth, j, opened = 0, i, False
+            while j < len(lines):
+                depth += lines[j].count("{") - lines[j].count("}")
+                opened = opened or "{" in lines[j]
+                j += 1
+                if opened and depth <= 0:
+                    break
+            units.append("\n".join(lines[i:j]))
+            i = max(j, i + 1)
+        else:
+            i += 1
+    handlers = [u for u in units if re.search(r"function[ \t]+(handle|dispatch)", u)]
+    return handlers or units or [text]
+
+
+def clean_unit(code: str) -> str:
+    """Пометка «УЯЗВИМО» и шапка комментариев срезаются: подпись «откуда и
+    что здесь не так» — это ответ на задачу, а не часть условия."""
+    lines = [ln for ln in code.split("\n") if VULN_MARK not in ln]
+    while lines and (not lines[0].strip()
+                     or lines[0].lstrip().startswith(("#", "//", "/*", "*"))):
+        lines.pop(0)
+    return "\n".join(lines).strip("\n")
+
+
+def lab_units(lab: dict) -> list[tuple[str, str]]:
+    """(язык, код) уязвимых фрагментов лабораторной — без имён файлов."""
+    out, seen = [], set()
+    for code_file in sorted((ROOT / lab["path"]).glob("code.*")):
+        text = code_file.read_text(encoding="utf-8")
+        if code_file.suffix == ".py":
+            units = [("python", u) for u in py_units(text)]
+        elif code_file.suffix in (".js", ".mjs"):
+            units = [("javascript", u) for u in js_units(text)]
+        else:
+            continue
+        for lang, unit in units:
+            cleaned = clean_unit(unit)
+            if not (4 <= len(cleaned.split("\n")) <= 30) or cleaned in seen:
+                continue
+            seen.add(cleaned)
+            out.append((lang, cleaned))
+    return out
+
+
+def pick_tasks(labs: list[dict], by_id: dict[str, vc.Page],
+               stage_order: dict[str, int], stage_slug: str, upto: int,
+               limit: int = 8) -> list[tuple[dict, str, str]]:
+    """Функции лабораторных без подписей: свои этапы вперёд, не больше двух
+    фрагментов из одной лабораторной."""
+    pools = []
+    for lab in labs:
+        topic = by_id.get(lab["topic"])
+        if topic is None:
+            continue
+        tstage = str(topic.front.get("stage"))
+        if stage_order[tstage] > upto:
+            continue
+        units = lab_units(lab)
+        if units:
+            pools.append((tstage != stage_slug, lab, units))
+    pools.sort(key=lambda x: (x[0], stable_key(x[1]["id"])))
+    picked, taken, per_lab = [], set(), {}
+    cap = 1
+    while len(picked) < limit and cap <= 2:
+        progressed = False
+        for _, lab, units in pools:
+            for unit in sorted(units, key=lambda u: stable_key(lab["id"], u[1])):
+                key = stable_key(lab["id"], unit[1])
+                if key in taken or per_lab.get(lab["id"], 0) >= cap:
+                    continue
+                picked.append((lab, *unit))
+                taken.add(key)
+                per_lab[lab["id"]] = per_lab.get(lab["id"], 0) + 1
+                progressed = True
+                break
+            if len(picked) >= limit:
+                break
+        if not progressed:
+            cap += 1
+    return picked
+
+
+def page_stage_review(stage: dict, upto: int, ctx: vc.Ctx,
+                      pages: list[vc.Page], labs: list[dict],
+                      fn_of, index: dict[str, str], rel: str,
+                      report: dict) -> str:
+    """Страница «Повторение» этапа: вопросы на пройденное и смешанные задачи."""
+    num, title = int(stage["num"]), stage["title"]
+    stage_order = {s["slug"]: i for i, s in enumerate(ctx.tax["stages"])}
+    by_id = {p.id: p for p in pages}
+    needed: dict[str, str] = {}
+
+    def adopt(text: str, owner: vc.Page) -> str:
+        return embed_links(carry_footnotes(text, owner, fn_of(owner), needed),
+                           rel, index, report)
+
+    parts = [f"""---
+title: Этап {num}. Повторение
+description: Вопросы на пройденные темы и задачи без подписей — повторение этапа «{title}».
+---
+
+{GENERATED}
+
+# Этап {num}. Повторение
+
+Страница собрана из того, что уже написано: вопросы — из блоков «Предвопросы»
+и «Проверь себя» пройденных тем, функции — из лабораторных. Набор меняется,
+только когда меняются сами темы.
+
+## Повтор пройденного
+
+Ответьте на каждый вопрос вслух или черновиком, не открывая ответа: вспомнить
+своими словами и есть упражнение.
+"""]
+
+    picked = pick_review(review_pool(pages, stage_order, upto), stage_order)
+    groups: dict[str, list] = {}
+    for topic, q, a in picked:
+        groups.setdefault(topic.id, []).append((topic, q, a))
+    report["review_q"] += len(picked)
+    for tid, items in groups.items():
+        topic = items[0][0]
+        parts.append(f"### [{one_line(topic.front.get('title'))}]"
+                     f"({link_to(rel, index[tid])})\n")
+        for i, (_, q, _) in enumerate(items, 1):
+            parts.append(f"{i}. {adopt(q, topic)}")
+        parts.append("\n<details markdown=\"1\">\n<summary>Ответы</summary>\n")
+        for i, (_, _, a) in enumerate(items, 1):
+            parts.append(f"{i}. {adopt(a, topic) if a else 'Это предвопрос: '
+                         'ответ на него даёт текст самой темы.'}")
+        parts.append("\n</details>\n")
+
+    tasks = pick_tasks(labs, by_id, stage_order, stage["slug"], upto)
+    if tasks:
+        parts.append("""## Смешанные задачи
+
+Функции из лабораторных — без подписей и вперемешку. На каждую ответьте двумя
+фразами: какой здесь класс дефекта и какая строка его держит.
+""")
+        report["mixed"] += len(tasks)
+        for lab, lang, code in tasks:
+            topic = by_id[lab["topic"]]
+            answer = (f"Из лабораторной к теме "
+                      f"[{one_line(topic.front.get('title'))}]"
+                      f"({link_to(rel, index[topic.id])}): дефект того класса, "
+                      f"которому посвящена тема; точное место и починка — в её "
+                      f"блоках «Как выглядит в коде» и «Как чинится».")
+            parts.append(f"```{lang}\n{code}\n```\n\n"
+                         f"<details markdown=\"1\">\n<summary>Ответ</summary>\n\n"
+                         f"{answer}\n\n</details>\n")
+
+    if needed:
+        parts.append("")
+        parts += [f"[^{label}]: {text}" for label, text in needed.items()]
+    return "\n".join(parts)
+
+
+# ── сводка этапа ─────────────────────────────────────────────────────────────
+
+
+def page_stage_summary(stage: dict, group: list[vc.Page], ctx: vc.Ctx,
+                       sub_titles: dict[tuple[int, str], str], fn_of,
+                       index: dict[str, str], rel: str, report: dict) -> str:
+    """Сводка этапа: блоки «Коротко» всех тем подряд и общий чеклист ревью."""
+    num, title = int(stage["num"]), stage["title"]
+    needed: dict[str, str] = {}
+
+    def adopt(text: str, owner: vc.Page) -> str:
+        return embed_links(carry_footnotes(text, owner, fn_of(owner), needed),
+                           rel, index, report)
+
+    # Подразделы есть не у всех этапов: где план их задаёт, сводка резана по
+    # ним; где этап единым списком — темы идут подряд.
+    subs: dict[str, list[vc.Page]] = {}
+    for p in group:
+        meta = ctx.plan.get(str(p.front.get("plan_id") or "")) or {}
+        subs.setdefault(str(meta.get("sub") or ""), []).append(p)
+    use_subs = len(subs) > 1
+
+    def topics_lines(part: str) -> list[str]:
+        out = []
+        for sub, topics in subs.items():
+            if use_subs:
+                out.append(f"### {sub_titles.get((num, sub), sub)}\n")
+            for p in topics:
+                block = block_titled(p, "Коротко" if part == "korotko"
+                                     else "Чеклист ревью")
+                if not block:
+                    continue
+                text = "\n".join(p.text_of(block)).strip("\n")
+                if not text.strip():
+                    continue
+                link = f"[{one_line(p.front.get('title'))}]({link_to(rel, index[p.id])})"
+                if use_subs:
+                    if part == "korotko":
+                        text = f"**{link}.** " + text
+                    else:
+                        text = f"**{link}:**\n\n" + text
+                else:
+                    out.append(f"### {link}\n")
+                out.append(adopt(text, p) + "\n")
+        return out
+
+    parts = [f"""---
+title: Этап {num} коротко
+description: Все темы этапа «{title}» одним абзацем каждая и общий чеклист ревью.
+---
+
+{GENERATED}
+
+# Этап {num} коротко
+
+Конденсат этапа: блоки «Коротко» всех тем подряд и за ними общий чеклист
+ревью. Примеры, разборы и ответы — в самих темах.
+
+## Коротко о каждой теме
+"""]
+    parts += topics_lines("korotko")
+    parts.append("## Чеклист этапа\n")
+    parts += topics_lines("checklist")
+    if needed:
+        parts.append("")
+        parts += [f"[^{label}]: {text}" for label, text in needed.items()]
+    return "\n".join(parts)
+
+
+# ── «На чём проверено» ───────────────────────────────────────────────────────
+#
+# Версии извлекаются из «Маркеров уверенности» тем. Даты по решению оператора
+# не выносятся: страница отвечает «на чём», а не «когда».
+
+MARKERS_RE = re.compile(r"\*\*Маркеры уверенности\.\*\*(.*?)(?:\n[ \t]*\n|\Z)",
+                        re.S)
+VERSION_RE = re.compile(
+    r"(?<![\w./:+@-])v?(\d+(?:\.\d+)+(?:[-+.][0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)")
+# Слова, после которых число — не версия инструмента: балл CVSS («NVD 10.0,
+# RedHat 9.8»), версия протокола в тексте («TLS 1.3»), префикс «v».
+NAME_STOP = {"tls", "cvss", "nvd", "redhat", "http", "https", "v"}
+# Одно и то же под разными именами в маркерах: «Node 26.7.0» и «Node.js 26.7.0».
+NAME_ALIAS = {"node": "node.js"}
+
+
+def tool_mentions(text: str) -> list[tuple[str, str]]:
+    """Пары «название, версия» из абзаца маркеров. Название собирается
+    обратным ходом от версии по латинским словам через один пробел:
+    «на Python 3.14.7» → Python, «по OpenID Connect Core 1.0» → все три
+    слова. Кириллица, конец предыдущего предложения и стоп-слова ход
+    останавливают."""
+    flat = re.sub(r"\s+", " ", text)
+    out = []
+    for m in VERSION_RE.finditer(flat):
+        ver = m.group(1).rstrip(".")
+        tokens = flat[:m.start()].rstrip().split(" ")
+        words, tainted = [], False
+        for pos in range(len(tokens) - 1, -1, -1):
+            tok = tokens[pos]
+            if not tok or not tok[0].isascii() or not tok[0].isalpha():
+                break
+            if tok.lower() in NAME_STOP:
+                tainted = True
+                break
+            # Элемент перечня («Arch Linux, Docker 29.7.2») — не часть названия.
+            if tok.endswith((",", ";", ":")):
+                break
+            words.append(tok)
+            if pos > 0 and tokens[pos - 1].endswith((".", "!", "?", ":", ";", ",")):
+                break
+            if len(words) >= 4:
+                break
+        if words and not tainted:
+            out.append((" ".join(reversed(words)), ver))
+    return out
+
+
+def plural(n: int, forms: tuple[str, str, str]) -> str:
+    """Русское согласование числительных: 1 тема, 3 темы, 5 тем."""
+    n100, n10 = n % 100, n % 10
+    if 11 <= n100 <= 14 or n10 == 0 or n10 >= 5:
+        return forms[2]
+    return forms[0] if n10 == 1 else forms[1]
+
+
+def page_verified(pages: list[vc.Page], index: dict[str, str]) -> tuple[str, int]:
+    """«На чём проверено»: инструмент, версия, темы — по маркерам уверенности."""
+    by_id = {p.id: p for p in pages}
+    route_pos = {p.id: i for i, p in enumerate(pages)}
+    rows: dict[tuple[str, str], dict] = {}
+    for p in pages:
+        m = MARKERS_RE.search(p.doc.raw)
+        if not m:
+            continue
+        for name, ver in tool_mentions(m.group(1)):
+            key = name.lower().removeprefix("owasp ")
+            key = NAME_ALIAS.get(key, key)
+            row = rows.setdefault((key, ver), {"casings": {}, "topics": set()})
+            row["casings"][name] = row["casings"].get(name, 0) + 1
+            row["topics"].add(p.id)
+    entries = []
+    for (name_key, ver), row in rows.items():
+        name = max(row["casings"], key=row["casings"].get)
+        entries.append((name, ver, sorted(row["topics"], key=route_pos.get)))
+    entries.sort(key=lambda e: (-len(e[2]), e[0].lower(), e[1]))
+
+    parts = [f"""---
+title: На чём проверено
+description: Версии инструментов, каталогов и образцов, на которых темы проверялись прогоном.
+---
+
+{GENERATED}
+
+# На чём проверено
+
+Приёмы и листинги тем проверяются прогоном на конкретных версиях. Здесь
+собрано, на каких именно: когда выходит новая версия инструмента, по этому
+списку видно, какие темы стоит перечитать и перепроверить. Дат здесь нет:
+страница отвечает на вопрос «на чём», а не «когда».
+
+Записи собраны машиной из пометок проверки в исходниках тем; если чего-то
+здесь нет, значит, версия просто не записана, а не что тема не проверялась.
+"""]
+    for name, ver, tids in entries:
+        links = ", ".join(f"[{short_title(by_id[t].front.get('title'))}]"
+                          f"({link_to('verified.md', index[t])})" for t in tids)
+        parts.append(f"### {name} {ver}\n")
+        parts.append(f"{len(tids)} {plural(len(tids), ('тема', 'темы', 'тем'))}.\n\n"
+                     f"<details markdown=\"1\">\n"
+                     f"<summary>Какие именно</summary>\n\n{links}\n\n</details>\n")
+    return "\n".join(parts), len(entries)
+
+
 # ── сборка ───────────────────────────────────────────────────────────────────
 
 
-def nav_for(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str]) -> list:
+def nav_for(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
+            stage_extras: dict[str, list[str]] | None = None) -> list:
     by_stage: dict[str, list[vc.Page]] = {}
     for p in pages:
         by_stage.setdefault(str(p.front.get("stage")), []).append(p)
@@ -816,9 +1612,10 @@ def nav_for(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str]) -> list:
         if not group:
             continue
         nav.append({f"Этап {stage['num']}. {stage['title']}":
-                    [index[p.id] for p in group]})
+                    [index[p.id] for p in group]
+                    + list((stage_extras or {}).get(stage["slug"], []))})
     nav.append({"Справочное": ["map.md", "mapping.md", "tags.md",
-                               "glossary.md", "attributions.md"]})
+                               "glossary.md", "verified.md", "attributions.md"]})
     return nav
 
 
@@ -850,10 +1647,15 @@ def stage_tree(today: date) -> dict:
                                          int(p.front.get("order") or 0)))
     next_of = {p.id: q for p, q in zip(route, route[1:])}
     abbr = abbreviations(glossary)
-    report = {"pages": 0, "links": 0, "abbr": 0, "diagrams": 0,
-              "diagrams_failed": [], "generated": 0, "diagram_files": set(),
-              "footnotes": 0, "footnotes_synth": 0, "footnotes_missing": [],
-              "notes": author_notes(ctx, pages, today)}
+    gloss = glossary_matcher(glossary)
+    sources_reg = load_sources_registry()
+    report = {"pages": 0, "links": 0, "gloss": 0, "stale": 0, "skip": 0,
+              "abbr": 0,
+              "diagrams": 0, "diagrams_failed": [], "generated": 0,
+              "diagram_files": set(), "footnotes": 0, "footnotes_synth": 0,
+              "footnotes_missing": [], "notes": author_notes(ctx, pages, today),
+              "primary_sources": 0, "primary_links": 0, "review_pages": 0,
+              "review_q": 0, "mixed": 0, "verified": 0}
 
     if SRC.exists():
         shutil.rmtree(SRC)
@@ -864,20 +1666,62 @@ def stage_tree(today: date) -> dict:
         target = SRC / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(transform(p, rel, index, abbr, report,
-                                    next_of.get(p.id)), encoding="utf-8")
+                                    next_of.get(p.id), today=today,
+                                    gloss=gloss, sources_reg=sources_reg),
+                          encoding="utf-8")
         report["pages"] += 1
 
+    verified_text, report["verified"] = page_verified(route, index)
     generated = {
         "index.md": page_index(ctx, pages, index, today),
         "map.md": page_map(ctx, pages, index, report),
         "glossary.md": page_glossary(glossary, index),
         "tags.md": page_tags(ctx),
         "mapping.md": page_mapping(ctx, pages, index),
+        "verified.md": verified_text,
         "attributions.md": page_attributions(),
     }
     for name, text in generated.items():
         (SRC / name).write_text(text.rstrip("\n") + "\n", encoding="utf-8")
         report["generated"] += 1
+
+    # Страницы этапов — решения оператора 2026-10-01: «Повторение» (вопросы
+    # пройденного и смешанные задачи) и сводка этапа. Собираются из самих тем
+    # и лабораторных, поэтому разойтись с корпусом им нечем.
+    labs = list(ctx.labs.values())
+    sub_titles = {(int(s["num"]), str(sub["num"])): str(sub.get("title") or sub["num"])
+                  for s in (vc.load_yaml(TOPICS_YAML).get("stages") or [])
+                  for sub in (s.get("subsections") or [])}
+    fn_cache: dict[str, dict[str, str]] = {}
+
+    def footnotes_of(p: vc.Page) -> dict[str, str]:
+        if p.id not in fn_cache:
+            fn_cache[p.id] = topic_footnotes(p)
+        return fn_cache[p.id]
+
+    by_stage: dict[str, list[vc.Page]] = {}
+    for p in pages:
+        by_stage.setdefault(str(p.front.get("stage")), []).append(p)
+
+    stage_extras: dict[str, list[str]] = {}
+    for stage in ctx.tax["stages"]:
+        group = by_stage.get(stage["slug"], [])
+        if stage.get("excluded") or not group:
+            continue
+        upto = stage_order[stage["slug"]]
+        stage_dir = ctx.stages[stage["slug"]]["dir"]
+        rel_r = f"{stage_dir}/povtor.md"
+        rel_s = f"{stage_dir}/svodka.md"
+        (SRC / rel_r).write_text(
+            page_stage_review(stage, upto, ctx, pages, labs, footnotes_of,
+                              index, rel_r, report).rstrip("\n") + "\n",
+            encoding="utf-8")
+        (SRC / rel_s).write_text(
+            page_stage_summary(stage, group, ctx, sub_titles, footnotes_of,
+                               index, rel_s, report).rstrip("\n") + "\n",
+            encoding="utf-8")
+        stage_extras[stage["slug"]] = [rel_r, rel_s]
+        report["review_pages"] += 2
 
     assets = SRC / "assets"
     (assets / "diagrams").mkdir(parents=True, exist_ok=True)
@@ -889,7 +1733,7 @@ def stage_tree(today: date) -> dict:
     (assets / "extra.css").write_text(EXTRA_CSS, encoding="utf-8")
     shutil.copy2(SHIM_SRC, assets / "iframe-worker-shim.js")
 
-    write_config(nav_for(ctx, pages, index))
+    write_config(nav_for(ctx, pages, index, stage_extras))
     return report
 
 
@@ -953,10 +1797,18 @@ def main() -> int:
 
     report = stage_tree(date.today())
     print(f"дерево: {report['pages']} тем, {report['generated']} страниц собрано, "
-          f"{report['links']} ссылок на темы, {report['abbr']} раскрытий "
+          f"{report['links']} ссылок на темы, {report['gloss']} ссылок на "
+          f"глоссарий, {report['stale']} плашек просрочки, "
+          f"{report['skip']} маркеров «можно отложить», "
+          f"{report['abbr']} раскрытий "
           f"аббревиатур, {report['diagrams']} схем, "
           f"{report['footnotes']} сносок ({report['footnotes_synth']} "
           f"собрано из списка источников)", file=sys.stderr)
+    print(f"решения 2026-10-01: первоисточники на {report['primary_sources']} "
+          f"страницах ({report['primary_links']} ссылок), "
+          f"{report['review_pages']} страниц этапов ({report['review_q']} "
+          f"вопросов повторения, {report['mixed']} смешанных задач), "
+          f"«на чём проверено»: {report['verified']} записей", file=sys.stderr)
     for line in report["diagrams_failed"]:
         print(f"  схема не нарисована — {line}", file=sys.stderr)
     for line in report["footnotes_missing"]:

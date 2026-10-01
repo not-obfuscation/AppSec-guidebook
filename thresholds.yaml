@@ -1,0 +1,145 @@
+# Пороговые концепции входа и их спиральные заходы.
+#
+# Норма: PLAYBOOK.md 5.4 п. 17 — концепции «записаны в данных», у каждой не
+# меньше трёх заходов по спирали в разных этапах. Решение оператора № 2а от
+# 2026-10-01 (карточка RN-11, journal/RESEARCH-NOVICE-2026-10.md). Состав
+# концепций, заблуждения за ними и темы-заходы — research/09-novice-delivery.md
+# § 2.2–2.3 и правило 22; «строка N» в полях misconception и note — строка
+# таблицы заблуждений § 2.2.
+#
+# ПОЧЕМУ ОТДЕЛЬНЫЙ ФАЙЛ. `topics.yaml` генерируется из плана обучения
+# (`python tools/gen_topics.py`), и перегенерацию переживают только списки
+# `sources` — генератор переносит их по заголовку темы, всё остальное
+# затирает. Механизма ручных полей у тем нет, поэтому разметка лежит здесь,
+# рядом с `topics.yaml`: генератор этот файл не читает и не трогает.
+#
+# ССЫЛКИ ДВОЙНЫЕ. `topic` — id темы в `content/` (frontmatter `id:`);
+# `plan_id` — id в `topics.yaml`. Если тема переедет в плане, `plan_id`
+# сменится при регенерации, а `topic` останется; сверять по заголовку темы,
+# как `sources` после регенерации.
+#
+# ЧТО ДАЛЬШЕ. В каждой теме-заходе в «Проверь себя» нужен вопрос с выбором из
+# трёх вариантов (5.2 п. 12, правило 23): `tools/selfcheck_report.py` читает
+# этот файл и гейтует заходы наравне с темами-уязвимостями.
+# Снимок 2026-10-01: вопрос есть у всех 25 заходов.
+
+concepts:
+  - id: attacker-writes-input  # П1 в research/09 § 2.3; этапы заходов: 0, 1, 5
+    name: "Вход пишет противник"
+    misconception: "Пользователь ошибается, но не нападает (строка 1)"
+    evidence: ["Oliveira 2014", "Thompson 2018"]
+    approaches:
+      - topic: http-basics
+        plan_id: t-0-0-01
+        note: "строка 1, «Куда»; § 3.3 — вход «место атакующего»: тот же запрос curl'ом с изменённым полем"
+      - topic: client-side-access-checks
+        plan_id: t-1-1-06
+        note: "§ 3.3: П1 и П2 показаны на одном артефакте — запрос уходит и без страницы"
+      - topic: role-parameter-tampering
+        plan_id: t-1-1-10
+        note: "§ 2.3: артефакт CS253 — curl с телом «permission: admin»"
+      - topic: threat-modeling
+        plan_id: t-5-0-01
+        note: "§ 3.1: рамка «кто противник и что он контролирует» — до первой уязвимости"
+
+  - id: client-is-hostile  # П2 в research/09 § 2.3; этапы заходов: 0, 1
+    name: "Клиент — чужая машина"
+    misconception: "Проверка в браузере защищает (строка 2)"
+    evidence: ["Sherman 2017"]
+    approaches:
+      - topic: http-basics
+        plan_id: t-0-0-01
+        note: "строка 2, «Куда»; § 2.3: граница доверия впервые появляется в этой теме"
+      - topic: client-side-access-checks
+        plan_id: t-1-1-06
+        note: "строка 2, «В корпусе»: тема целиком о проверках, вынесенных на клиент"
+      - topic: access-control-bypass-headers
+        plan_id: t-1-1-07
+        note: "продолжение строки 2: метод, параметры и заголовки пишет клиент, и все они подменяемы"
+
+  - id: data-becomes-code  # П3 в research/09 § 2.3; этапы заходов: 1, 7
+    name: "Данные становятся кодом в интерпретаторе"
+    misconception: "Убрать опасные символы, и инъекции нет (строка 3)"
+    evidence: ["Oliveira 2014"]
+    approaches:
+      - topic: sqli-basics
+        plan_id: t-1-3-01
+        note: "строка 3, «В корпусе» — Ловушка; интерпретатор — SQL"
+      - topic: xss-reflected
+        plan_id: t-1-4-01
+        note: "строка 3, «В корпусе» — Ловушка; интерпретатор — браузер"
+      - topic: os-command-injection
+        plan_id: t-1-3-07
+        note: "строка 3, «Куда»: повторить на интерпретаторе оболочки"
+      - topic: ssti
+        plan_id: t-1-3-08
+        note: "строка 3, «Куда»: повторить на шаблонизаторе"
+      - topic: python-pickle-eval
+        plan_id: t-7-1-01
+        note: "рядом со строкой 12, «Куда»: десериализация и eval — данные становятся кодом без всякой «инъекции»"
+
+  - id: one-property-per-mechanism  # П4 в research/09 § 2.3; этапы заходов: 0, 1
+    name: "Механизм даёт одно свойство"
+    misconception: "Перенос свойства: «зашифровано, значит не подделать», «HTTPS делает сайт надёжным» (строки 4–7, 13–15)"
+    evidence: ["Thompson 2018", "Votipka 2020", "Naiakshina 2019", "Krombholz 2019"]
+    approaches:
+      - topic: url-and-encoding
+        plan_id: t-0-0-02
+        note: "строка 4, «Куда»: Base64 — кодирование, а не шифрование"
+      - topic: sessions-vs-tokens
+        plan_id: t-0-0-04
+        note: "строка 5, «Куда»: подпись токена не шифрует его, заход раньше hmac-vs-signature"
+      - topic: tls-and-proxy
+        plan_id: t-0-0-09
+        note: "строка 6, «Куда»: граница «даёт / не даёт» у HTTPS"
+      - topic: cors
+        plan_id: t-0-0-06
+        note: "строка 13, «В корпусе» — Ловушка: CORS не закрывает API от чужих сайтов"
+      - topic: csp
+        plan_id: t-0-0-07
+        note: "строка 14, «Куда»: CSP не закрывает XSS целиком"
+      - topic: password-storage
+        plan_id: t-1-6-07
+        note: "строки 4 и 7, «Куда»: хеш ≠ шифрование ≠ Base64; защита передачи ≠ защита хранения"
+      - topic: jwt-basics
+        plan_id: t-1-7-01
+        note: "строка 15, «Куда»: токен нельзя копировать, как бумажную подпись"
+      - topic: hmac-vs-signature
+        plan_id: t-1-11-07
+        note: "строка 5, «В корпусе» — Ловушка; строка 15, «Куда»"
+      - topic: plaintext-data
+        plan_id: t-1-11-01
+        note: "строка 7, «Куда»: защитил передачу — не защитил хранение"
+
+  - id: security-is-negative-goal  # П5 в research/09 § 2.3; этапы заходов: 1, 5
+    name: "Цель безопасности — запрет"
+    misconception: "Одной проверки в одном месте хватает (строка 9; satisficing у Thompson 2018)"
+    evidence: ["Thompson 2018", "Votipka 2020", "MIT 6.5660"]
+    approaches:
+      - topic: deny-by-default
+        plan_id: t-1-1-11
+        note: "строка 9, «В корпусе» — частично"
+      - topic: bfla
+        plan_id: t-1-1-05
+        note: "строка 9, «Куда»: проверка на каждой функции, а не на большинстве"
+      - topic: multistep-flow-checks
+        plan_id: t-1-1-08
+        note: "строка 9, «Куда»: проверка на всех шагах, а не на первом"
+      - topic: attack-trees-abuse-cases
+        plan_id: t-5-0-03
+        note: "этап 5: дерево атак — перечисление всех путей к цели"
+
+  - id: attacker-chooses-goal  # П6 в research/09 § 2.3; этапы заходов: 1, 5
+    name: "Цель выбирает атакующий"
+    misconception: "Атакующему нужно украсть; наше приложение внутреннее и никому не нужно (строки 10–11)"
+    evidence: ["Thompson 2018", "Wash 2010"]
+    approaches:
+      - topic: brute-force-defense
+        plan_id: t-1-6-01
+        note: "строка 10, «Куда»: цель — доступ или остановка, не только кража"
+      - topic: ssrf-basics
+        plan_id: t-1-2-01
+        note: "строка 11, «Куда»: внутренний сервис — тоже цель"
+      - topic: threat-modeling
+        plan_id: t-5-0-01
+        note: "строки 10–11, «Куда»: цели атакующего — предмет темы"

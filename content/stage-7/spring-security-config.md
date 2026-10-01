@@ -55,9 +55,6 @@ http.authorizeHttpRequests((authorize) -> authorize
 строгие правила под ним. В приложение добавили ручку `/billing/refund`,
 а конфигурацию не трогали — кто может её вызвать?
 
-Три коротких разбора: как читается цепочка, чем хорошо умолчание «запрещено»
-и что отдаёт наружу actuator без настройки.
-
 ## 0. Коротко
 
 Spring Security применяет
@@ -72,8 +69,7 @@ Spring Security применяет
 через HTTP (Hypertext Transfer Protocol) только `/actuator/health`,
 да и тот без деталей: `show-details`
 по умолчанию `never`. Открытие остального — явное: свойство
-`management.endpoints.web.exposure.include`. То же в терминах, которыми
-это обсуждают.
+`management.endpoints.web.exposure.include`.
 
 **Зачем это в работе AppSec-инженера.** Ревью Spring-приложения начинается
 с двух мест: цепочки authorizeHttpRequests и свойств actuator. Оба

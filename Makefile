@@ -17,7 +17,7 @@ CHECK   := $(PY) tools/check.py
 .DEFAULT_GOAL := help
 .PHONY: help check check-lang check-md check-model check-glossary check-code \
         lint-selftest links site serve diagrams glossary topics report setup \
-        clean check-site phone check-phone labs toc
+        clean check-site phone check-phone labs labs-journal toc
 
 help:                     ## показать этот список
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -46,6 +46,9 @@ links:                    ## ссылки, включая внешние адр�
 
 labs:                     ## все лабы и сверка semgrep-правил: офлайн, стенды гасятся за собой
 	@$(PY) tools/run_labs.py
+
+labs-journal:             ## прогон лаб по рабочей копии: сводка для журнала вне сайта
+	@$(PY) tools/lab_journal.py
 
 lint-selftest:            ## у каждого правила есть фикстура: ловит своё, молчит на законном
 	@$(PY) tools/lint_selftest.py

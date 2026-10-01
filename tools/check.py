@@ -11,7 +11,10 @@
   реестр  — команда либо зелёная, либо нет: `validate.py` (реестр источников и
             покрытие тем), `gen_topics.py --check`, `gen_glossary.py --check`
             и `gen_sources_md.py --check`
-            (сгенерированное не разошлось с рукописным источником);
+            (сгенерированное не разошлось с рукописным источником),
+            `selfcheck_report.py --verdict` (состав «Проверь себя» против
+            машинной части правил 23–24 и 35 research/09 — решение оператора
+            2026-10-01);
   линтеры — Vale, markdownlint, `glossary_lint.py`, `lint_style.py`,
             `lint_code.py`: замечание с адресом, правилом и уровнем;
   отчёты  — `wordcount.py`, `stoplist.py`, `clones.py`, `rhythm.py`: цифры без
@@ -393,6 +396,11 @@ REGISTRY = [
     ("topics", ["tools/gen_topics.py", "--check"]),
     ("glossary-gen", ["tools/gen_glossary.py", "--check"]),
     ("sources-gen", ["tools/gen_sources_md.py", "--check"]),
+    # Состав «Проверь себя» против машинной части правил 23–24 и 35
+    # research/09 (решение оператора 2026-10-01): корпус переписан, вердикт
+    # включён — состав блока ломает сборку, как остальная схема. Как весь
+    # реестр, проверка идёт по корпусу целиком, пути тем ей не передаются.
+    ("selfcheck", ["tools/selfcheck_report.py", "--verdict"]),
 ]
 REPORTS = [
     ("wordcount", ["tools/wordcount.py"]),
