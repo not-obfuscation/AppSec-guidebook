@@ -42,15 +42,17 @@ instead of extending it), which confirms the review stage is load-bearing.
 
 The agent never runs mutating git commands; commits are the operator's.
 
-- [ ] Commit the pilot, suggested split:
+- [x] Commit the pilot, suggested split:
   1. site theme and de-chroming: `mkdocs.yml`, `tools/build_site.py`,
      `tools/build_phone.py`, `tools/check_site.mjs`;
   2. topic rewrite: `content/stage-0/tls-and-proxy.md` + its exceptions in
      `tools/exceptions.yaml`;
   3. Press Start 2P: `tools/vendor/fonts/PressStart2P-Regular.woff2` +
      the font rules in `tools/build_site.py`.
-- [ ] Push and confirm the `pages.yml` CI publishes with the `make check`
-      gate green.
+  (Landed differently: the operator authorized one commit for the whole
+  campaign — `6960174`, 2026-10-04.)
+- [x] Push and confirm the `pages.yml` CI publishes with the `make check`
+      gate green. (CI run 37154812323: both jobs green, site published.)
 
 ## Phase 1 — Fix known site defects
 
@@ -162,8 +164,8 @@ Invariants:
 
 ## Open questions for the operator
 
-1. Approve the Phase 0 commit split, or commit as one? — **Still open; the
-   whole campaign (pilot included) sits in one uncommitted tree.**
+1. Approve the Phase 0 commit split, or commit as one? — **Resolved: one
+   commit `6960174` (2026-10-04), pushed, CI green, site published.**
 2. Batch size and pace for stage 1 (83 topics) — batches of 8–12 proposed.
    **Resolved in practice: batches of 10–13, all topics novice-reviewed.**
 3. Volume norms: set new per-level ranges after measuring the stage-0 batch,
