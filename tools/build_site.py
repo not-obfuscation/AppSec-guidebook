@@ -9,16 +9,26 @@
 
 Что сборщик делает с темой
 
-  * frontmatter из 27 полей сводится к четырём, которые понимает движок
-    (`title`, `description`, `status`, `tags`); остальные со шапки убраны
-    решением оператора 2026-08-24 (свод 4.1) и на страницу не попадают.
+  * frontmatter из 27 полей сводится к трём, которые понимает движок
+    (`title`, `description`, `tags`); остальные со шапки убраны решением
+    оператора 2026-08-24 (свод 4.1), `status` — решением 2026-10-02.
     Исключение одно — условие `skip_if`, о нём свой пункт ниже;
+  * тема подаётся как статья, а не как заполненная форма (решение оператора
+    2026-10-02): шапка «Уровень … · время …» и абзац «Что прочитать сначала»
+    со страницы сняты, предпосылки стоят в конце строкой «Перед этой темой
+    полезно знать: …» со ссылками-названиями; у заголовков блоков нет номеров,
+    канонические названия заменены живыми (`BLOCK_TITLES`), «Цели» не
+    выводятся, «Предвопросы» и «Чеклист ревью» свёрнуты во врезки; цитаты с
+    меткой «**Примечание.**», «**Предупреждение.**» и подобными становятся
+    admonition своего типа (`CALLOUTS`); листинг `text` с приглашением `$ `
+    подсвечивается как сеанс терминала;
   * всё от заголовка «## N. Источники» до конца файла отрезается: «Каркас
     этапа», «Скоропортящийся слой» и «Маркеры уверенности» пишутся для аудита
     и читателю не показываются (решение оператора 2026-08-31). Сам список
-    источников с 2026-10-01 возвращён на страницу в другом виде: блок
-    «Первоисточники» собирается из поля `sources` темы и реестра
-    `sources.yaml` — название, издатель, версия и адрес каждого документа.
+    источников с 2026-10-01 возвращён на страницу в другом виде: раздел
+    «Что почитать дальше» (до 2026-10-02 — «Первоисточники») собирается из
+    поля `sources` темы и реестра `sources.yaml` — название, издатель,
+    версия и адрес каждого документа.
     Определения сносок `[^N]: …` из этого хвоста — исключение:
     метки сносок остаются в прозе, поэтому определения переносятся в конец
     страницы, после блока «Дальше»; теме без явного определения оно
@@ -35,27 +45,30 @@
     переименование каталога не ломало текст. Превращение делает сборка;
   * в конец блока «Лаба» дописывается строка запуска: `cd` в каталог лабы и
     команды прогона из её README, со ссылкой на страницу лабы (А8);
-  * ограждённый блок `mermaid` заменяется на нарисованный SVG
-    (`tools/render_diagrams.py`), потому что сайт открывается с диска и скрипт
-    из сети загрузить не может;
+  * ограждённый блок `mermaid` заменяется двумя нарисованными SVG — светлым и
+    тёмным (`tools/render_diagrams.py`), потому что сайт открывается с диска и
+    скрипт из сети загрузить не может; метки `#only-light`/`#only-dark` в
+    адресе картинки дают движку темы показать вариант активной палитры;
+  * серии строк «A. …», «B. …» в «Проверь себя» становятся абзацами с
+    бейджем-буквой (`quiz_options`): markdown такого списка не знает, и
+    варианты были неотличимы от прозы;
   * в конец страницы вклеиваются определения аббревиатур из `glossary.yaml` —
     те, что на странице действительно встретились. Читатель видит раскрытие по
     наведению, а канон написания остаётся один (6.3);
-  * номера блоков пересчитываются подряд с единицы: в исходнике стоит номер
-    слота канона, и пропущенный слот оставлял на странице дыру («0, 1, 3»).
-    Вместе с заголовками переписываются ссылки на номер блока в прозе;
+  * ссылки на блок в прозе («из блока 5», «из блока «Механика»»)
+    переписываются живым названием блока: номеров на странице больше нет;
   * первое вхождение термина глоссария на странице становится ссылкой на его
     статью в глоссарии (9.5 п. 14). Ищется в прозе вне кода, заголовков и
     цитат — теми же написаниями и тем же стеммингом, что `glossary_lint.py`;
   * тема, чья ревизия просрочена более чем вдвое, получает плашку «может
     быть устаревшим» (9.6 п. 20). Считается в календарных месяцах — так же,
     как линтер `validate_content.py`: единицы у сборки и проверки одни;
-  * тема с полем `skip_if` получает под шапкой, после абзаца «Уровень …»,
-    строку «можно отложить, если …» (9.5 п. 10): маркер подсказывает, когда
+  * тема с полем `skip_if` получает под заголовком строку «можно отложить,
+    если …» (9.5 п. 10): маркер подсказывает, когда
     тему законно отложить, сам маршрут от него не меняется. Поля нет —
     строки нет.
 
-Что сборщик генерирует сам: страницу входа, карту тем, маппинг-индекс внешних
+Что сборщик генерирует сам: главную (баннер и карточки этапов), карту тем, маппинг-индекс внешних
 каталогов (9.6 п. 24), глоссарий (из того же `glossary.yaml`, что и
 `GLOSSARY.md`), индекс тегов и страницу «Атрибуции и лицензии» (PLAYBOOK 10.1
 п. 4). С 2026-10-01 к ним добавлены (решения оператора по реестру
@@ -87,6 +100,7 @@ from __future__ import annotations
 import argparse
 import ast
 import hashlib
+import html
 import os
 import re
 import shutil
@@ -131,12 +145,6 @@ SHIM_URL = "https://unpkg.com/iframe-worker/shim"
 ABBR_SHAPE = re.compile(r"\A[A-Z][A-Za-z0-9./+-]{1,19}\Z")
 
 GENERATED = "<!-- Собрано `tools/build_site.py`. Правки — в исходники, не сюда. -->"
-
-# Статус темы читателю: словарь `statuses` из `taxonomy.yaml` — машинные
-# значения, и на странице они стоят словами. Подписи те же, что у плашки
-# статуса в оглавлении (`mkdocs.yml`, `extra.status`).
-STATUS_WORD = {"stub": "заглушка", "draft": "черновик", "published": "готова"}
-
 
 # ── вспомогательное ──────────────────────────────────────────────────────────
 
@@ -257,7 +265,8 @@ def blank_out(text: str) -> str:
 
 def glossary_links(page: vc.Page, page_rel: str, raw: str,
                    gloss: tuple[re.Pattern, dict[str, str]],
-                   taken: list[tuple[int, int, str]], report: dict
+                   taken: list[tuple[int, int, str]], report: dict,
+                   drops: list[tuple[int, int]] | None = None
                    ) -> list[tuple[int, int, str]]:
     """Правки «термин → ссылка на глоссарий» для первых вхождений на странице.
 
@@ -273,6 +282,11 @@ def glossary_links(page: vc.Page, page_rel: str, raw: str,
         zone = zone[:cut.start()]
     for mask_re in (HEADING_LINE_RE, MD_LINK_RE, QUOTED_RE):
         zone = mask_re.sub(lambda m: blank_out(m.group(0)), zone)
+    # Участки, которые на страницу не попадают (шапка, предпосылки, «Цели»):
+    # первое вхождение термина в них ссылкой не станет, и следующее за ним
+    # осталось бы без ссылки вовсе.
+    for a, b in drops or []:
+        zone = zone[:a] + blank_out(zone[a:b]) + zone[b:]
 
     first: dict[str, tuple[int, int]] = {}
     for m in rx.finditer(zone):
@@ -297,11 +311,14 @@ def glossary_links(page: vc.Page, page_rel: str, raw: str,
 
 
 def front_block(page: vc.Page) -> str:
-    """Мета для движка: четыре поля вместо двадцати семи."""
+    """Мета для движка: три поля вместо двадцати семи.
+
+    Поля `status` больше нет (решение оператора 2026-10-02): плашка «Готовая
+    тема» в меню — след производства, читателю статьи она ничего не говорит.
+    """
     meta = {
         "title": one_line(page.front.get("title") or page.id),
         "description": one_line(page.front.get("summary") or ""),
-        "status": str(page.front.get("status") or "stub"),
     }
     tags = page.front.get("tags") or []
     if tags:
@@ -311,32 +328,80 @@ def front_block(page: vc.Page) -> str:
     return f"---\n{dumped}---\n"
 
 
-# ── сплошная нумерация блоков ────────────────────────────────────────────────
+# ── заголовки блоков: живые названия вместо номеров слотов ──────────────────
 #
 # В исходнике номер блока — номер слота канона (`SCHEMA.md` § 4): «Механика»
 # всегда 3, «Как ловится автоматикой» всегда 8, и по этому номеру проверки
-# `C-BLOCK-*` сравнивают блоки разных тем между собой. Тема, которой слот не
-# нужен, слот пропускает, и в исходнике темы L2 номера идут 0, 1, 3, 5, 6, 9.
-# Читателю такой номер не сообщает ничего, кроме дыры: куда делась двойка.
-# Решение оператора 2026-08-26: на странице номер считается из порядка блоков,
-# с единицы и подряд. Исходник при этом не меняется — как и всё остальное в
-# этой сборке, номер переписывается в копии.
+# `C-BLOCK-*` сравнивают блоки разных тем между собой. Читателю номер слота не
+# сообщает ничего. До 2026-10-02 сборка перенумеровывала блоки подряд; решением
+# оператора 2026-10-02 номеров на странице нет вовсе, а канонические названия
+# заменены живыми — тема читается как статья, а не как заполненная форма.
 #
-# Вместе с заголовками переписываются ссылки на номер блока в прозе («правило
-# SAST из блока 8»): без этого перенумерация уводила бы их на соседний блок.
-# Ссылки ищутся по `prose_spans`, где ограждённые блоки забиты пробелами, —
-# «блок 1: 2175 обращений к оракулу» в листинге `padding-oracle` относится к
-# блоку шифра, а не к блоку скелета, и переписывать его нельзя.
+# Соответствие ниже — единственное место, где оно задано. Ключ — название
+# блока в исходнике без номера; значение — что выводится на странице:
+#   * строка — новое название заголовка;
+#   * None — блок не показывается (цели темы — инструмент автора, а не текст);
+#   * ADMON — заголовок со своим блоком сворачивается во врезку (см. ниже).
+# Новые названия стоят и ключами: исходник, где живой заголовок уже написан,
+# проходит как есть (отображение идемпотентно).
+#
+# Вместе с заголовками переписываются ссылки на блок в прозе: «из блока 5»
+# становится «из блока «Как это выглядит в коде»», «из блока «Механика»» —
+# «из блока «Как это работает»». Ссылки ищутся по `prose_spans`, где
+# ограждённые блоки забиты пробелами: «блок 1: 2175 обращений к оракулу» в
+# листинге `padding-oracle` относится к блоку шифра, и переписывать его нельзя.
 
-BLOCK_HEAD_RE = re.compile(r"^##[ \t]+(\d+)\.[ \t]", re.M)
-BLOCK_REF_RE = re.compile(r"блок\w*[ \t]+(\d+(?:[ \t]*(?:,|и|—)[ \t]*\d+)*)")
+PREQ_TITLE = "Подумай, прежде чем читать"
+CHECK_TITLE = "Чеклист для ревью"
+READ_MORE = "Что почитать дальше"
+
+BLOCK_TITLES: dict[str, str | None] = {
+    "Коротко": "Если коротко",
+    "Цели": None,
+    "Предвопросы": PREQ_TITLE,
+    "Механика": "Как это работает",
+    "Эксплуатация": "Как это атакуют",
+    "Как выглядит в коде": "Как это выглядит в коде",
+    "Как чинится": "Как защититься",
+    "Как проверить фикс": "Как убедиться, что защита работает",
+    "Как ловится автоматикой": "Как это находят инструменты",
+    "Ловушка": "Частая ошибка",
+    "Чеклист ревью": CHECK_TITLE,
+    "Лаба": "Попробуй сам",
+    "Задача": "Попробуй сам",
+    "Проверь себя": "Проверь себя",
+    "Источники": READ_MORE,
+}
+for _new in [v for v in BLOCK_TITLES.values() if v]:
+    BLOCK_TITLES.setdefault(_new, _new)
+
+# Заголовки, которые на странице становятся свёрнутой врезкой: тип и подпись.
+ADMON_HEADS = {PREQ_TITLE: ("question", PREQ_TITLE),
+               CHECK_TITLE: ("success", CHECK_TITLE)}
+
+# Ссылки на блок по имени в прозе: «Механика» → «Как это работает». Падежные
+# формы — только те, что встречаются в корпусе («подглядывая в «Ловушку»»).
+NAME_REFS = {old: new for old, new in BLOCK_TITLES.items()
+             if new and old != new and new not in ADMON_HEADS}
+NAME_REFS.update({"Ловушку": "Частую ошибку", "Ловушке": "Частой ошибке",
+                  "Чеклист ревью": CHECK_TITLE, "Предвопросы": PREQ_TITLE})
+NAME_REF_RE = re.compile(
+    "«(" + "|".join(sorted((re.escape(k).replace(r"\ ", r"\s+")
+                            for k in NAME_REFS), key=len, reverse=True))
+    + ")»", re.I)
+
+BLOCK_REF_RE = re.compile(
+    r"(?<![\w-])(?:[Бб]лок(?:а|е|у|ом|и|ов|ах|ам|ами)?)[ \t]+"
+    r"(\d+(?:[ \t]*(?:,|и|—)[ \t]*\d+)*)(?![\d.,]\d)")
 REF_NUM_RE = re.compile(r"\d+")
+H2_NUM_PREFIX_RE = re.compile(r"\A(\d+)\.[ \t]+")
 
 # Хвост темы для аудита: «Источники» и всё за ними («Каркас этапа»,
 # «Скоропортящийся слой», «Маркеры уверенности») на страницу не выносятся —
-# решение оператора 2026-08-31. Признак — заголовок, а не номер: у двух
-# скелетов он разный, а после перенумерации на странице — третий.
-SOURCES_HEAD_RE = re.compile(r"^##[ \t]+\d+\.[ \t]+Источники[ \t]*$", re.M)
+# решение оператора 2026-08-31. Признак — заголовок; номер у него необязателен,
+# а живое название «Что почитать дальше» — тот же блок (идемпотентность).
+SOURCES_HEAD_RE = re.compile(
+    rf"^##[ \t]+(?:\d+\.[ \t]+)?(?:Источники|{READ_MORE})[ \t]*$", re.M)
 
 # Сноска — два куска: метка `[^N]` в прозе и определение `[^N]: …` в самом
 # конце файла, за аппаратом аудита. Метки остаются на странице, а определения
@@ -413,68 +478,301 @@ def prose_only(text: str) -> str:
                                    "".join(chars))
 
 
-def renumber_blocks(page: vc.Page) -> list[tuple[int, int, str]]:
-    """Правки, от которых номера блоков идут подряд: заголовки и ссылки на них."""
-    spans = page.doc.prose_spans
-    order: dict[int, int] = {}
-    for m in BLOCK_HEAD_RE.finditer(spans):
-        order.setdefault(int(m.group(1)), len(order) + 1)
-
-    out: list[tuple[int, int, str]] = []
-    for m in BLOCK_HEAD_RE.finditer(spans):
-        was = int(m.group(1))
-        if order[was] != was:
-            out.append((m.start(1), m.end(1), str(order[was])))
-    for m in BLOCK_REF_RE.finditer(spans):
-        for num in REF_NUM_RE.finditer(m.group(1)):
-            was = int(num.group(0))
-            if order.get(was, was) == was:
-                continue
-            at = m.start(1) + num.start()
-            out.append((at, at + len(num.group(0)), str(order[was])))
+def line_offsets(lines: list[str]) -> list[int]:
+    """Смещение начала каждой строки в тексте; последний элемент — длина."""
+    out = [0]
+    for ln in lines:
+        out.append(out[-1] + len(ln) + 1)
     return out
 
 
-# Шапка темы — абзац «Уровень **L2** · время…» сразу под заголовком. Класс
-# ставит сборка: CSS приглушает шапку темы и только её (раньше селектор
-# `h1 + p` гасил первый абзац любой страницы, включая главную и глоссарий).
-LEAD_START_RE = re.compile(r"^Уровень \*\*", re.M)
+def para_span(raw: str, start: int, text: str) -> tuple[int, int]:
+    """Участок абзаца вместе с пустыми строками за ним: снятый абзац не
+    оставляет двойного пробела между соседями."""
+    end = start + len(text)
+    while raw[end:end + 1] == "\n":
+        end += 1
+    return start, end
 
 
-def mark_lead(body: str) -> str:
-    m = LEAD_START_RE.search(body)
-    if not m:
+# Шапка темы — абзац «Уровень **L2** · время…» сразу под заголовком. С
+# 2026-10-02 на страницу не выводится (решение оператора): уровень, время и
+# его раскладка — счётчики производства, а не текст статьи.
+LEAD_START_RE = re.compile(r"\AУровень \*\*")
+
+
+def block_display(title: str) -> str | None:
+    """Что выводится вместо заголовка блока `title` (уже без номера)."""
+    return BLOCK_TITLES.get(title.strip(), title.strip())
+
+
+def heading_edits(page: vc.Page) -> tuple[list[tuple[int, int, str]],
+                                          list[tuple[int, int]],
+                                          dict[int, str]]:
+    """Правки заголовков блоков, участки, которые уходят со страницы целиком,
+    и номер слота → новое название (для ссылок «из блока 5» в прозе).
+
+    Участки: шапка «Уровень …», абзац «Что прочитать сначала: …» (предпосылки
+    переезжают в конец страницы ссылками с названиями тем) и блок «Цели».
+    Заголовок «Источники» не трогается: по нему режется хвост аудита.
+    """
+    raw, lines = page.doc.raw, page.lines
+    offs = line_offsets(lines)
+    edits: list[tuple[int, int, str]] = []
+    drops: list[tuple[int, int]] = []
+    if page.head_line and LEAD_START_RE.match(page.head):
+        drops.append(para_span(raw, offs[page.head_line - 1], page.head))
+    elif page.head_line and vc.PREREQ_HEAD_RE.match(page.head):
+        # Шапки нет (исходник уже без «Уровень …»): тогда предпосылки стоят
+        # первым абзацем, и разбор считает шапкой их.
+        drops.append(para_span(raw, offs[page.head_line - 1], page.head))
+    if page.prereq_line:
+        drops.append(para_span(raw, offs[page.prereq_line - 1], page.prereq))
+    by_num: dict[int, str] = {}
+    for b in page.blocks:
+        new = block_display(b.title)
+        if b.num >= 0 and new:
+            by_num[b.num] = new
+        if SOURCES_HEAD_RE.match(lines[b.line - 1]):
+            continue
+        start = offs[b.line - 1]
+        if new is None:
+            drops.append((start, offs[b.end] if b.end < len(lines) else len(raw)))
+            continue
+        line = lines[b.line - 1]
+        if line != f"## {new}":
+            edits.append((start, start + len(line), f"## {new}"))
+    return edits, drops, by_num
+
+
+def block_ref_edits(page: vc.Page, by_num: dict[int, str]
+                    ) -> tuple[list[tuple[int, int, str]], list[str]]:
+    """«из блока 5» → «из блока «Как это выглядит в коде»»; «блока
+    «Механика»» → «блока «Как это работает»». Номер, которому блока нет,
+    остаётся как есть и попадает в отчёт сборки."""
+    spans = page.doc.prose_spans
+    out: list[tuple[int, int, str]] = []
+    lost: list[str] = []
+    for m in BLOCK_REF_RE.finditer(spans):
+        for num in REF_NUM_RE.finditer(m.group(1)):
+            was = int(num.group(0))
+            at = m.start(1) + num.start()
+            if was in by_num:
+                out.append((at, at + len(num.group(0)), f"«{by_num[was]}»"))
+            else:
+                lost.append(f"{page.id}: «{m.group(0)}»")
+    lower = {k.lower(): v for k, v in NAME_REFS.items()}
+    for m in NAME_REF_RE.finditer(spans):
+        key = " ".join(m.group(1).split()).lower()
+        new = lower.get(key)
+        if new:
+            out.append((m.start(), m.end(), f"«{new}»"))
+    return out, lost
+
+
+def overlaps(span: tuple[int, int], spans: list[tuple[int, int]]) -> bool:
+    a, b = span
+    return any(a < e and s < b for s, e in spans)
+
+
+# ── разметка по строкам вне ограждённых блоков ───────────────────────────────
+
+FENCE_OPEN_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
+
+
+def fence_flags(lines: list[str]) -> list[bool]:
+    """Для каждой строки — внутри ли она ограждённого блока (вместе с самими
+    строками ограды). Закрывает блок та же ограда не короче открывшей."""
+    flags, cur = [], None
+    for ln in lines:
+        m = FENCE_OPEN_RE.match(ln)
+        if cur is None:
+            if m:
+                cur = m.group(1)
+                flags.append(True)
+                continue
+            flags.append(False)
+        else:
+            flags.append(True)
+            if m and m.group(1)[0] == cur[0] and len(m.group(1)) >= len(cur) \
+                    and not ln.strip()[len(m.group(1)):].strip():
+                cur = None
+    return flags
+
+
+def indent(lines: list[str]) -> list[str]:
+    return [("    " + ln) if ln.strip() else "" for ln in lines]
+
+
+def fold_admon_heads(body: str) -> str:
+    """Блок «Подумай, прежде чем читать» и «Чеклист для ревью» — свёрнутой
+    врезкой вместо раздела: оба полезны, но не обязательны к чтению подряд."""
+    lines = body.split("\n")
+    flags = fence_flags(lines)
+    out, i = [], 0
+    while i < len(lines):
+        ln = lines[i]
+        title = ln[3:].strip() if ln.startswith("## ") and not flags[i] else ""
+        if title not in ADMON_HEADS:
+            out.append(ln)
+            i += 1
+            continue
+        j = i + 1
+        while j < len(lines) and not (lines[j].startswith("## ") and not flags[j]):
+            j += 1
+        inner = lines[i + 1:j]
+        while inner and not inner[0].strip():
+            inner.pop(0)
+        while inner and not inner[-1].strip():
+            inner.pop()
+        kind, label = ADMON_HEADS[title]
+        out += [f'??? {kind} "{label}"', ""] + indent(inner) + [""]
+        i = j
+    return "\n".join(out)
+
+
+# Врезки: цитата, открытая меткой «**Примечание.**» и подобными, — на деле
+# врезка (PLAYBOOK 7.6), и на странице она становится admonition своего типа.
+# Метки — те, что встречаются в корпусе (2026-10-02: «Примечание» ×26, с
+# уточнением через двоеточие ×6, «Предупреждение» ×6, «Глубже» ×2, «На
+# собеседовании» ×1), плюс «Важно», «Внимание», «Совет» на вырост. Обычная
+# цитата без метки остаётся цитатой.
+CALLOUTS = {
+    "примечание": ("!!!", "note"),
+    "предупреждение": ("!!!", "warning"),
+    "важно": ("!!!", "warning"),
+    "внимание": ("!!!", "danger"),
+    "совет": ("!!!", "tip"),
+    "на собеседовании": ("!!!", "tip"),
+    "глубже": ("???", "info"),
+}
+CALLOUT_RE = re.compile(
+    r"^>[ \t]*\*\*(?P<label>" + "|".join(k.replace(" ", r"\s") for k in CALLOUTS)
+    + r")(?::[ \t]*(?P<sub>[^*]+?))?[.:]\*\*[ \t]*(?P<rest>.*)$", re.I)
+
+
+def callouts(body: str, report: dict | None = None) -> str:
+    lines = body.split("\n")
+    flags = fence_flags(lines)
+    out, i = [], 0
+    while i < len(lines):
+        m = None if flags[i] else CALLOUT_RE.match(lines[i])
+        if not m:
+            out.append(lines[i])
+            i += 1
+            continue
+        j = i + 1
+        while j < len(lines) and lines[j].startswith(">") and not flags[j]:
+            j += 1
+        label = m.group("label")
+        mark, kind = CALLOUTS[label.lower()]
+        sub = (m.group("sub") or "").strip()
+        title = (sub[0].upper() + sub[1:]) if sub else label[0].upper() + label[1:]
+        inner = [m.group("rest")] + [re.sub(r"^>[ \t]?", "", ln)
+                                     for ln in lines[i + 1:j]]
+        out += [f'{mark} {kind} "{title}"', ""] + indent(inner)
+        if report is not None:
+            report["callouts"] += 1
+        i = j
+    return "\n".join(out)
+
+
+# ── варианты ответов в «Проверь себя» ────────────────────────────────────────
+#
+# Вопрос с вариантами записан в исходниках строками «A. …», «B. …» — буква,
+# точка, пробел. Markdown такого списка не знает: варианты либо слипались с
+# вопросом в один абзац через жёсткий перевод строки, либо выпадали из
+# нумерованного списка в простые абзацы — от прозы неотличимые. Сборка находит
+# серию таких строк (два варианта и больше) и размечает каждый абзацем с
+# бейджем-буквой: буква уезжает в <span class="quiz-letter">, абзац получает
+# класс quiz-opt (attr_list), дальше работает CSS — висячий отступ и рамка.
+
+QUIZ_OPT_RE = re.compile(r"^(?P<ind> {0,3})(?P<letter>[A-Z])\.[ \t]+(?P<text>\S.*)$")
+
+
+def quiz_options(body: str, report: dict | None = None) -> str:
+    """Серии строк «A. …», «B. …» → абзацы с бейджем-буквой (см. EXTRA_CSS).
+
+    Серия — два и больше вариантов подряд: между ними могут стоять пустые
+    строки и строки-продолжения (перенесённый текст варианта, он с отступом).
+    Одиночная строка «A. …» в прозе — не серия и не трогается. Ограждённые
+    блоки пропускаются: в коде «A.» — не вариант.
+    """
+    lines = body.split("\n")
+    flags = fence_flags(lines)
+
+    def option_at(i: int) -> re.Match | None:
+        return None if flags[i] else QUIZ_OPT_RE.match(lines[i])
+
+    # Серии: индексы строк-вариантов; между соседними — только пустые строки
+    # или строки с отступом (продолжения предыдущего варианта).
+    runs: list[list[int]] = []
+    for i in range(len(lines)):
+        if not option_at(i):
+            continue
+        if runs and all(not lines[k].strip() or lines[k][:1] in (" ", "\t")
+                        for k in range(runs[-1][-1] + 1, i)):
+            runs[-1].append(i)
+        else:
+            runs.append([i])
+    runs = [run for run in runs if len(run) >= 2]
+    if not runs:
         return body
-    end = body.find("\n\n", m.start())
-    if end < 0:
-        end = len(body)
-    return body[:end] + "\n{ .topic-lead }" + body[end:]
+
+    at = {i for run in runs for i in run}
+    out: list[str] = []
+    i = 0
+    while i < len(lines):
+        if i not in at:
+            out.append(lines[i])
+            i += 1
+            continue
+        m = option_at(i)
+        ind, letter = m.group("ind"), m.group("letter")
+        # Продолжения варианта: строки с отступом до первой пустой, до
+        # следующего варианта или до конца абзаца.
+        j = i + 1
+        cont: list[str] = []
+        while j < len(lines) and j not in at and lines[j].strip() \
+                and lines[j][:1] in (" ", "\t"):
+            cont.append(lines[j].rstrip())
+            j += 1
+        # Вариант — отдельный абзац: если перед ним текст (вопрос с жёстким
+        # переводом строки), абзац надо оборвать пустой строкой.
+        if out and out[-1].strip():
+            out.append("")
+        out.append(f'{ind}<span class="quiz-letter">{letter}</span> '
+                   + m.group("text").rstrip())
+        out += cont
+        out.append(f"{ind}{{ .quiz-opt }}")
+        out.append("")
+        if report is not None:
+            report["quiz_opts"] += 1
+        i = j
+        while i < len(lines) and not lines[i].strip():
+            i += 1              # пустые строки между вариантами уже выданы
+    return "\n".join(out)
 
 
 def insert_stale_note(body: str) -> str:
-    """Плашка 9.6 п. 20 — сразу под заголовком, до шапки."""
+    """Плашка 9.6 п. 20 — сразу под заголовком."""
     m = re.search(r"^# [^\n]*$", body, re.M)
     at = m.end() if m else 0
     return body[:at] + "\n\n" + STALE_NOTE + body[at:]
 
 
 def insert_skip_note(body: str, condition: str) -> str:
-    """Строка «можно отложить» (9.5 п. 10) — под шапкой, после lead-абзаца.
+    """Строка «можно отложить» (9.5 п. 10) — сразу под заголовком темы.
 
     Поле `skip_if` держит условие одной фразой, которое читатель проверяет на
-    себе (SCHEMA § 3.1); маршрут от маркера не ветвится. Печатается той же
-    приглушённой строкой, что шапка, — со своим классом и засечкой слева,
-    иначе две строки подряд сливаются. Темы без lead-абзаца в корпусе нет
-    (C-HEAD-TIME), но если он не нашёлся, страницу ломать незачем.
+    себе (SCHEMA § 3.1); маршрут от маркера не ветвится. Это совет читателю, а
+    не след производства, поэтому со снятием шапки он остаётся: приглушённой
+    строкой с засечкой слева.
     """
-    m = LEAD_START_RE.search(body)
-    if not m:
-        return body
-    end = body.find("\n\n", m.start())
-    if end < 0:
-        end = len(body)
+    m = re.search(r"^# [^\n]*$", body, re.M)
+    at = m.end() if m else 0
     note = f"**Можно отложить, если** {condition}.\n{{ .topic-skip }}"
-    return body[:end] + "\n\n" + note + body[end:]
+    return body[:at] + "\n\n" + note + body[at:]
 
 
 # ── блок «Лаба»: строка запуска ──────────────────────────────────────────────
@@ -485,7 +783,8 @@ def insert_skip_note(body: str, condition: str) -> str:
 # «Лаба» команду перехода и команды прогона (из README лабы) со ссылкой на
 # страницу лабы, где инструкция лежит целиком.
 
-LAB_BLOCK_HEAD_RE = re.compile(r"^##[ \t]+\d+\.[ \t]+Лаба[ \t]*$", re.M)
+LAB_BLOCK_HEAD_RE = re.compile(
+    r"^##[ \t]+(?:\d+\.[ \t]+)?(?:Лаба|Попробуй сам)[ \t]*$", re.M)
 NEXT_HEAD_RE = re.compile(r"^## ", re.M)
 
 
@@ -524,24 +823,51 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
     """Тема как страница сайта. Исходник не меняется — меняется копия."""
     raw = page.doc.raw
     edits: list[tuple[int, int, str]] = [(0, page.doc.front_end, front_block(page))]
-    edits += renumber_blocks(page)
+    heads, drops, by_num = heading_edits(page)
+    edits += heads
+    refs, lost = block_ref_edits(page, by_num)
+    edits += [e for e in refs if not overlaps(e[:2], drops)]
+    report["block_refs"] += len(refs)
+    report["block_refs_lost"] += lost
 
     for m in mdtext.FENCE_RE.finditer(raw):
-        if m.group("info").strip().lower() != "mermaid":
+        info = m.group("info").strip().lower()
+        report["langs"].add(info.split()[0] if info else "text")
+        # Листинг `text`, где строки команд начинаются с «$ », — сеанс
+        # терминала: лексер `console` красит приглашение, а вывод оставляет
+        # выводом. Текст листинга не меняется, меняется только подсветка.
+        if info == "text" and re.search(r"^[ \t]*\$ ", m.group("body"), re.M):
+            edits.append((m.start("info"), m.end("info"), "console"))
+            report["langs"].add("console")
+            report["console"] += 1
+            continue
+        if info != "mermaid":
             continue
         try:
-            svg = render_diagrams.render(m.group("body"))
+            light, dark = render_diagrams.render(m.group("body"))
         except render_diagrams.Unavailable as exc:
             report["diagrams_failed"].append(f"{page.id}: {exc}")
             continue
-        target = link_to(page_rel, f"assets/diagrams/{svg.name}")
+        # Два варианта одной схемы — светлый и тёмный; метки `#only-light` и
+        # `#only-dark` в адресе понимает движок темы: показывает вариант
+        # активной палитры, и переключатель темы меняет схему без перезагрузки.
+        target_light = link_to(page_rel, f"assets/diagrams/{light.name}")
+        target_dark = link_to(page_rel, f"assets/diagrams/{dark.name}")
         # Текстовая замена схемы — абзац «Описание схемы» под ней, он предписан
         # 7.2; в `alt` идёт короткая подпись, чтобы читалка не пересказывала
         # картинку дважды.
+        # Ширина из нарисованного SVG (`max-width` в его style): у `<img>` с
+        # SVG `width="100%"` своей ширины нет, и узкую схему растягивало на
+        # всю колонку, а шрифт в ней — вдвое. Шире колонки не станет:
+        # `max-width: 100%` у картинок задаёт тема.
+        natural = re.search(r"max-width:\s*([\d.]+)px", light.read_text()[:4000])
+        width = f' width="{round(float(natural.group(1)))}"' if natural else ""
+        alt = "Схема (описание — в абзаце под ней)"
         edits.append((m.start(), m.end(),
-                      f"![Схема (описание — в абзаце под ней)]({target}){{ .diagram }}"))
+                      f"![{alt}]({target_light}#only-light){{ .diagram{width} }}"
+                      f"![{alt}]({target_dark}#only-dark){{ .diagram{width} }}"))
         report["diagrams"] += 1
-        report["diagram_files"].add(svg.name)
+        report["diagram_files"].update((light.name, dark.name))
 
     for m in mdtext.CODE_SPAN_RE.finditer(page.doc.prose_spans):
         target_id = m.group(2).strip()
@@ -550,6 +876,8 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
         # Подпись ссылки — название темы, а не её идентификатор (WCAG 2.4.4,
         # решение оператора 2026-10-01, А1): из «`idor`» назначение ссылки не
         # читается, из «Горизонтальная эскалация, IDOR» — читается.
+        if overlaps((m.start(), m.end()), drops):
+            continue
         label = (titles or {}).get(target_id) or m.group(2).strip()
         edits.append((m.start(), m.end(),
                       f"[{label}]({link_to(page_rel, index[target_id])})"))
@@ -562,10 +890,15 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
             report["lab_run"] += 1
 
     if gloss is not None:
-        edits += glossary_links(page, page_rel, raw, gloss, edits, report)
+        edits += glossary_links(page, page_rel, raw, gloss, edits, report,
+                                drops=drops)
 
+    # Снятые участки — пустой заменой; правки внутри них уже отброшены.
+    edits += [(a, b, "") for a, b in drops]
     body = apply_edits(raw, edits)
-    body = mark_lead(body)
+    body = fold_admon_heads(body)
+    body = callouts(body, report)
+    body = quiz_options(body, report)
     skip_if = one_line(str(page.front.get("skip_if") or "")).removesuffix(".")
     if skip_if:
         body = insert_skip_note(body, skip_if)
@@ -599,16 +932,17 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
             else:
                 report["footnotes_missing"].append(f"{page.id}: [^{ref}]")
 
-    # «Первоисточники» — решение оператора 2026-10-01 (реестр RN-13): список
-    # документов с адресами, по которым сверена тема. Срезанный хвост аудита
-    # он не возвращает: блок собирается из поля `sources` и реестра, а не из
-    # текста «Источников».
-    if sources_reg:
-        block, n_sources = primary_sources(page, sources_reg)
-        if block:
-            body = body.rstrip("\n") + "\n\n" + block + "\n"
-            report["primary_sources"] += 1
-            report["primary_links"] += n_sources
+    # «Что почитать дальше» — решение оператора 2026-10-02: предпосылки темы
+    # (раньше — строка «Что прочитать сначала» под заголовком) и первоисточники
+    # (решение 2026-10-01, реестр RN-13) одним разделом в конце статьи.
+    # Срезанный хвост аудита он не возвращает: блок собирается из полей
+    # `prerequisites` и `sources` темы и реестра, а не из текста «Источников».
+    block, n_sources = read_more(page, page_rel, index, titles or {},
+                                 sources_reg or {})
+    if block:
+        body = body.rstrip("\n") + "\n\n" + block + "\n"
+        report["primary_sources"] += 1 if n_sources else 0
+        report["primary_links"] += n_sources
 
     # «Дальше» — ссылка на следующую тему маршрута; генерируется здесь, а не
     # пишется автором (решение оператора 2026-08-31). У последней темы нет.
@@ -637,118 +971,93 @@ def transform(page: vc.Page, page_rel: str, index: dict[str, str],
 # ── сгенерированные страницы ─────────────────────────────────────────────────
 
 
+# ASCII-баннер главной (figlet, шрифт standard). Рисуется моноширинным и
+# зелёным; для читалки он скрыт — заголовок страницы стоит обычным `h1` под ним.
+BANNER = r"""    _                 ____
+   / \   _ __  _ __  / ___|  ___  ___
+  / _ \ | '_ \| '_ \ \___ \ / _ \/ __|
+ / ___ \| |_) | |_) | ___) |  __/ (__
+/_/   \_\ .__/| .__/ |____/ \___|\___|
+        |_|   |_|"""
+
+
+def html_href(page_rel: str, target_md: str) -> str:
+    """Ссылка для сырого HTML: движок переписывает `.md` → `.html` только в
+    markdown-ссылках, в разметке карточек адрес нужен готовым."""
+    return link_to(page_rel, target_md).removesuffix(".md") + ".html"
+
+
 def page_index(ctx: vc.Ctx, pages: list[vc.Page], index: dict[str, str],
                today: date) -> str:
+    """Главная: баннер, одна фраза о гайдбуке и карточки этапов.
+
+    Решение оператора 2026-10-02: главная — вход в книгу, а не её паспорт.
+    Таблица уровней, сумма минут, дата сборки и пояснения о скоупе с неё
+    убраны: это следы производства. `today` остаётся в подписи ради
+    совместимости вызова и на страницу не печатается.
+    """
+    del today
     by_stage: dict[str, list[vc.Page]] = {}
     for p in pages:
         by_stage.setdefault(str(p.front.get("stage")), []).append(p)
 
-    rows = []
+    cards = []
     for stage in ctx.tax["stages"]:
-        if stage.get("excluded"):
-            continue
-        num = int(stage["num"])
         group = by_stage.get(stage["slug"], [])
-        first = f"[к темам]({link_to('index.md', index[group[0].id])})" if group else "—"
-        time = sum(int(p.front.get("time_min") or 0) for p in group)
-        rows.append(f"| {num} | {stage['title']} | {len(group)} | "
-                    f"{time or '—'} | {first} |")
+        if stage.get("excluded") or not group:
+            continue
+        first = group[0]
+        n = len(group)
+        first_title = html.escape(short_title(one_line(first.front.get("title"))))
+        cards.append(
+            f'<a class="stage-card" href="{html_href("index.md", index[first.id])}">\n'
+            f'<span class="stage-card__num">этап {int(stage["num"])}</span>\n'
+            f'<span class="stage-card__title">{html.escape(stage["title"])}</span>\n'
+            f'<span class="stage-card__meta">{n} '
+            f'{plural(n, ("тема", "темы", "тем"))}</span>\n'
+            f'<span class="stage-card__go">начать с «{first_title}»</span>\n'
+            f'</a>')
 
-    total_time = sum(int(p.front.get("time_min") or 0) for p in pages)
-    # Столбец «Написано» убран 2026-08-24: сколько тем каждого уровня успело
-    # написаться — счётчик хода работ, а не свойство учебника.
-    level_rows = [
-        f"| {d} | {ctx.tax['depths'][d]['meaning']} | "
-        f"{ctx.tax['depths'][d]['words'][0]}–{ctx.tax['depths'][d]['words'][1]} слов |"
-        for d in sorted(ctx.depths)
-    ]
-
-    # Этап 6 исключён из скоупа, но номер в плане занят, и без пояснения скачок
-    # 5 → 7 в таблице выглядит потерянным этапом (находка X-NAV-01).
-    skip_notes = "; ".join(
-        f"этап {s['num']} «{s['title']}» исключён из скоупа, поэтому после "
-        f"этапа {int(s['num']) - 1} идёт этап {int(s['num']) + 1}"
-        for s in ctx.tax["stages"] if s.get("excluded"))
-    skip_note = (f"Нумерация этапов сохранена из плана: {skip_notes}.\n\n"
-                 if skip_notes else "")
-
+    total = len(pages)
     return f"""---
 title: Начало
-description: Учебник по прикладной безопасности приложений — с чего начать чтение.
+description: Учебник по прикладной безопасности — как устроены уязвимости веб-приложений, как их находят и как от них защищаются.
+hide:
+  - navigation
+  - toc
 ---
 
 {GENERATED}
 
+<div class="hero" markdown="0">
+<pre class="hero__banner" aria-hidden="true">{html.escape(BANNER)}</pre>
+<p class="hero__prompt"><span class="hero__ps">$</span> cat README<span class="hero__cursor" aria-hidden="true"></span></p>
+</div>
+
 # AppSec-гайдбук
 
-Учебник, который пишется, чтобы уметь: читать чужой код и видеть в нём дефект,
-объяснять механизм словами и проверять утверждения по первоисточнику. Каждая
-тема самодостаточна — механизм объяснён здесь, а не по ссылке на чужую статью.
+Как ломаются веб-приложения и как это увидеть в чужом коде: {total} статей —
+от того, как браузер говорит с сервером, до SAST в конвейере. Каждая статья
+объясняет механизм своими словами, показывает дефект в коде, его починку и
+способ убедиться, что починка работает.
 
-Гайд учит защите и предназначен для обучения: применяйте описанные приёмы
-только к собственным системам и учебным стендам. Разборы уязвимостей ведутся
-на запатченных версиях и локальных лабораторных.
+<div class="stage-grid" markdown="0">
+{chr(10).join(cards)}
+</div>
 
-## Как читать тему
+## Как читать
 
-Тема идёт по одному и тому же скелету: «Коротко» → механизм → код → как чинится
-→ как проверить → чеклист ревью → «Проверь себя», а в конце страницы — ссылка
-«Дальше» на следующую тему маршрута. Порядок блоков не меняется; на коротких
-уровнях часть из них не пишется. Читать сплошь не нужно: «Коротко» и «Чеклист
-ревью» работают отдельно.
+Этапы идут по порядку: каждый следующий опирается на предыдущие. Внутри статьи
+сначала идёт короткий ответ («Если коротко»), потом механизм, атака, код и
+защита; в конце — «Проверь себя» и ссылка на следующую статью. Под рукой —
+[карта тем]({link_to('index.md', 'map.md')}),
+[лабы]({link_to('index.md', 'labs.md')}) ({len(ctx.labs)} практических работ,
+запускаются локально) и [глоссарий]({link_to('index.md', 'glossary.md')}).
 
-Сразу после «Коротко» тема задаёт два-три предвопроса по главному из того, что
-впереди. Ответьте на них до чтения, даже если не уверены: нужна собственная
-догадка, с которой текст дальше сравнится, а неверный ответ ничего не портит.
-Ответ на каждый предвопрос прямо сказан в тексте темы, и вопрос ещё вернётся —
-в «Проверь себя» и на странице «Повторение» этапа.
+!!! warning "Только свои системы"
+    Гайд учит защите. Приёмы из статей применяйте к собственным системам и
+    учебным стендам; разборы уязвимостей ведутся на локальных лабах.
 
-В конце каждого этапа стоят две страницы, которые сборка собирает из самих
-тем: «Повторение» — вопросы на пройденное и задачи без подписей, «Этап
-коротко» — все «Коротко» подряд и общий чеклист ревью.
-
-Уровень темы стоит в её шапке и говорит, до чего доводит чтение.
-
-| Уровень | Что даёт | Норма объёма |
-|---|---|---|
-{chr(10).join(level_rows)}
-
-Времени на прочтение и разбор — {total_time} мин на {len(pages)} тем; оценка
-стоит в шапке каждой темы и там же разложена на теорию, практику и самопроверку.
-
-## Чем этот гайд не является
-
-- Не справочник по эксплуатации и не сборник пейлоадов.
-- Не курс с проверкой заданий и наставником.
-- Не юридическая консультация по нормативке РФ.
-- Не покрывает реверс-инжиниринг, AppSec встраиваемых систем и защиту сетевого
-  периметра.
-- Не гарантирует трудоустройство.
-
-## Этапы
-
-| № | Этап | Тем | Минут | |
-|---|---|---|---|---|
-{chr(10).join(rows)}
-
-{skip_note}## Что где лежит
-
-- [Карта тем]({link_to('index.md', 'map.md')}) — все темы с уровнем, временем и
-  предпосылками; там же видно, каких тем ещё нет.
-- [Лабы]({link_to('index.md', 'labs.md')}) — {len(ctx.labs)} практических работ:
-  каждая привязана к своей теме и запускается локально, из каталога `pilot/lab/`
-  репозитория.
-- [Маппинг-индекс]({link_to('index.md', 'mapping.md')}) — обратный ход: номер
-  CWE, ASVS, WSTG или Top 10 — темы, которые его разбирают.
-- [Глоссарий]({link_to('index.md', 'glossary.md')}) — термины и одно написание
-  на весь сайт.
-- [Теги]({link_to('index.md', 'tags.md')}) — фасеты: тема попадает в несколько.
-- [На чём проверено]({link_to('index.md', 'verified.md')}) — версии инструментов,
-  на которых темы проверялись прогоном: по списку видно, что перечитать при
-  выходе новой версии.
-
-Сайт собран {today.isoformat()} и открывается с диска: ни одна страница не ходит
-в сеть, поиск тоже работает офлайн.
 """
 
 
@@ -789,8 +1098,8 @@ description: Все темы гайдбука с уровнем, времене�
             continue
         out.append(f"## Этап {num}. {stage['title']}\n")
         if group:
-            out.append("| Тема | Уровень | Мин | Статус | Требует | Лаба |")
-            out.append("|---|---|---|---|---|---|")
+            out.append("| Тема | Уровень | Мин | Требует | Лаба |")
+            out.append("|---|---|---|---|---|")
             for p in group:
                 # Подпись предпосылки — название темы, а не идентификатор (А1);
                 # тема вне корпуса остаётся кодом: сослаться не на что.
@@ -806,7 +1115,6 @@ description: Все темы гайдбука с уровнем, времене�
                     f"| [{one_line(p.front.get('title'))}]"
                     f"({link_to('map.md', index[p.id])}) "
                     f"| {p.depth} | {p.front.get('time_min')} "
-                    f"| {STATUS_WORD.get(str(p.front.get('status')), '—')} "
                     f"| {prereqs} | {lab_cell} |")
             out.append("")
         if pending:
@@ -901,6 +1209,10 @@ description: Лицензии гайдбука и условия использ�
   в сеть сайт за ними не ходит. © 2020 The JetBrains Mono Project Authors;
   лицензия [SIL Open Font License 1.1](https://openfontlicense.org), её текст —
   в репозитории рядом со шрифтами (`tools/vendor/fonts/OFL.txt`).
+- **Press Start 2P.** Пиксельный шрифт заголовков; файл лежит в той же
+  папке сборки. © 2012 CodeMan38; лицензия та же — [SIL Open Font License
+  1.1](https://openfontlicense.org), текст общий с JetBrains Mono
+  (`tools/vendor/fonts/OFL.txt`).
 """
 
 
@@ -1071,74 +1383,135 @@ def head_tail(items, keep: int = 5) -> str:
 
 EXTRA_CSS = """/* Собрано `tools/build_site.py`; правки — в сборщик, не сюда. */
 
-/* Схемы нарисованы тёмным по белому: на тёмной теме сайта картинке нужен свой
-   фон, иначе текст схемы сливается с полем страницы. */
-.md-typeset img.diagram {
-  background: #fff;
-  padding: 0.7rem;
-  border-radius: 0.2rem;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.07);
+/* ── палитра ─────────────────────────────────────────────────────────────────
+   Решение оператора 2026-10-02: тёмная «хакерская» тема по умолчанию, светлая
+   — переключателем. Фон почти чёрный, а не #000, и основной текст светло-серый,
+   а не насыщенный зелёный: светлое на чистом чёрном и #00ff00 сплошным текстом
+   дают ореолы (halation) у читателей с астигматизмом. Зелёный — только акцент:
+   заголовки, ссылки, активный пункт меню, маркеры списков, приглашение `$`,
+   полоса у листингов. Контраст текста, ссылок и токенов подсветки — не ниже
+   4,5:1 в обеих темах; его меряет `tools/check_site.mjs` по getComputedStyle. */
+[data-md-color-scheme="slate"] {
+  --gb-bg: #0d1117;
+  --gb-surface: #161b22;
+  --gb-surface-2: #1c2128;
+  --gb-border: #30363d;
+  --gb-text: #c9d1d9;
+  --gb-muted: #8b949e;
+  --gb-green: #3fb950;
+  --gb-green-hi: #7ee787;
+  --gb-green-soft: rgba(63, 185, 80, 0.14);
+  --gb-head: #7ee787;
+
+  --md-hue: 215;
+  --md-default-bg-color: var(--gb-bg);
+  --md-default-bg-color--light: rgba(13, 17, 23, 0.7);
+  --md-default-bg-color--lighter: rgba(13, 17, 23, 0.3);
+  --md-default-bg-color--lightest: rgba(13, 17, 23, 0.12);
+  --md-default-fg-color: var(--gb-text);
+  --md-default-fg-color--light: var(--gb-muted);
+  --md-default-fg-color--lighter: rgba(139, 148, 158, 0.55);
+  --md-default-fg-color--lightest: rgba(139, 148, 158, 0.18);
+  --md-primary-fg-color: var(--gb-surface);
+  --md-primary-fg-color--light: var(--gb-surface-2);
+  --md-primary-fg-color--dark: var(--gb-bg);
+  --md-primary-bg-color: var(--gb-text);
+  --md-primary-bg-color--light: var(--gb-muted);
+  --md-accent-fg-color: var(--gb-green-hi);
+  --md-accent-fg-color--transparent: var(--gb-green-soft);
+  --md-accent-bg-color: var(--gb-bg);
+  --md-typeset-color: var(--gb-text);
+  --md-typeset-a-color: var(--gb-green);
+  --md-typeset-mark-color: rgba(187, 128, 9, 0.4);
+  --md-typeset-table-color: var(--gb-border);
+  --md-typeset-table-color--light: rgba(48, 54, 61, 0.35);
+  --md-code-bg-color: var(--gb-surface);
+  --md-code-fg-color: var(--gb-text);
+  --md-code-hl-color: #2f81f7;
+  --md-code-hl-color--light: rgba(47, 129, 247, 0.15);
+  --md-code-hl-keyword-color: #ff7b72;
+  --md-code-hl-string-color: #a5d6ff;
+  --md-code-hl-number-color: #79c0ff;
+  --md-code-hl-special-color: #ffa198;
+  --md-code-hl-function-color: #d2a8ff;
+  --md-code-hl-constant-color: #79c0ff;
+  --md-code-hl-name-color: var(--gb-text);
+  --md-code-hl-operator-color: #ff7b72;
+  --md-code-hl-punctuation-color: var(--gb-text);
+  --md-code-hl-comment-color: var(--gb-muted);
+  --md-code-hl-generic-color: var(--gb-muted);
+  --md-code-hl-variable-color: #ffa657;
+  --md-admonition-bg-color: var(--gb-bg);
+  --md-admonition-fg-color: var(--gb-text);
+  --md-footer-bg-color: var(--gb-surface);
+  --md-footer-bg-color--dark: var(--gb-bg);
+  --md-footer-fg-color: var(--gb-text);
+  --md-footer-fg-color--light: var(--gb-muted);
+  --md-footer-fg-color--lighter: var(--gb-muted);
+  --md-shadow-z1: 0 0 0 1px var(--gb-border);
+  --md-shadow-z2: 0 0 0 1px var(--gb-border), 0 0.2rem 0.6rem rgba(0, 0, 0, 0.4);
+}
+[data-md-color-scheme="default"] {
+  --gb-bg: #ffffff;
+  --gb-surface: #f6f8fa;
+  --gb-surface-2: #eef1f4;
+  --gb-border: #d0d7de;
+  --gb-text: #1f2328;
+  --gb-muted: #59636e;
+  --gb-green: #1a7f37;
+  --gb-green-hi: #116329;
+  --gb-green-soft: rgba(26, 127, 55, 0.1);
+  --gb-head: #116329;
+
+  --md-default-bg-color: var(--gb-bg);
+  --md-default-fg-color: var(--gb-text);
+  --md-default-fg-color--light: var(--gb-muted);
+  --md-default-fg-color--lighter: rgba(89, 99, 110, 0.55);
+  --md-default-fg-color--lightest: rgba(89, 99, 110, 0.15);
+  --md-primary-fg-color: var(--gb-surface);
+  --md-primary-fg-color--light: var(--gb-surface-2);
+  --md-primary-fg-color--dark: var(--gb-border);
+  --md-primary-bg-color: var(--gb-text);
+  --md-primary-bg-color--light: var(--gb-muted);
+  --md-accent-fg-color: var(--gb-green-hi);
+  --md-accent-fg-color--transparent: var(--gb-green-soft);
+  --md-accent-bg-color: var(--gb-bg);
+  --md-typeset-color: var(--gb-text);
+  --md-typeset-a-color: var(--gb-green);
+  --md-typeset-table-color: var(--gb-border);
+  --md-code-bg-color: var(--gb-surface);
+  --md-code-fg-color: var(--gb-text);
+  --md-code-hl-keyword-color: #cf222e;
+  --md-code-hl-string-color: #0a3069;
+  --md-code-hl-number-color: #0550ae;
+  --md-code-hl-special-color: #a40e26;
+  --md-code-hl-function-color: #6639ba;
+  --md-code-hl-constant-color: #0550ae;
+  --md-code-hl-name-color: var(--gb-text);
+  --md-code-hl-operator-color: #cf222e;
+  --md-code-hl-punctuation-color: var(--gb-text);
+  --md-code-hl-comment-color: var(--gb-muted);
+  --md-code-hl-generic-color: var(--gb-muted);
+  --md-code-hl-variable-color: #953800;
+  --md-admonition-bg-color: var(--gb-bg);
+  --md-admonition-fg-color: var(--gb-text);
+  --md-footer-bg-color: var(--gb-surface);
+  --md-footer-bg-color--dark: var(--gb-surface-2);
+  --md-footer-fg-color: var(--gb-text);
+  --md-footer-fg-color--light: var(--gb-muted);
+  --md-footer-fg-color--lighter: var(--gb-muted);
+  --md-shadow-z1: 0 0 0 1px var(--gb-border);
+  --md-shadow-z2: 0 0 0 1px var(--gb-border), 0 0.2rem 0.6rem rgba(31, 35, 40, 0.12);
 }
 
-/* Шапка темы — вторая копия frontmatter для человека. Она стоит сразу под
-   заголовком и не должна спорить с ним весом. Класс ставит сборка: селектор
-   вида `h1 + p` гасил первый абзац любой страницы, включая главную. */
-.md-typeset p.topic-lead {
-  font-size: 0.8rem;
-  line-height: 1.5;
-  color: var(--md-default-fg-color--light);
-}
-
-/* Маркер «можно отложить» (9.5 п. 10) — строка сразу под шапкой темы. Та же
-   приглушённость, что у шапки, плюс засечка слева: без неё строка сливается
-   со строкой уровня в один абзац. */
-.md-typeset p.topic-skip {
-  font-size: 0.8rem;
-  line-height: 1.5;
-  color: var(--md-default-fg-color--light);
-  border-left: 0.15rem solid var(--md-accent-fg-color);
-  padding-left: 0.6rem;
-}
-
-/* Код внутри ссылки в тёмной теме: штатный #5e8bde на фоне кода даёт 4,2:1
-   при норме 4,5:1 (WCAG 1.4.3). Светлее, из той же ссылочной гаммы: на фоне
-   кода slate выходит около 5,4:1. */
-[data-md-color-scheme="slate"] .md-typeset a code {
-  color: #7ba0e8;
-}
-
-/* Таблицы карты тем длинные: заголовок остаётся видимым. */
-.md-typeset table:not([class]) th {
-  position: sticky;
-  top: 0;
-}
-
-/* Кегль текста 18 px (PLAYBOOK 7.7, норма 17–19 px). Тема задаёт корень в
-   процентах ступенями — 125 % (20 px), от 100 em 137,5 % (22 px), от 125 em
-   150 % (24 px) — поэтому кегль перезадаётся на каждой ступени. Кегль кода
-   тема считает сама как 0,85em от текста: выходит 15,3 px, норма «не меньше
-   15 px» держится без отдельного правила. Печатная ступень повторяет тему:
-   без неё базовое правило ниже (оно позже в каскаде при той же специфичности)
-   затирало бы печатный кегль. */
-.md-typeset { font-size: 0.9rem; }
-@media screen and (min-width: 100em) {
-  .md-typeset { font-size: 0.82rem; }
-}
-@media screen and (min-width: 125em) {
-  .md-typeset { font-size: 0.75rem; }
-}
-@media print {
-  .md-typeset { font-size: 0.68rem; }
-}
-
-/* Интерлиньяж листинга 1,45 (тема даёт 1,4). */
-.md-typeset pre > code { line-height: 1.45; }
-
-/* Код и листинги — JetBrains Mono: ноль с точкой не спутаешь с «O», кириллица
-   в комплекте. Файлы лежат в `assets/fonts/`, в сеть сайт не ходит (OFL 1.1,
-   см. страницу «Атрибуции и лицензии»). Переменная `--md-code-font` — первое
-   звено цепочки `--md-code-font-family`: за ним остаются системные запасные
-   гарнитуры темы. */
+/* ── шрифты ──────────────────────────────────────────────────────────────────
+   Три роли, три шрифта. Заголовки — Press Start 2P: пиксельный, по решению
+   оператора 2026-10-02 (© 2012 CodeMan38, OFL 1.1 — текст лицензии общий с
+   JetBrains Mono: `tools/vendor/fonts/OFL.txt`). Код и «хром» — JetBrains Mono
+   (OFL 1.1). Файлы обоих — в `assets/fonts/`, в сеть сайт не ходит. Тело
+   статьи — пропорциональный системный шрифт: моноширинный текст абзацами
+   читается медленнее. Переменная `--md-code-font` — первое звено цепочки
+   `--md-code-font-family` темы. */
 @font-face {
   font-family: "JetBrains Mono";
   src: url("fonts/JetBrainsMono-Regular.woff2") format("woff2");
@@ -1153,18 +1526,395 @@ EXTRA_CSS = """/* Собрано `tools/build_site.py`; правки — в сб
   font-style: normal;
   font-display: swap;
 }
-:root { --md-code-font: "JetBrains Mono"; }
+@font-face {
+  font-family: "Press Start 2P";
+  src: url("fonts/PressStart2P-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+:root {
+  --md-code-font: "JetBrains Mono";
+  /* Цепочка задана явно: `--md-code-font-family` тема объявляет на `body`, и
+     на `:root` ссылка на неё пуста. */
+  --gb-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+  /* Заголовочный шрифт с откатом на моноширинный: если woff2 не доехал,
+     страница остаётся в прежнем виде, а не в системном sans. */
+  --gb-display: "Press Start 2P", var(--gb-mono);
+}
+.md-typeset h4,
+.md-header__title, .md-nav__title, .md-footer__title, .md-path,
+.md-typeset .admonition-title, .md-typeset summary {
+  font-family: var(--gb-mono);
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+/* У Press Start 2P один градус: жирного нет, и синтетический жирный размыл
+   бы пиксели — поэтому `font-weight: 400` в обеих темах. Шрифт очень широкий
+   и высокий: кегль урезан против умолчания темы, интерлиньяж увеличен —
+   длинные русские заголовки переносятся, и строки не должны налезать друг
+   на друга. Кегль в rem, а не в em: размер текста статьи меняется ступенями
+   медиазапросов, а пропорции заголовков держатся от корня. */
+.md-typeset h1, .md-typeset h2, .md-typeset h3 {
+  font-family: var(--gb-display);
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+.md-typeset h1 { font-size: 1rem; }
+.md-typeset h2 { font-size: 0.75rem; }
+.md-typeset h3 { font-size: 0.65rem; }
 
-/* Лигатур в коде быть не должно: стрелка вместо `->` — это уже другой текст.
-   У темы правило есть; здесь оно продублировано, потому что гарнитура сменилась
-   на ту, где лигатуры реально нарисованы. */
+/* Лигатур в коде быть не должно: стрелка вместо `->` — это уже другой текст. */
 .md-typeset code,
 .md-typeset kbd,
 .md-typeset pre {
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0, "calt" 0;
 }
+
+/* ── каркас ──────────────────────────────────────────────────────────────── */
+.md-header {
+  border-bottom: 1px solid var(--gb-border);
+  box-shadow: none;
+}
+.md-header__title { color: var(--gb-head); }
+.md-header__button.md-logo { color: var(--gb-green); }
+.md-footer { border-top: 1px solid var(--gb-border); }
+.md-footer__link:hover .md-footer__title,
+.md-footer__link:focus .md-footer__title { color: var(--gb-green-hi); }
+.md-search__form { background-color: var(--gb-bg);
+                   box-shadow: 0 0 0 1px var(--gb-border); }
+.md-search__input, .md-search__input::placeholder,
+.md-search__icon { color: var(--gb-muted); }
+.md-search__input { color: var(--gb-text); }
+
+/* Меню: активный пункт — зелёный с засечкой слева. */
+.md-nav__link--active,
+.md-nav__item .md-nav__link--active {
+  color: var(--gb-green);
+  font-weight: 700;
+}
+.md-nav--primary .md-nav__link--active {
+  box-shadow: inset 2px 0 0 var(--gb-green);
+  padding-left: 0.4rem;
+  margin-left: -0.4rem;
+}
+.md-nav__link:hover, .md-nav__link:focus { color: var(--gb-green-hi); }
+/* Прилипший заголовок меню («AppSec-гайдбук», «Содержание»): пункты меню
+   прокручиваются под ним. Правила адресованы с контекстом `--primary`/
+   `--secondary`, иначе проигрывают таким же по специфичности правилам движка.
+   Тень движка (0 0 .4rem .4rem) растекалась ниже текста заголовка
+   полупрозрачной кромкой, и припаркованный под заголовком пункт («Этап 0. …»)
+   просвечивал сквозь неё срезанным пополам. Без тени: фон заголовка сплошной,
+   что ушло под него — скрыто целиком, что ниже — видно целиком. */
+.md-nav--primary .md-nav__title, .md-nav--secondary .md-nav__title {
+  color: var(--gb-muted);
+  background: var(--gb-bg);
+  box-shadow: none;
+}
+
+/* Хлебные крошки (А6): где я, на узком экране тоже. */
+.md-path { font-size: 0.62rem; color: var(--gb-muted); }
+.md-path__link:hover { color: var(--gb-green-hi); }
+
+/* ── статья ─────────────────────────────────────────────────────────────── */
+.md-typeset { color: var(--gb-text); }
+.md-typeset h1, .md-typeset h2, .md-typeset h3, .md-typeset h4 {
+  color: var(--gb-head);
+}
+/* Кегль, градус и интерлиньяж заголовков — в блоке «шрифты» выше: они
+   свойства выбранного шрифта, а не статьи. */
+.md-typeset h2 {
+  border-bottom: 1px solid var(--gb-border);
+  padding-bottom: 0.25em;
+}
+/* Решётки перед заголовками — разметка markdown как украшение, а не номер:
+   псевдоэлемент в текст заголовка и в оглавление не попадает. */
+.md-typeset h2::before { content: "## "; color: var(--gb-muted); }
+.md-typeset h3::before { content: "### "; color: var(--gb-muted); }
+.md-typeset a { color: var(--gb-green); text-underline-offset: 0.15em; }
+.md-typeset a:hover, .md-typeset a:focus { color: var(--gb-green-hi);
+                                           text-decoration: underline; }
+.md-typeset .headerlink { color: var(--gb-muted); }
+.md-typeset ul li::marker, .md-typeset ol li::marker { color: var(--gb-green); }
+.md-typeset ol li::marker { font-family: var(--gb-mono); }
+.md-typeset hr { border-bottom-color: var(--gb-border); }
+.md-typeset blockquote {
+  border-left: 0.2rem solid var(--gb-border);
+  color: var(--gb-muted);
+}
+.md-typeset abbr { text-decoration-color: var(--gb-muted); }
+/* Аббревиатура внутри заголовка — не ссылка и не выносная сноска: пунктирная
+   черта под ней (движок рисует её border-bottom) читалась как подчёркивание
+   заголовка. Раскрытие по наведению (cursor: help) остаётся. */
+.md-typeset h1 abbr, .md-typeset h2 abbr, .md-typeset h3 abbr,
+.md-typeset h4 abbr { border-bottom: none; }
+.md-typeset table:not([class]) {
+  border: 1px solid var(--gb-border);
+  box-shadow: none;
+}
+.md-typeset table:not([class]) th {
+  background: var(--gb-surface);
+  color: var(--gb-head);
+  font-family: var(--gb-mono);
+  font-size: 0.85em;
+  /* Таблицы карты тем длинные: заголовок остаётся видимым. */
+  position: sticky;
+  top: 0;
+}
+.md-typeset table:not([class]) td { border-top: 1px solid var(--gb-border); }
+
+/* Теги темы — чипами с решёткой, как в терминальном выводе. */
+.md-typeset .md-tag {
+  font-family: var(--gb-mono);
+  background: var(--gb-surface);
+  color: var(--gb-muted);
+  border: 1px solid var(--gb-border);
+}
+.md-typeset .md-tag::before { content: "#"; color: var(--gb-green); }
+
+/* Инлайн-код: рамка вместо заливки — в абзаце он не должен звенеть. */
+.md-typeset :not(pre) > code {
+  border: 1px solid var(--gb-border);
+  border-radius: 0.2rem;
+  color: var(--gb-text);
+}
+.md-typeset a code { color: var(--gb-green); }
+
+/* ── листинги: окно терминала ────────────────────────────────────────────────
+   Рамка, полоса слева и шапка-полоска с тремя точками и меткой языка. Метку
+   даёт класс `language-*` (`pygments_lang_class`); правила под языки корпуса
+   сборщик дописывает в конец этого файла. */
+.md-typeset .highlight {
+  position: relative;
+  margin: 1.2em 0;
+  border: 1px solid var(--gb-border);
+  border-left: 3px solid var(--gb-green);
+  border-radius: 0.35rem;
+  background: var(--gb-surface);
+  overflow: hidden;
+}
+.md-typeset .highlight::before {
+  content: "code";
+  display: block;
+  /* Высота полосы = высоте кнопки копирования (1,75rem): кнопка живёт в этой
+     полосе (правило `.md-code__nav` ниже) и не наезжает на строки листинга. */
+  height: 1.75rem;
+  line-height: 1.75rem;
+  padding: 0 0.8rem 0 3.6rem;
+  font-family: var(--gb-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--gb-muted);
+  background:
+    radial-gradient(circle at 0.85rem 50%, #ff5f56 0.22rem, transparent 0.24rem),
+    radial-gradient(circle at 1.65rem 50%, #ffbd2e 0.22rem, transparent 0.24rem),
+    radial-gradient(circle at 2.45rem 50%, #27c93f 0.22rem, transparent 0.24rem),
+    var(--gb-surface-2);
+  border-bottom: 1px solid var(--gb-border);
+}
+.md-typeset .highlight pre { margin: 0; }
+.md-typeset .highlight pre > code {
+  background: var(--gb-surface);
+  border-radius: 0;
+  box-shadow: none;
+  /* Интерлиньяж листинга 1,45 (тема даёт 1,4). */
+  line-height: 1.45;
+}
+/* Кнопка копирования — в шапке-полоске окна листинга, как кнопка окна.
+   Движок ставит её в правый верхний угол `pre` (position: relative у него
+   из темы), и конец длинной первой строки уезжал под неё; в шапке кода нет.
+   Класс у кнопки в material 9.7 — `.md-code__nav`/`.md-code__button`;
+   прежнее правило писалось под `.md-clipboard` и давно ни во что не попадало. */
+.md-typeset .highlight .md-code__nav { top: -1.75rem; right: 0.5rem; }
+/* Сеанс терминала: приглашение зелёное, вывод приглушён. */
+.md-typeset .highlight .gp { color: var(--gb-green); font-weight: 700;
+                             user-select: none; }
+.md-typeset .highlight .go { color: var(--gb-muted); }
+.md-typeset .highlight .err { color: var(--md-code-hl-special-color);
+                              background: none; }
+
+/* ── врезки ──────────────────────────────────────────────────────────────
+   Рамка вместо тяжёлой заливки; подпись врезки — моноширинным. */
+.md-typeset .admonition, .md-typeset details {
+  background: var(--gb-bg);
+  border-width: 1px;
+  border-left-width: 3px;
+  box-shadow: none;
+  font-size: 0.9em;
+}
+.md-typeset .admonition-title, .md-typeset summary {
+  color: var(--gb-text);
+  font-weight: 700;
+}
+.md-typeset details > summary { cursor: pointer; }
+/* Свёрнутые ответы «Проверь себя» (`<details>` без типа) — нейтральной
+   рамкой с зелёным значком, а не синей «заметкой» темы. */
+.md-typeset details:not([class]) { border-color: var(--gb-border);
+                                   border-left-color: var(--gb-green); }
+.md-typeset details:not([class]) > summary { background: var(--gb-surface); }
+.md-typeset details:not([class]) > summary::before,
+.md-typeset details:not([class]) > summary::after {
+  background-color: var(--gb-green);
+}
+
+/* Схемы рисуются в двух вариантах (светлый и тёмный, `tools/render_diagrams.py`);
+   движок показывает один из них по метке `#only-light`/`#only-dark` в адресе.
+   Фон под картинкой повторяет испечённый фон варианта — виден в кайме padding. */
+.md-typeset img.diagram {
+  display: block;
+  height: auto;
+  margin-inline: auto;
+  background: #fff;
+  padding: 0.7rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--gb-border);
+}
+[data-md-color-scheme="slate"] .md-typeset img.diagram { background: #161b22; }
+/* Движок прячет вариант не той темы правилом из своего каскадного слоя, но
+   слой проигрывает нашему неслоеному `display: block` выше — поэтому показ
+   варианта задаём здесь, тем же механизмом по метке в адресе. */
+[data-md-color-scheme="slate"] .md-typeset img.diagram[src$="#only-light"],
+[data-md-color-scheme="default"] .md-typeset img.diagram[src$="#only-dark"] {
+  display: none;
+}
+
+/* Варианты ответов в «Проверь себя» («A. …», «B. …»): абзац с висячим
+   отступом и бейджем-буквой; разметку ставит сборка (`quiz_options`). */
+.md-typeset p.quiz-opt { padding-left: 2.1em; margin: 0.35em 0; }
+.md-typeset .quiz-letter {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 1.45em;
+  height: 1.45em;
+  margin-left: -2.1em;
+  margin-right: 0.65em;
+  line-height: 1.4;
+  text-align: center;
+  font-family: var(--gb-mono);
+  font-size: 0.8em;
+  font-weight: 700;
+  color: var(--gb-green);
+  border: 1px solid var(--gb-green);
+  border-radius: 0.2rem;
+}
+
+/* Маркер «можно отложить» (9.5 п. 10) — строка сразу под заголовком темы,
+   приглушённая, с засечкой слева. */
+.md-typeset p.topic-skip {
+  font-size: 0.85em;
+  line-height: 1.5;
+  color: var(--gb-muted);
+  border-left: 0.15rem solid var(--gb-green);
+  padding-left: 0.6rem;
+}
+
+/* ── главная ─────────────────────────────────────────────────────────────── */
+.md-typeset .hero { margin: 0.4rem 0 1.4rem; }
+.md-typeset .hero__banner {
+  margin: 0;
+  font-family: var(--gb-mono);
+  font-size: clamp(0.5rem, 2.4vw, 0.95rem);
+  line-height: 1.3;
+  color: var(--gb-green);
+  background: none;
+  white-space: pre;
+  overflow: hidden;
+}
+.md-typeset .hero__prompt {
+  margin: 0.6rem 0 0;
+  font-family: var(--gb-mono);
+  color: var(--gb-muted);
+}
+.md-typeset .hero__ps { color: var(--gb-green); font-weight: 700; }
+.md-typeset .hero__cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  margin-left: 0.2em;
+  vertical-align: text-bottom;
+  background: var(--gb-green);
+  animation: gb-blink 1.1s steps(1) infinite;
+}
+@keyframes gb-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .md-typeset .hero__cursor { animation: none; }
+}
+.md-typeset .stage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.8rem;
+  margin: 1.4rem 0 2rem;
+}
+.md-typeset a.stage-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--gb-border);
+  border-radius: 0.4rem;
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.md-typeset a.stage-card:hover, .md-typeset a.stage-card:focus-visible {
+  border-color: var(--gb-green);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+.md-typeset a.stage-card:focus-visible { outline: 2px solid var(--gb-green);
+                                         outline-offset: 2px; }
+.stage-card__num {
+  font-family: var(--gb-mono);
+  font-size: 0.75em;
+  color: var(--gb-green);
+}
+.stage-card__num::before { content: "~/"; color: var(--gb-muted); }
+.stage-card__title { font-weight: 700; color: var(--gb-text); line-height: 1.3; }
+.stage-card__meta { font-family: var(--gb-mono); font-size: 0.75em;
+                    color: var(--gb-muted); }
+.stage-card__go { margin-top: auto; padding-top: 0.4rem; font-size: 0.8em;
+                  color: var(--gb-green); }
+.stage-card__go::before { content: "$ "; font-family: var(--gb-mono); }
+
+/* ── кегль ───────────────────────────────────────────────────────────────────
+   Кегль текста 18 px (PLAYBOOK 7.7, норма 17–19 px). Тема задаёт корень в
+   процентах ступенями — 125 % (20 px), от 100 em 137,5 % (22 px), от 125 em
+   150 % (24 px) — поэтому кегль перезадаётся на каждой ступени. Кегль кода
+   тема считает сама как 0,85em от текста: выходит 15,3 px, норма «не меньше
+   15 px» держится без отдельного правила. Печатная ступень повторяет тему. */
+.md-typeset { font-size: 0.9rem; }
+@media screen and (min-width: 100em) {
+  .md-typeset { font-size: 0.82rem; }
+}
+@media screen and (min-width: 125em) {
+  .md-typeset { font-size: 0.75rem; }
+}
+@media print {
+  .md-typeset { font-size: 0.68rem; }
+  .md-typeset .highlight::before { display: none; }
+}
 """
+
+# Метка языка в шапке листинга: подписи для языков корпуса. Язык, которого
+# здесь нет, подписывается своим именем из класса.
+LANG_LABELS = {"console": "terminal", "text": "text", "javascript": "js",
+               "typescript": "ts", "dockerfile": "Dockerfile", "ql": "codeql"}
+
+
+def lang_css(langs: set[str]) -> str:
+    """Правила `::before` с меткой языка для каждого языка, что встретился."""
+    rules = []
+    for lang in sorted(langs):
+        if not re.fullmatch(r"[a-z0-9+#-]+", lang):
+            continue
+        label = LANG_LABELS.get(lang, lang)
+        rules.append(f'.md-typeset .language-{lang}.highlight::before '
+                     f'{{ content: "{label}"; }}')
+    return "\n/* Метки языков листингов: собраны из корпуса. */\n" + "\n".join(rules) + "\n"
 
 
 # ── «Первоисточники», «Повторение», сводки этапов, «На чём проверено» ────────
@@ -1183,8 +1933,8 @@ def load_sources_registry() -> dict[str, dict]:
             if isinstance(s, dict)}
 
 
-def primary_sources(page: vc.Page, registry: dict[str, dict]) -> tuple[str, int]:
-    """Блок «Первоисточники» для страницы темы и число документов в нём."""
+def primary_sources(page: vc.Page, registry: dict[str, dict]) -> list[str]:
+    """Пункты списка первоисточников темы: название, издатель, версия."""
     items = []
     for sid in (page.front.get("sources") or []):
         src = registry.get(str(sid)) or {}
@@ -1195,11 +1945,34 @@ def primary_sources(page: vc.Page, registry: dict[str, dict]) -> tuple[str, int]
                                       one_line(src.get("version_or_date") or ""))
                           if x)
         items.append(f"- [{title}]({url})" + (f" — {extra}." if extra else "."))
-    if not items:
+    return items
+
+
+def read_more(page: vc.Page, page_rel: str, index: dict[str, str],
+              titles: dict[str, str], registry: dict[str, dict]
+              ) -> tuple[str, int]:
+    """Раздел «Что почитать дальше» и число первоисточников в нём.
+
+    Первая строка — предпосылки ссылками с названиями тем («Перед этой темой
+    полезно знать: …»); тема вне корпуса остаётся без ссылки — сослаться не на
+    что. За ней — первоисточники, по которым сверена тема.
+    """
+    parts = []
+    prereqs = [q for q in (page.front.get("prerequisites") or []) if q != page.id]
+    if prereqs:
+        links = ", ".join(
+            f"[{titles.get(q, q)}]({link_to(page_rel, index[q])})" if q in index
+            else f"«{q}»" for q in prereqs)
+        parts.append(f"Перед этой темой полезно знать: {links}.")
+    items = primary_sources(page, registry)
+    if items:
+        parts.append("Первоисточники, по которым сверена статья, — с них стоит "
+                     "начать, если хочется глубже. Если текст и документ "
+                     "расходятся, верен документ.")
+        parts.append("\n".join(items))
+    if not parts:
         return "", 0
-    return ("## Первоисточники\n\n"
-            "Тема сверена по этим документам; если текст и документ расходятся, "
-            "верен документ.\n\n" + "\n".join(items)), len(items)
+    return f"## {READ_MORE}\n\n" + "\n\n".join(parts), len(items)
 
 
 # ── заимствование текста тем ─────────────────────────────────────────────────
@@ -1208,7 +1981,12 @@ NUM_ITEM_RE = re.compile(r"^(\d+)\.[ \t]+")
 
 
 def block_titled(page: vc.Page, word: str) -> vc.Block | None:
-    return next((b for b in page.blocks if word in b.title), None)
+    """Блок по каноническому названию — или по живому, если в исходнике уже
+    стоит оно (`BLOCK_TITLES`): собранные страницы этапа не должны терять
+    блок оттого, что автор переименовал заголовок."""
+    names = {word, BLOCK_TITLES.get(word) or word}
+    return next((b for b in page.blocks if any(n in b.title for n in names)),
+                None)
 
 
 def numbered_items(lines: list[str]) -> list[str]:
@@ -1511,8 +2289,9 @@ description: Вопросы на пройденные темы и задачи �
 
 # Этап {num}. Повторение
 
-Страница собрана из того, что уже написано: вопросы — из блоков «Предвопросы»
-и «Проверь себя» пройденных тем, функции — из лабораторных. Набор меняется,
+Страница собрана из того, что уже написано: вопросы — из врезок «Подумай,
+прежде чем читать» и разделов «Проверь себя» пройденных тем, функции — из
+лабораторных. Набор меняется,
 только когда меняются сами темы.
 
 ## Повтор пройденного
@@ -1552,7 +2331,7 @@ description: Вопросы на пройденные темы и задачи �
                       f"[{one_line(topic.front.get('title'))}]"
                       f"({link_to(rel, index[topic.id])}): дефект того класса, "
                       f"которому посвящена тема; точное место и починка — в её "
-                      f"блоках «Как выглядит в коде» и «Как чинится».")
+                      f"разделах «Как это выглядит в коде» и «Как защититься».")
             parts.append(f"```{lang}\n{code}\n```\n\n"
                          f"<details markdown=\"1\">\n<summary>Ответ</summary>\n\n"
                          f"{answer}\n\n</details>\n")
@@ -1560,7 +2339,9 @@ description: Вопросы на пройденные темы и задачи �
     if needed:
         parts.append("")
         parts += [f"[^{label}]: {text}" for label, text in needed.items()]
-    return "\n".join(parts)
+    # Вопросы и ответы заимствованы из тем целиком — с вариантами «A. …»;
+    # разметка бейджей та же, что на страницах тем.
+    return quiz_options("\n".join(parts), report)
 
 
 # ── сводка этапа ─────────────────────────────────────────────────────────────
@@ -1619,7 +2400,7 @@ description: Все темы этапа «{title}» одним абзацем к
 
 # Этап {num} коротко
 
-Конденсат этапа: блоки «Коротко» всех тем подряд и за ними общий чеклист
+Конденсат этапа: «Если коротко» всех тем подряд и за ними общий чеклист для
 ревью. Примеры, разборы и ответы — в самих темах.
 
 ## Коротко о каждой теме
@@ -1982,7 +2763,10 @@ def stage_tree(today: date) -> dict:
               "footnotes_missing": [], "notes": author_notes(ctx, pages, today),
               "primary_sources": 0, "primary_links": 0, "review_pages": 0,
               "review_q": 0, "mixed": 0, "verified": 0,
-              "labs": len(labs), "lab_run": 0}
+              "labs": len(labs), "lab_run": 0, "block_refs": 0,
+              "block_refs_lost": [], "console": 0, "callouts": 0,
+              "quiz_opts": 0,
+              "langs": set()}
 
     if SRC.exists():
         shutil.rmtree(SRC)
@@ -2068,9 +2852,10 @@ def stage_tree(today: date) -> dict:
     # что стоят на страницах этой сборки, иначе он тащит мёртвые картинки.
     for name in sorted(report["diagram_files"]):
         shutil.copy2(render_diagrams.OUT / name, assets / "diagrams" / name)
-    (assets / "extra.css").write_text(EXTRA_CSS, encoding="utf-8")
+    (assets / "extra.css").write_text(EXTRA_CSS + lang_css(report["langs"]),
+                                      encoding="utf-8")
     shutil.copy2(SHIM_SRC, assets / "iframe-worker-shim.js")
-    # Шрифт листингов (А5): локальные woff2, сайт за ними в сеть не ходит.
+    # Шрифты сайта (А5): локальные woff2, сайт за ними в сеть не ходит.
     (assets / "fonts").mkdir(exist_ok=True)
     for font in sorted(FONTS_SRC.glob("*.woff2")):
         shutil.copy2(font, assets / "fonts" / font.name)
@@ -2155,6 +2940,11 @@ def main() -> int:
           f"{report['lab_run']} тем)", file=sys.stderr)
     for line in report["diagrams_failed"]:
         print(f"  схема не нарисована — {line}", file=sys.stderr)
+    print(f"решения 2026-10-02: {report['block_refs']} ссылок на блоки "
+          f"переписано названиями, {report['callouts']} врезок, "
+          f"{report['console']} листингов-сеансов терминала", file=sys.stderr)
+    for line in report["block_refs_lost"]:
+        print(f"  ссылка на блок без блока — {line}", file=sys.stderr)
     for line in report["footnotes_missing"]:
         print(f"  сноска без определения — {line}", file=sys.stderr)
     for line in report["notes"]:

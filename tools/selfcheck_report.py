@@ -104,8 +104,10 @@ def topic_stats(page: vc.Page, ctx: vc.Ctx,
                 approaches: dict[str, list[str]] | None = None) -> dict | None:
     """Метрики одной темы; None, если блока самопроверки нет (уровень L3)."""
     skeleton = ctx.skeleton_of(page)
-    num = ctx.num_of(skeleton, "selfcheck")
-    block = page.block(num) if num is not None else None
+    # Блок ищется по ключу, а не по номеру: номер зависит от скелета, а в
+    # теме-статье (переходный режим, решение оператора 2026-10-02) заголовков
+    # с номерами нет вовсе — там «Проверь себя» распознаётся по имени.
+    block = vc.block_by_key(page, ctx, skeleton, "selfcheck")
     if block is None:
         return None
     raw = page.lines[block.start:block.end]

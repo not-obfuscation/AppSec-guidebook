@@ -191,6 +191,72 @@ H2_RE = re.compile(r"\A##\s+(.+?)\s*\Z")
 H2_NUM_RE = re.compile(r"\A(\d+)\.\s+(.+)\Z")
 LIST_NUM_RE = re.compile(r"\A(\d+)\.\s+(.+)\Z")
 
+# ── две формы подачи: нумерованный скелет и статья ──────────────────────────
+#
+# Переходный режим (решение оператора 2026-10-02): корпус переходит на
+# статейную подачу — живые заголовки без номеров, без строки «Уровень … ·
+# время …» и без абзаца «Что прочитать сначала» (уровень, время и предпосылки
+# остаются во frontmatter), — а переписываются темы батчами, поэтому до конца
+# роллаута законны обе формы. Форма определяется по странице целиком: номер
+# есть хотя бы у одного заголовка блока — тема в старой форме, и тогда номера
+# обязаны у всех блоков (половинчатого скелета не бывает); номеров нет ни у
+# одного — тема-статья, и её блоки скелета распознаются по имени.
+#
+# Таблица ниже — единственное место, где задано соответствие «ключ блока
+# скелета → живое имя в статье» (эталон — пилотная тема
+# `content/stage-0/tls-and-proxy.md`). Ключи общие у обоих скелетов
+# (`SCHEMA.md` § 4), номера у скелетов разные, поэтому соответствие ведётся
+# по ключу:
+#
+#   ключ         старое имя (слот скелета)   живое имя в статье
+#   brief        «Коротко»                   — снят: его роль несёт вводный абзац
+#   goals        «Цели»                      — снят: цели живут во frontmatter `teaches`
+#   prequestions «Предвопросы»               «Подумай, прежде чем читать»
+#   mechanics    «Механика»                  «Как это работает»
+#   exploit      «Эксплуатация»              «Как это атакуют»
+#   in-code      «Как выглядит в коде»       «Как это выглядит в коде»
+#   fix          «Как чинится»               «Как защититься»
+#   verify-fix   «Как проверить фикс»        «Как убедиться, что защита работает»
+#   automation   «Как ловится автоматикой»   «Как это находят инструменты»
+#   pitfall      «Ловушка»                   «Частая ошибка»
+#   checklist    «Чеклист ревью»             список внутри «Как убедиться, что защита
+#                                            работает» или отдельный «Чеклист для ревью»
+#   lab          «Лаба» / «Задача»           «Попробуй сам»
+#   selfcheck    «Проверь себя»              «Проверь себя» (без номера)
+#   sources      «Источники»                 «Источники» (без номера)
+#
+# Блоки, которых пилот не коснулся (у скелета «инструмент»: capabilities, run,
+# output, limits), живого имени не получили — в статье они пишутся старым
+# именем без номера: старое имя законно в обеих формах. У сборки сайта своя
+# таблица переименований (`BLOCK_TITLES` в `build_site.py`): она про то, что
+# читатель видит на странице (там «Источники» показываются как «Что почитать
+# дальше»), а эта — про то, какие заголовки законны в исходнике.
+LIVE_TITLES: dict[str, str] = {
+    "prequestions": "Подумай, прежде чем читать",
+    "mechanics": "Как это работает",
+    "exploit": "Как это атакуют",
+    "in-code": "Как это выглядит в коде",
+    "fix": "Как защититься",
+    "verify-fix": "Как убедиться, что защита работает",
+    "automation": "Как это находят инструменты",
+    "pitfall": "Частая ошибка",
+    "checklist": "Чеклист для ревью",
+    "lab": "Попробуй сам",
+    "selfcheck": "Проверь себя",
+    "sources": "Источники",
+}
+# В статье блоки «Коротко» и «Цели» сняты (решение оператора 2026-10-02):
+# первый заменяет вводный абзац под заголовком, вторые остаются во
+# frontmatter `teaches`. Обязательность снята только со статьи: в старой
+# форме оба блока обязательны там, где были.
+ARTICLE_DROPPED = {"brief", "goals"}
+# Чеклист статьи законно слит с проверкой защиты (пилот `tls-and-proxy`):
+# список живёт внутри «Как убедиться, что защита работает». Такой заголовок
+# засчитывает оба ключа — и `verify-fix`, и `checklist`. Норму пунктов
+# `C-BODY-CHECKLIST` меряет только отдельный заголовок чеклиста, слитый блок
+# она не трогает.
+CHECKLIST_MERGED = LIVE_TITLES["verify-fix"]
+
 WHY = "**Зачем это в работе AppSec-инженера.**"
 TRUST = "**Маркеры уверенности.**"
 # 6.6 требует «Откуда это взялось» от каждой темы про механизм защиты или
@@ -237,6 +303,17 @@ class Page:
     @property
     def depth(self) -> str:
         return str(self.front.get("depth") or "")
+
+    @property
+    def numbered(self) -> bool:
+        """Форма подачи темы: старый нумерованный скелет или статья.
+
+        Номер есть хотя бы у одного заголовка блока — тема в старой форме, и
+        тогда номера обязаны у всех блоков; статья номеров не знает вовсе, и
+        её блоки распознаются по имени (решение оператора 2026-10-02, таблица
+        `LIVE_TITLES` выше).
+        """
+        return any(b.num >= 0 for b in self.blocks)
 
     def at(self, key: str) -> int:
         """Строка поля frontmatter — чтобы замечание попадало в нужное место."""
@@ -446,8 +523,37 @@ class Ctx:
                 out.append(alt)
         return out
 
+    def key_names(self, skeleton: str, num: int, depth: str) -> list[str]:
+        """Все законные имена блока: канон скелета, alt по уровню, живое имя
+        статьи из `LIVE_TITLES` (переходный режим, решение оператора
+        2026-10-02)."""
+        b = self.blocks(skeleton)[num]
+        out = self.titles(skeleton, num, depth)
+        live = LIVE_TITLES.get(b.get("key") or "")
+        if live and live not in out:
+            out.append(live)
+        return out
+
 
 # ── C-FM-*: frontmatter ───────────────────────────────────────────────────────
+
+
+def block_by_key(page: Page, ctx: Ctx, skeleton: str, key: str) -> Block | None:
+    """Блок по машинному ключу — в любой из двух форм подачи.
+
+    Старая форма: слот по номеру, как раньше. Статья: заголовок с любым
+    законным именем блока (канон, alt по уровню, живое имя из `LIVE_TITLES`),
+    номер опционален. Слитый чеклист статьи сюда не попадает намеренно
+    (см. `CHECKLIST_MERGED`): норму пунктов `C-BODY-CHECKLIST` меряет
+    отдельный заголовок чеклиста.
+    """
+    num = ctx.num_of(skeleton, key)
+    if num is None:
+        return None
+    if page.numbered:
+        return page.block(num)
+    names = set(ctx.key_names(skeleton, num, page.depth))
+    return next((b for b in page.blocks if b.title in names), None)
 
 
 def check_front(page: Page, ctx: Ctx) -> list[Finding]:
@@ -919,6 +1025,13 @@ def check_taxonomy(pages: list[Page], ctx: Ctx) -> list[Finding]:
 # frontmatter, `topics.yaml` и `audit.yaml`, а на страницу не выносятся
 # (решение оператора 2026-08-24). Предпосылки печатаются отдельным абзацем
 # человеческой фразой и только тогда, когда они есть.
+#
+# Переходный режим (решение оператора 2026-10-02): строка «Уровень … ·
+# время …» и абзац «Что прочитать сначала» опциональны — тема-статья пишется
+# без них, а уровень, время и предпосылки живут во frontmatter (`depth`,
+# `time_min`, `prerequisites`). Если строка или абзац на странице есть, они
+# сверяются с frontmatter по-прежнему: законны обе формы, незаконно
+# расхождение.
 
 
 def check_head(page: Page, ctx: Ctx) -> list[Finding]:
@@ -929,7 +1042,9 @@ def check_head(page: Page, ctx: Ctx) -> list[Finding]:
         out.append(Finding(page.path, at or line, 1, rule, level, msg))
 
     if not head:
-        add("C-HEAD-DEPTH", ERROR, "нет шапки темы: часть 4 требует её до блока 0")
+        add("C-HEAD-DEPTH", ERROR,
+            "под заголовком нет ни шапки, ни вводного абзаца: в старой форме "
+            "там строка «Уровень … · время …», в статье — вступление темы")
         return out
 
     # Ищется по всей вводной части — от h1 до первого `## `. Иначе след,
@@ -942,17 +1057,13 @@ def check_head(page: Page, ctx: Ctx) -> list[Finding]:
                 "`topics.yaml` и `audit.yaml`", page.intro_line or line)
 
     m = HEAD_DEPTH_RE.search(head)
-    if not m:
-        add("C-HEAD-DEPTH", ERROR, "в шапке нет уровня вида `Уровень **L2**`")
-    elif m.group(1) != page.depth:
+    if m and m.group(1) != page.depth:
         add("C-HEAD-DEPTH", ERROR,
             f"в шапке уровень {m.group(1)}, во frontmatter `depth: {page.depth}`")
 
     m = HEAD_TIME_RE.search(head)
     time_min = page.front.get("time_min")
-    if not m:
-        add("C-HEAD-TIME", ERROR, "в шапке нет времени вида `время 30 мин`")
-    else:
+    if m:
         total = int(m.group(1))
         if isinstance(time_min, int) and total != time_min:
             add("C-HEAD-TIME", ERROR,
@@ -978,20 +1089,18 @@ def check_head(page: Page, ctx: Ctx) -> list[Finding]:
                 "нет разбивки времени вида `(теория 15 / задача 10 / самопроверка 5)`")
 
     prereq = [str(x) for x in (page.front.get("prerequisites") or [])]
-    if not page.prereq:
-        got = []
-    else:
+    if page.prereq:
         m = PREREQ_HEAD_RE.match(page.prereq)
         got = TICK_RE.findall(m.group(1)) if m else None
-    if got is None:
-        add("C-HEAD-PREREQ", ERROR,
-            "абзац предпосылок не по форме «Что прочитать сначала: `id`, `id`.»",
-            page.prereq_line or line)
-    elif got != prereq:
-        add("C-HEAD-PREREQ", ERROR,
-            f"предпосылки на странице {got or '—'} не совпадают с frontmatter "
-            f"{prereq or '—'}; при пустом списке абзаца быть не должно",
-            page.prereq_line or line)
+        if got is None:
+            add("C-HEAD-PREREQ", ERROR,
+                "абзац предпосылок не по форме «Что прочитать сначала: `id`, `id`.»",
+                page.prereq_line or line)
+        elif got != prereq:
+            add("C-HEAD-PREREQ", ERROR,
+                f"предпосылки на странице {got or '—'} не совпадают с frontmatter "
+                f"{prereq or '—'}; при пустом списке абзаца быть не должно",
+                page.prereq_line or line)
     return out
 
 
@@ -1002,6 +1111,12 @@ def check_head(page: Page, ctx: Ctx) -> list[Finding]:
 # (свод 4.2). Проверки ниже спрашивают состав у объявленного скелета, поэтому
 # блок «Как чинится» у темы-инструмента — не пропуск, а `C-BLOCK-NUM`
 # наоборот: заголовок чужого скелета на странице ловится, а не пропускается.
+#
+# Форм подачи тоже две (решение оператора 2026-10-02): старая, где каждый
+# заголовок блока несёт номер слота (`## 3. Механика`), и статья, где блоки
+# названы старым или живым именем без номера (`## Как это работает`), а
+# остальные разделы свободны. Соответствие имён — таблица `LIVE_TITLES` выше;
+# старую форму проверяет `check_blocks`, статью — `check_blocks_article`.
 
 
 def check_blocks(page: Page, ctx: Ctx) -> list[Finding]:
@@ -1015,19 +1130,24 @@ def check_blocks(page: Page, ctx: Ctx) -> list[Finding]:
     def add(rule, level, msg, line=1):
         out.append(Finding(page.path, line, 1, rule, level, msg))
 
+    if not page.numbered:
+        return out + check_blocks_article(page, ctx, skeleton, depth)
+
     nums: list[int] = []
     for b in page.blocks:
         if b.num < 0:
             add("C-BLOCK-SHAPE", ERROR,
-                f"заголовок «{b.title}» не по форме `## N. Название`: блоки скелета "
-                "нумерованы, и по номеру их сравнивают между темами", b.line)
+                f"заголовок «{b.title}» не по форме `## N. Название`: в старой "
+                "форме блоки скелета нумерованы, и по номеру их сравнивают "
+                "между темами. Новая статейная форма (решение оператора "
+                "2026-10-02) номеров не знает вовсе: она переводится целиком", b.line)
             continue
         if b.num not in canon:
             add("C-BLOCK-NUM", ERROR,
                 f"блока {b.num} в скелете «{skeleton}» нет "
                 f"(номера {min(canon)}–{max(canon)})", b.line)
             continue
-        titles = ctx.titles(skeleton, b.num, depth)
+        titles = ctx.key_names(skeleton, b.num, depth)
         if b.title not in titles:
             add("C-BLOCK-TITLE", ERROR,
                 f"блок {b.num} назван «{b.title}», канон скелета «{skeleton}» — "
@@ -1057,6 +1177,69 @@ def check_blocks(page: Page, ctx: Ctx) -> list[Finding]:
             f"блок {num} «{canon[num]['title']}» на уровне {depth} не предусмотрен "
             f"скелетом «{skeleton}» (`SCHEMA.md` § 4)", page.block(num).line)
 
+    return out
+
+
+def check_blocks_article(page: Page, ctx: Ctx, skeleton: str,
+                         depth: str) -> list[Finding]:
+    """Скелет темы-статьи: блоки распознаются по имени, разделы свободные.
+
+    Отличия от нумерованной формы (решение оператора 2026-10-02, эталон —
+    пилот `tls-and-proxy`): заголовок блока пишется старым или живым именем
+    (`LIVE_TITLES`) без номера; тема-специфичные разделы («Что будет без
+    TLS») — свободные H2, они не обязательны и по имени не проверяются;
+    «Коротко» и «Цели» сняты (`ARTICLE_DROPPED`); порядок блоков не
+    проверяется — статья ведёт читателя своей логикой, а не порядком слотов.
+    Сохранено из старой формы: обязательность остальных блоков по уровню,
+    предусмотренность уровнем и неповторность блока.
+    """
+    out: list[Finding] = []
+    canon = ctx.blocks(skeleton)
+
+    def add(rule, level, msg, line=1):
+        out.append(Finding(page.path, line, 1, rule, level, msg))
+
+    # Заголовок → ключи блоков, которые он закрывает. Ключей может быть два:
+    # «Как убедиться, что защита работает» закрывает и `verify-fix`, и слитый
+    # в него чеклист (`CHECKLIST_MERGED`).
+    title_keys: dict[str, set[str]] = {}
+    for num, b in canon.items():
+        key = b.get("key")
+        if not key:
+            continue
+        names = ctx.key_names(skeleton, num, depth)
+        if key == "checklist":
+            names = names + [CHECKLIST_MERGED]
+        for name in names:
+            title_keys.setdefault(name, set()).add(key)
+
+    allowed = set(ctx.allowed(skeleton, depth))
+    seen: dict[str, list[Block]] = {}
+    for b in page.blocks:
+        keys = title_keys.get(b.title)
+        if not keys:
+            continue  # свободный раздел статьи
+        if not any(ctx.num_of(skeleton, k) in allowed for k in keys):
+            add("C-BLOCK-EXTRA", ERROR,
+                f"блок «{b.title}» на уровне {depth} не предусмотрен скелетом "
+                f"«{skeleton}» (`SCHEMA.md` § 4)", b.line)
+        for k in keys:
+            seen.setdefault(k, []).append(b)
+    for key, blocks in seen.items():
+        if len(blocks) > 1:
+            add("C-BLOCK-ORDER", ERROR,
+                f"блок «{blocks[0].title}» встречается второй раз", blocks[1].line)
+
+    for num in sorted(set(ctx.required(skeleton, depth))):
+        key = canon[num].get("key")
+        if key in ARTICLE_DROPPED or key in seen:
+            continue
+        names = " / ".join(f"«{n}»" for n in ctx.key_names(skeleton, num, depth))
+        msg = (f"нет блока {names}, обязательного на {depth} "
+               f"в скелете «{skeleton}»")
+        if key == "checklist":
+            msg += f"; законен и списком внутри «{CHECKLIST_MERGED}»"
+        add("C-BLOCK-REQ", ERROR, msg)
     return out
 
 
@@ -1091,10 +1274,15 @@ def check_body(page: Page, ctx: Ctx) -> list[Finding]:
     def add(rule, level, msg, line=1):
         out.append(Finding(page.path, line, 1, rule, level, msg))
 
-    def named(key: str) -> tuple[Block | None, int | None]:
-        """Блок и его номер по машинному имени: номера двух скелетов разные."""
-        num = ctx.num_of(skeleton, key)
-        return (page.block(num) if num is not None else None), num
+    def named(key: str) -> tuple[Block | None, str]:
+        """Блок по машинному ключу и его метка для сообщений: в старой форме —
+        номер слота, в статье — заголовок блока, каким его написал автор."""
+        b = block_by_key(page, ctx, skeleton, key)
+        if b is None:
+            return None, ""
+        if page.numbered:
+            return b, str(ctx.num_of(skeleton, key))
+        return b, f"«{b.title}»"
 
     body = "\n".join(page.lines[page.h1_line:]) if page.h1_line else page.doc.raw
     for marker, rule, why in ((WHY, "C-BODY-WHY", "DoD 6"),
@@ -1260,14 +1448,13 @@ def check_body(page: Page, ctx: Ctx) -> list[Finding]:
     # которому разбор лежит. Правило спрашивается только с рецепта: концепт
     # механизм и объясняет, это его работа.
     if skeleton == "инструмент" and page.front.get("mode") == "рецепт":
-        num = ctx.num_of(skeleton, "mechanics")
-        mech = page.block(num) if num is not None else None
+        mech = block_by_key(page, ctx, skeleton, "mechanics")
         if mech:
             text_mech = "\n".join(spans[mech.start:mech.end])
             if not TICK_RE.findall(text_mech) and not (
                     PLAN_TOPIC_RE.search(text_mech) or PLAN_SUB_RE.search(text_mech)):
                 add("C-BODY-MECH", ERROR,
-                    f"блок {num} «Механика» на странице-рецепте не называет "
+                    f"блок «{mech.title}» на странице-рецепте не называет "
                     "темы, где механизм разобран: в рецепте механика идёт в "
                     "объёме, нужном, чтобы понять вывод, а глубина живёт по "
                     "ссылке (9.2)", mech.line)

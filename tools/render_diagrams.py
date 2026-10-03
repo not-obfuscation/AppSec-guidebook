@@ -11,6 +11,11 @@
 в сеть не ходит (`SCOPE.md` § 6). Нарисованный SVG самодостаточен: внутри только
 геометрия и текст, внешних ссылок нет, шрифт системный.
 
+Каждая схема рисуется дважды: светлый вариант для светлой темы сайта и тёмный
+(`DARK_CONFIG`, палитра `--gb-*`) для тёмной. Сборка ставит оба `<img>` рядом
+с метками `#only-light`/`#only-dark` в адресе — движок темы показывает один из
+них по активной палитре, и переключатель темы меняет схему без перезагрузки.
+
 Кэш — по содержимому: имя файла считается из самой схемы и параметров
 отрисовки, поэтому неизменившаяся схема второй раз не рисуется. Меняются
 параметры — меняются все имена, и это правильно: старые картинки нарисованы
@@ -40,13 +45,49 @@ ROOT = Path(__file__).resolve().parent.parent
 MMDC = ROOT / "tools" / "node" / "node_modules" / ".bin" / "mmdc"
 OUT = ROOT / "build" / "diagrams"
 
-# Параметры отрисовки входят в имя файла: белый фон, потому что текст схемы
-# тёмный и на тёмной теме сайта он на прозрачном фоне исчезает; ширина задана,
+# Параметры отрисовки входят в имя файла: у светлого варианта белый фон,
+# потому что текст схемы тёмный и на прозрачном фоне исчезает; ширина задана,
 # чтобы схема не рисовалась по ширине окна безголового браузера.
 BACKGROUND = "white"
 WIDTH = "1000"
 PUPPETEER_ARGS = ["--no-sandbox", "--disable-gpu"]
 VERSION = "1"          # менять при смене набора параметров
+
+# Тёмный вариант — для тёмной темы сайта (решение: схема следует палитре
+# сайта, а не белым прямоугольником на тёмном поле). Цвета — переменные
+# `--gb-*` из EXTRA_CSS (`tools/build_site.py`): фон и заливка узлов —
+# поверхности сайта, рамки — акцентный зелёный, линии и текст — приглушённый
+# и основной. Ключи `noteBkgColor`/`noteBorderColor` — так они зовутся в
+# mermaid 11; `noteBkg` из документации к старым версиям молча не работает.
+DARK_BACKGROUND = "#161b22"
+DARK_CONFIG = {
+    "theme": "base",
+    "themeVariables": {
+        "background": DARK_BACKGROUND,
+        "primaryColor": "#1c2128",
+        "primaryTextColor": "#c9d1d9",
+        "primaryBorderColor": "#3fb950",
+        "lineColor": "#8b949e",
+        "textColor": "#c9d1d9",
+        "secondaryColor": "#1c2128",
+        "tertiaryColor": "#161b22",
+        "edgeLabelBackground": "#161b22",
+        "actorBkg": "#1c2128",
+        "actorBorder": "#3fb950",
+        "actorTextColor": "#c9d1d9",
+        "actorLineColor": "#3fb950",
+        "signalColor": "#8b949e",
+        "signalTextColor": "#c9d1d9",
+        "noteBkgColor": "#1c2128",
+        "noteBorderColor": "#3fb950",
+        "noteTextColor": "#c9d1d9",
+        "labelBoxBkgColor": "#1c2128",
+        "labelBoxBorderColor": "#30363d",
+        "labelTextColor": "#c9d1d9",
+        "loopTextColor": "#c9d1d9",
+        "sequenceNumberColor": "#0d1117",
+    },
+}
 
 FENCE_RE = mdtext.FENCE_RE
 
@@ -55,10 +96,14 @@ class Unavailable(RuntimeError):
     """mermaid-cli не поставлен: рисовать нечем."""
 
 
-def digest(source: str) -> str:
+def digest(source: str, dark: bool = False) -> str:
     """Имя картинки — от содержимого схемы и параметров отрисовки."""
-    key = "\n".join([VERSION, BACKGROUND, WIDTH, source.strip()])
-    return hashlib.sha1(key.encode("utf-8")).hexdigest()[:12]
+    if not dark:
+        key = "\n".join([VERSION, BACKGROUND, WIDTH, source.strip()])
+        return hashlib.sha1(key.encode("utf-8")).hexdigest()[:12]
+    key = "\n".join([VERSION, "dark", DARK_BACKGROUND, WIDTH,
+                     json.dumps(DARK_CONFIG, sort_keys=True), source.strip()])
+    return hashlib.sha1(key.encode("utf-8")).hexdigest()[:12] + "-dark"
 
 
 def available() -> bool:
@@ -75,12 +120,21 @@ def puppeteer_config(out_dir: Path) -> Path:
     return path
 
 
-def render(source: str, out_dir: Path = OUT) -> Path:
-    """Схема → путь к SVG. Уже нарисованную не рисует заново."""
+def dark_config(out_dir: Path) -> Path:
+    """Конфиг mermaid для тёмного варианта схемы."""
+    path = out_dir / "mermaid-dark.json"
+    want = json.dumps(DARK_CONFIG, ensure_ascii=False, sort_keys=True)
+    if not path.exists() or path.read_text(encoding="utf-8") != want:
+        path.write_text(want, encoding="utf-8")
+    return path
+
+
+def render_one(source: str, out_dir: Path, dark: bool) -> Path:
+    """Один вариант схемы → путь к SVG. Уже нарисованный не рисует заново."""
     if not available():
         raise Unavailable(f"нет {MMDC.relative_to(ROOT)}: `make setup`")
     out_dir.mkdir(parents=True, exist_ok=True)
-    svg = out_dir / f"{digest(source)}.svg"
+    svg = out_dir / f"{digest(source, dark)}.svg"
     if svg.exists() and svg.stat().st_size > 0:
         return svg
 
@@ -88,11 +142,13 @@ def render(source: str, out_dir: Path = OUT) -> Path:
     src.write_text(source.strip() + "\n", encoding="utf-8")
     env = dict(os.environ)
     env.setdefault("PUPPETEER_CACHE_DIR", str(Path.home() / ".cache" / "puppeteer"))
-    proc = subprocess.run(
-        [str(MMDC), "--input", str(src), "--output", str(svg),
-         "--backgroundColor", BACKGROUND, "--width", WIDTH,
-         "--puppeteerConfigFile", str(puppeteer_config(out_dir))],
-        capture_output=True, text=True, env=env, cwd=str(ROOT))
+    cmd = [str(MMDC), "--input", str(src), "--output", str(svg),
+           "--backgroundColor", DARK_BACKGROUND if dark else BACKGROUND,
+           "--width", WIDTH,
+           "--puppeteerConfigFile", str(puppeteer_config(out_dir))]
+    if dark:
+        cmd += ["--configFile", str(dark_config(out_dir))]
+    proc = subprocess.run(cmd, capture_output=True, text=True, env=env, cwd=str(ROOT))
     if proc.returncode != 0 or not svg.exists():
         raise Unavailable(
             f"mermaid-cli не нарисовал схему: {(proc.stderr or proc.stdout).strip()[:400]}")
@@ -105,6 +161,12 @@ def render(source: str, out_dir: Path = OUT) -> Path:
     svg.write_text(text, encoding="utf-8")
     src.unlink(missing_ok=True)
     return svg
+
+
+def render(source: str, out_dir: Path = OUT) -> tuple[Path, Path]:
+    """Схема → (светлый SVG, тёмный SVG): сайт показывает вариант активной
+    темы и переключает их стилем, без перезагрузки и без скриптов."""
+    return render_one(source, out_dir, dark=False), render_one(source, out_dir, dark=True)
 
 
 def diagrams_in(path: Path) -> list[str]:
@@ -127,12 +189,12 @@ def main() -> int:
     for path in mdtext.topics():
         for i, source in enumerate(diagrams_in(path), 1):
             total += 1
-            name = f"{digest(source)}.svg"
+            names = [f"{digest(source)}.svg", f"{digest(source, dark=True)}.svg"]
             if args.list:
                 print(f"{path.relative_to(ROOT) if path.is_absolute() else path}"
-                      f" схема {i} → {name}")
+                      f" схема {i} → {names[0]} + {names[1]}")
                 continue
-            existed = (out_dir / name).exists()
+            existed = all((out_dir / name).exists() for name in names)
             try:
                 render(source, out_dir)
             except Unavailable as exc:

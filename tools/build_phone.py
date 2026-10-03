@@ -114,9 +114,23 @@ th, td { border: 1px solid var(--line); padding: 0.35em 0.6em;
 th { background: var(--code-bg); }
 img.diagram { display: block; width: 100%; height: auto; margin: 1.2em 0;
               background: #fff; border-radius: 4px; }
+/* На сайте схема лежит двумя вариантами; сборка отметила их классами
+   `diagram--light`/`diagram--dark` — показ варианта по теме телефона. */
+img.diagram--dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  img.diagram { background: #161b22; }
+  img.diagram--light { display: none; }
+  img.diagram--dark { display: block; }
+}
+/* Аббревиатура в заголовке — без пунктирной черты, она читалась как
+   подчёркивание заголовка; раскрытие по наведению остаётся. */
+h1 abbr, h2 abbr, h3 abbr { text-decoration: none; }
 details { margin: 1em 0; border: 1px solid var(--line); border-radius: 4px;
           padding: 0.5em 0.8em; }
 summary { cursor: pointer; font-weight: 600; }
+.admonition { margin: 1.1em 0; padding: 0.4em 0.9em; border: 1px solid var(--line);
+              border-left: 3px solid var(--accent); border-radius: 4px; }
+.admonition-title { font-weight: 600; margin: 0.3em 0; }
 .book-head { border-bottom: 2px solid var(--accent); padding-bottom: 0.8em; }
 .book-head p { color: var(--dim); font-size: 0.92rem; }
 nav.toc ol { list-style: none; padding-left: 0; counter-reset: t; }
@@ -146,13 +160,20 @@ def article(page_html: str) -> str:
 
 
 def diagram(match: re.Match, seen: dict) -> str:
-    """Схему — картинкой в `data:`-адресе, чтобы файл остался один."""
+    """Схему — картинкой в `data:`-адресе, чтобы файл остался один.
+
+    На сайте схема стоит в двух вариантах (светлый и тёмный) с меткой
+    `#only-light`/`#only-dark` в адресе. В `data:`-адресе метка не живёт,
+    поэтому она переезжает в класс `diagram--light`/`diagram--dark`, а показ
+    варианта по теме телефона даёт CSS (правила выше).
+    """
     src = match.group("src")
-    name = posixpath.basename(src)
+    name, _, frag = posixpath.basename(src).partition("#")
     svg = (SITE / "assets" / "diagrams" / name).read_bytes()
     seen[name] = len(svg)
     data = base64.b64encode(svg).decode("ascii")
-    return ('<img class="diagram" alt="Схема (описание — в абзаце под ней)" '
+    cls = "diagram" + (f" diagram--{frag.split('-')[1]}" if frag.startswith("only-") else "")
+    return (f'<img class="{cls}" alt="Схема (описание — в абзаце под ней)" '
             f'src="data:image/svg+xml;base64,{data}">')
 
 
@@ -212,9 +233,9 @@ def build(out: Path) -> None:
                  re.findall(rf'<h2 id="{p.id}--([^"]+)">(.*?)</h2>', body, flags=re.S)]
         inner = "".join(f'<li><a href="#{p.id}--{a}">{t}</a></li>' for t, a in heads)
         title = html.escape(str(p.front.get("title", p.id)))
-        meta = (f'<span class="meta"> · {p.front.get("depth")}'
-                f' · {p.front.get("time_min")} мин</span>')
-        toc.append(f'<li><details><summary><a href="#{p.id}">{title}</a>{meta}'
+        # Уровень и минуты в оглавлении не печатаются (решение оператора
+        # 2026-10-02: со страниц тем шапка «Уровень · время» снята).
+        toc.append(f'<li><details><summary><a href="#{p.id}">{title}</a>'
                    f'</summary><ol>{inner}</ol></details></li>')
 
     today = date.today().isoformat()

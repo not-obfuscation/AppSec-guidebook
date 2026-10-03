@@ -17,8 +17,8 @@ site_description: >
   на котором дефект видно в чужом коде.
 site_author: автор гайдбука
 copyright: >
-  Тексты — автора гайдбука. Цитаты из спецификаций и материалов OWASP — их
-  правообладателей; сноски на первоисточники хранятся в исходниках тем.
+  Тексты — CC BY-SA 4.0, код примеров — MIT. Подробности — на странице
+  «Атрибуции и лицензии».
 
 # Переписывается сборщиком; здесь стоит, чтобы конфиг был валиден сам по себе.
 docs_dir: build/site-src
@@ -51,30 +51,38 @@ theme:
     # восемь (шестой исключён из скоупа), и прятать их друг от друга не за чем.
     - navigation.sections
     - navigation.top
+    # Хлебные крошки над заголовком и футер «Назад / Вперёд» (А6, research/10
+    # § 2.2): «где я» видно и на узком экране. Блок «Дальше» на странице
+    # остаётся — он печатается, футер нет.
+    - navigation.path
+    - navigation.footer
     - toc.follow
     # Листинги копируются кнопкой: примеры в темах предназначены для запуска.
     - content.code.copy
     - content.tooltips
     - search.highlight
     - search.suggest
+  # Решение оператора 2026-10-02: тёмная тема по умолчанию, светлая —
+  # переключателем. Первая палитра без `media` — та, что включается при первом
+  # открытии; выбор читателя движок помнит сам. Цвета обеих задаёт
+  # `assets/extra.css` (собирает `tools/build_site.py`): `custom` значит, что
+  # готовые палитры движка не подмешиваются.
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: blue grey
-      accent: indigo
-      toggle:
-        icon: material/weather-night
-        name: Тёмная тема
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: blue grey
-      accent: indigo
+    - scheme: slate
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-sunny
         name: Светлая тема
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Тёмная тема
   font: false          # системные шрифты: сайт не ходит в сеть за Google Fonts
   icon:
-    logo: material/shield-search
+    logo: material/console
 
 plugins:
   # Поиск по русскому тексту: словарь lunr.ru лежит в самой теме, из сети
@@ -98,6 +106,9 @@ markdown_extensions:
   - def_list
   - footnotes
   - md_in_html
+  # Нумерованный список начинается с написанного номера: ответ «3.» под
+  # `<details>` и вопрос после листинга не превращаются в «1.».
+  - sane_lists
   - tables
   - toc:
       permalink: true
@@ -109,6 +120,8 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
+      # Класс `language-*` у листинга: по нему CSS подписывает шапку окна.
+      pygments_lang_class: true
       line_spans: __span
   - pymdownx.inlinehilite
   - pymdownx.superfences
@@ -118,12 +131,5 @@ extra_css:
   - assets/extra.css
 
 extra:
-  # Плашка статуса в оглавлении. Ключи — словарь `statuses` из `taxonomy.yaml`.
-  # Подписи — для читателя: приёмка по чеклисту свода к нему отношения не имеет
-  # (правка 2026-08-24 вместе с чисткой шапки).
-  status:
-    stub: Заглушка, в работе
-    draft: Черновик
-    published: Готовая тема
   # Аналитики нет и не будет: сайт открывается с диска и никуда не стучится.
   generator: false
